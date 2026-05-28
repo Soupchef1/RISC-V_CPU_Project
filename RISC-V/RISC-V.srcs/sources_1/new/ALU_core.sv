@@ -34,6 +34,7 @@ module ALU_core (
 
 logic [31:0] op_a;
 logic [31:0] op_b;
+logic [31:0] result;
 
 assign op_a = (MUX_en[1] == 0)? rs1_data : pc;
 assign op_b = (MUX_en[0] == 0)? rs2_data : imm;
@@ -42,23 +43,25 @@ always_comb begin
 
     case (ALU_op)
 
-        4'd0: ALU_out = op_a + op_b;
-        4'd1: ALU_out = op_a - op_b;
-        4'd2: ALU_out = op_a ^ op_b;
-        4'd3: ALU_out = op_a | op_b;
-        4'd4: ALU_out = op_a & op_b;
-        4'd5: ALU_out = op_a << op_b;
-        4'd6: ALU_out = op_a >> op_b;
-        4'd7: ALU_out = $signed(op_a) >>> op_b;
-        4'd8: ALU_out = ($signed(op_a) < $signed(op_b))? 32'd1 : 32'd0;
-        4'd9: ALU_out = (op_a < op_b)? 32'd1 : 32'd0;
-        4'd10: ALU_out = (op_1 == op_b)? 32'd1 : 32'd0;
-        4'd11: ALU_out = (op_1 != op_b)? 32'd1 : 32'd0;
-        4'd12: ALU_out = ($signed(op_a) >= $signed(op_b))? 32'd1 : 32'd0;
-        4'd13: ALU_out = (op_a >= op_b)? 32'd1 : 32'd0;
+        4'd0: result = op_a + op_b;
+        4'd1: result = op_a - op_b;
+        4'd2: result = op_a ^ op_b;
+        4'd3: result = op_a | op_b;
+        4'd4: result = op_a & op_b;
+        4'd5: result = op_a << op_b;
+        4'd6: result = op_a >> op_b;
+        4'd7: result = $signed(op_a) >>> op_b;
+        4'd8: result = ($signed(op_a) < $signed(op_b))? 32'd1 : 32'd0;
+        4'd9: result = (op_a < op_b)? 32'd1 : 32'd0;
+        4'd10: result = (op_1 == op_b)? 32'd1 : 32'd0;
+        4'd11: result = (op_1 != op_b)? 32'd1 : 32'd0;
+        4'd12: result = ($signed(op_a) >= $signed(op_b))? 32'd1 : 32'd0;
+        4'd13: result = (op_a >= op_b)? 32'd1 : 32'd0;
 
     endcase
 
 end
+
+    assign ALU_out = (MUX_en[4] == 0)? result : (pc + 32'd4);
 
 endmodule
