@@ -1,0 +1,813 @@
+
+*** Running vivado
+    with args -log example_top.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source example_top.tcl
+
+!! WARNING !!
+"PYTHONPATH" variable is set greater than default max string limit of "519" characters.
+Please ignore this, if you have already made changes to your system registry to accept more than
+default limit of 519 characters.
+!! WARNING !!
+
+
+****** Vivado v2025.2 (64-bit)
+  **** SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+  **** IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+  **** SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+  **** Start of session at: Wed May 27 18:21:27 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source example_top.tcl -notrace
+create_project: Time (s): cpu = 00:00:19 ; elapsed = 00:00:13 . Memory (MB): peak = 523.156 ; gain = 218.668
+Command: synth_design -top example_top -part xc7s25csga324-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7s25'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7s25'
+INFO: [Device 21-403] Loading part xc7s25csga324-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 36492
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 1261.746 ; gain = 540.504
+---------------------------------------------------------------------------------
+INFO: [Synth 8-11241] undeclared symbol 'rd_strobe', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:141]
+WARNING: [Synth 8-11065] parameter 'IDLE' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:340]
+WARNING: [Synth 8-11065] parameter 'INIT_MEM_WRITE' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:344]
+WARNING: [Synth 8-11065] parameter 'INIT_MEM_READ' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:346]
+WARNING: [Synth 8-11065] parameter 'TEST_MEM' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:348]
+WARNING: [Synth 8-11065] parameter 'SINGLE_STEP_WRITE' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:350]
+WARNING: [Synth 8-11065] parameter 'SINGLE_STEP_READ' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:352]
+WARNING: [Synth 8-11065] parameter 'CMP_ERROR' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:354]
+WARNING: [Synth 8-11065] parameter 'SINGLE_CMD_WAIT' becomes localparam in 'mig_7series_v4_2_init_mem_pattern_ctr' with formal parameter declaration list [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:356]
+INFO: [Synth 8-11241] undeclared symbol 'cmd_fifo_wr', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:454]
+INFO: [Synth 8-11241] undeclared symbol 'cmd_fifo_full', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:482]
+INFO: [Synth 8-11241] undeclared symbol 'fifo_error', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:492]
+INFO: [Synth 8-11241] undeclared symbol 'wr_rdy', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:613]
+INFO: [Synth 8-11241] undeclared symbol 'rd_valid', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:623]
+INFO: [Synth 8-11241] undeclared symbol 'data_port_fifo_rdy', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_rd_data_gen.v:146]
+INFO: [Synth 8-11241] undeclared symbol 'cmd_start', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:302]
+INFO: [Synth 8-11241] undeclared symbol 'po_win_tg_rst', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:492]
+INFO: [Synth 8-11241] undeclared symbol 'manual_clear_error', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:493]
+INFO: [Synth 8-11241] undeclared symbol 'wdt_en_w', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:529]
+INFO: [Synth 8-11241] undeclared symbol 'cmd_wdt_err_w', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:542]
+INFO: [Synth 8-11241] undeclared symbol 'wr_wdt_err_w', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:543]
+INFO: [Synth 8-11241] undeclared symbol 'rd_wdt_err_w', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:544]
+INFO: [Synth 8-11241] undeclared symbol 'dbg_clear_error', assumed default net type 'wire' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:562]
+INFO: [Synth 8-6157] synthesizing module 'example_top' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:74]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_0' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/mig_7series_0_ex.runs/synth_1/.Xil/Vivado-37740-DESKTOP-RCMS6DA/realtime/mig_7series_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_0' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/mig_7series_0_ex.runs/synth_1/.Xil/Vivado-37740-DESKTOP-RCMS6DA/realtime/mig_7series_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_traffic_gen_top' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_traffic_gen_top.v:77]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter SIMULATION bound to: FALSE - type: string 
+	Parameter FAMILY bound to: VIRTEX7 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter TST_MEM_INSTR_MODE bound to: R_W_INSTR_MODE - type: string 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter MEM_COL_WIDTH bound to: 10 - type: integer 
+	Parameter DATA_WIDTH bound to: 128 - type: integer 
+	Parameter ADDR_WIDTH bound to: 27 - type: integer 
+	Parameter MASK_SIZE bound to: 2 - type: integer 
+	Parameter DATA_MODE bound to: 4'b0010 
+	Parameter BEGIN_ADDRESS bound to: 0 - type: integer 
+	Parameter END_ADDRESS bound to: 16777215 - type: integer 
+	Parameter PRBS_EADDR_MASK_POS bound to: -16777216 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+	Parameter CMD_WDT bound to: 1023 - type: integer 
+	Parameter WR_WDT bound to: 8191 - type: integer 
+	Parameter RD_WDT bound to: 1023 - type: integer 
+	Parameter EYE_TEST bound to: FALSE - type: string 
+	Parameter PORT_MODE bound to: BI_MODE - type: string 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter CMD_PATTERN bound to: CGEN_ALL - type: string 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_init_mem_pattern_ctr' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:86]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter TST_MEM_INSTR_MODE bound to: R_W_INSTR_MODE - type: string 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter BEGIN_ADDRESS bound to: 0 - type: integer 
+	Parameter END_ADDRESS bound to: 16777215 - type: integer 
+	Parameter ADDR_WIDTH bound to: 27 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter CMD_SEED_VALUE bound to: 1447389059 - type: integer 
+	Parameter DATA_SEED_VALUE bound to: 305419896 - type: integer 
+	Parameter DATA_MODE bound to: 4'b0010 
+	Parameter PORT_MODE bound to: BI_MODE - type: string 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_init_mem_pattern_ctr' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:86]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_memc_traffic_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:80]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter SIMULATION bound to: FALSE - type: string 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter PORT_MODE bound to: BI_MODE - type: string 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter CMD_PATTERN bound to: CGEN_ALL - type: string 
+	Parameter ADDR_WIDTH bound to: 27 - type: integer 
+	Parameter MEM_COL_WIDTH bound to: 10 - type: integer 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter PRBS_EADDR_MASK_POS bound to: -16777216 - type: integer 
+	Parameter PRBS_SADDR_MASK_POS bound to: 0 - type: integer 
+	Parameter PRBS_EADDR bound to: 16777215 - type: integer 
+	Parameter PRBS_SADDR bound to: 0 - type: integer 
+	Parameter EYE_TEST bound to: FALSE - type: string 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_read_data_path' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:71]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter ADDR_WIDTH bound to: 27 - type: integer 
+	Parameter CMP_DATA_PIPE_STAGES bound to: 0 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+	Parameter MEM_COL_WIDTH bound to: 10 - type: integer 
+	Parameter SIMULATION bound to: FALSE - type: string 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_read_posted_fifo' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_posted_fifo.v:68]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_afifo' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:68]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter DSIZE bound to: 42 - type: integer 
+	Parameter FIFO_DEPTH bound to: 16 - type: integer 
+	Parameter ASIZE bound to: 4 - type: integer 
+	Parameter SYNC bound to: 1 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_afifo' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:68]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_read_posted_fifo' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_posted_fifo.v:68]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_rd_data_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_rd_data_gen.v:68]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+	Parameter COLUMN_WIDTH bound to: 10 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_s7ven_data_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:84]
+	Parameter DMODE bound to: READ - type: string 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter COLUMN_WIDTH bound to: 10 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_data_prbs_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_data_prbs_gen.v:69]
+	Parameter EYE_TEST bound to: FALSE - type: string 
+	Parameter PRBS_WIDTH bound to: 32 - type: integer 
+	Parameter SEED_WIDTH bound to: 32 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_data_prbs_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_data_prbs_gen.v:69]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_tg_prbs_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_tg_prbs_gen.v:81]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter PRBS_WIDTH bound to: 8 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_tg_prbs_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_tg_prbs_gen.v:81]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_vio_init_pattern_bram' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_vio_init_pattern_bram.v:69]
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+INFO: [Synth 8-226] default block is never used [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_vio_init_pattern_bram.v:283]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_vio_init_pattern_bram' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_vio_init_pattern_bram.v:69]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_s7ven_data_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:84]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_rd_data_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_rd_data_gen.v:68]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_afifo__parameterized0' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:68]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter DSIZE bound to: 128 - type: integer 
+	Parameter FIFO_DEPTH bound to: 32 - type: integer 
+	Parameter ASIZE bound to: 4 - type: integer 
+	Parameter SYNC bound to: 1 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_afifo__parameterized0' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:68]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_read_data_path' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:71]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_write_data_path' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_write_data_path.v:69]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter ADDR_WIDTH bound to: 27 - type: integer 
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+	Parameter MEM_COL_WIDTH bound to: 10 - type: integer 
+	Parameter EYE_TEST bound to: FALSE - type: string 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_wr_data_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_wr_data_gen.v:69]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+	Parameter COLUMN_WIDTH bound to: 10 - type: integer 
+	Parameter EYE_TEST bound to: FALSE - type: string 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_s7ven_data_gen__parameterized0' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:84]
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter EYE_TEST bound to: FALSE - type: string 
+	Parameter ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter START_ADDR bound to: 0 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter COLUMN_WIDTH bound to: 10 - type: integer 
+	Parameter SEL_VICTIM_LINE bound to: 0 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_s7ven_data_gen__parameterized0' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:84]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_wr_data_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_wr_data_gen.v:69]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_write_data_path' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_write_data_path.v:69]
+WARNING: [Synth 8-11581] system task call 'stop' not supported [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:378]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_cmd_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:98]
+WARNING: [Synth 8-5974] attribute "use_dsp48" has been deprecated, please use "use_dsp" instead 
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter PORT_MODE bound to: BI_MODE - type: string 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter DATA_PATTERN bound to: DGEN_ALL - type: string 
+	Parameter CMD_PATTERN bound to: CGEN_ALL - type: string 
+	Parameter ADDR_WIDTH bound to: 27 - type: integer 
+	Parameter BANK_WIDTH bound to: 3 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter MEM_COL_WIDTH bound to: 10 - type: integer 
+	Parameter PRBS_EADDR_MASK_POS bound to: -16777216 - type: integer 
+	Parameter PRBS_SADDR_MASK_POS bound to: 0 - type: integer 
+	Parameter PRBS_EADDR bound to: 16777215 - type: integer 
+	Parameter PRBS_SADDR bound to: 0 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_cmd_prbs_gen' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter PRBS_WIDTH bound to: 32 - type: integer 
+	Parameter SEED_WIDTH bound to: 32 - type: integer 
+	Parameter PRBS_EADDR_MASK_POS bound to: -16777216 - type: integer 
+	Parameter PRBS_SADDR_MASK_POS bound to: 0 - type: integer 
+	Parameter PRBS_EADDR bound to: 16777215 - type: integer 
+	Parameter PRBS_SADDR bound to: 0 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_cmd_prbs_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_cmd_prbs_gen__parameterized0' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter PRBS_CMD bound to: INSTR - type: string 
+	Parameter PRBS_WIDTH bound to: 20 - type: integer 
+	Parameter SEED_WIDTH bound to: 15 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_cmd_prbs_gen__parameterized0' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_cmd_prbs_gen__parameterized1' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+	Parameter DWIDTH bound to: 128 - type: integer 
+	Parameter PRBS_CMD bound to: INSTR - type: string 
+	Parameter PRBS_WIDTH bound to: 20 - type: integer 
+	Parameter SEED_WIDTH bound to: 15 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_cmd_prbs_gen__parameterized1' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_cmd_prbs_gen__parameterized2' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter PRBS_CMD bound to: BLEN - type: string 
+	Parameter PRBS_WIDTH bound to: 20 - type: integer 
+	Parameter SEED_WIDTH bound to: 15 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_cmd_prbs_gen__parameterized2' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_prbs_gen.v:70]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_cmd_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:98]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_memc_flow_vcontrol' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:69]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter nCK_PER_CLK bound to: 4 - type: integer 
+	Parameter NUM_DQ_PINS bound to: 16 - type: integer 
+	Parameter BL_WIDTH bound to: 10 - type: integer 
+	Parameter MEM_BURST_LEN bound to: 8 - type: integer 
+	Parameter FAMILY bound to: VIRTEX6 - type: string 
+	Parameter MEM_TYPE bound to: DDR3 - type: string 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_memc_flow_vcontrol' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:69]
+INFO: [Synth 8-6157] synthesizing module 'mig_7series_v4_2_tg_status' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_tg_status.v:69]
+	Parameter TCQ bound to: 100 - type: integer 
+	Parameter DWIDTH bound to: 128 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_tg_status' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_tg_status.v:69]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_memc_traffic_gen' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:80]
+INFO: [Synth 8-6155] done synthesizing module 'mig_7series_v4_2_traffic_gen_top' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_traffic_gen_top.v:77]
+WARNING: [Synth 8-689] width (28) of port connection 'memc_cmd_addr' does not match port width (32) of module 'mig_7series_v4_2_traffic_gen_top' [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:499]
+INFO: [Synth 8-6155] done synthesizing module 'example_top' (0#1) [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:74]
+WARNING: [Synth 8-6014] Unused sequential element mode_load_d1_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:482]
+WARNING: [Synth 8-6014] Unused sequential element mode_load_d2_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:484]
+WARNING: [Synth 8-6014] Unused sequential element mode_load_d3_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:486]
+WARNING: [Synth 8-6014] Unused sequential element mode_load_d4_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:488]
+WARNING: [Synth 8-6014] Unused sequential element mode_load_d5_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:490]
+WARNING: [Synth 8-6014] Unused sequential element mode_load_pulse_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:500]
+WARNING: [Synth 8-6014] Unused sequential element Cout_b_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:843]
+WARNING: [Synth 8-6014] Unused sequential element COuta_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:997]
+WARNING: [Synth 8-6014] Unused sequential element pre_instr_switch_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:1045]
+WARNING: [Synth 8-6014] Unused sequential element switch_instr_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_init_mem_pattern_ctr.v:1099]
+WARNING: [Synth 8-6014] Unused sequential element COuta_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:157]
+WARNING: [Synth 8-6014] Unused sequential element COutc_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:196]
+WARNING: [Synth 8-6014] Unused sequential element dfifo_has_enough_room_d1_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_posted_fifo.v:162]
+WARNING: [Synth 8-6014] Unused sequential element ADDRESS_PATTERN.COut_a_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:805]
+WARNING: [Synth 8-6014] Unused sequential element PSUEDO_PRBS_PATTERN.m_addr_r_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:916]
+WARNING: [Synth 8-6014] Unused sequential element data_mode_rr_c_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:307]
+WARNING: [Synth 8-6014] Unused sequential element COuta_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:157]
+WARNING: [Synth 8-6014] Unused sequential element COutc_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_afifo.v:196]
+WARNING: [Synth 8-6014] Unused sequential element gen_error_v7.dq_bit_error_r1_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:694]
+WARNING: [Synth 8-6014] Unused sequential element gen_error_v7.dq_lane_error_r2_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:696]
+WARNING: [Synth 8-6014] Unused sequential element gen_error_v7.COuta_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:736]
+WARNING: [Synth 8-6014] Unused sequential element wait_bl_end_r1_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:244]
+WARNING: [Synth 8-6014] Unused sequential element force_wrcmd_gen_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:253]
+WARNING: [Synth 8-6014] Unused sequential element force_wrcmd_timeout_cnts_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:264]
+WARNING: [Synth 8-6014] Unused sequential element wait_bl_end_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:274]
+WARNING: [Synth 8-6014] Unused sequential element v6_data_cmp_valid_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:420]
+WARNING: [Synth 8-6014] Unused sequential element cmp_data_en_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_read_data_path.v:424]
+WARNING: [Synth 8-6014] Unused sequential element ADDRESS_PATTERN.COut_a_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:805]
+WARNING: [Synth 8-6014] Unused sequential element PSUEDO_PRBS_PATTERN.m_addr_r_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:916]
+WARNING: [Synth 8-6014] Unused sequential element data_mode_rr_c_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:307]
+WARNING: [Synth 8-6014] Unused sequential element user_burst_cnt_larger_bram_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_s7ven_data_gen.v:468]
+WARNING: [Synth 8-6014] Unused sequential element data_wr_end_r_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_wr_data_gen.v:183]
+WARNING: [Synth 8-6014] Unused sequential element cmd_startF_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_wr_data_gen.v:204]
+WARNING: [Synth 8-6014] Unused sequential element cmd_rdyF_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_wr_data_gen.v:353]
+WARNING: [Synth 8-6014] Unused sequential element seq_addr_gen.COut_c_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:1238]
+WARNING: [Synth 8-6014] Unused sequential element bl_out_clk_en_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:485]
+WARNING: [Synth 8-6014] Unused sequential element bl_out_vld_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:487]
+WARNING: [Synth 8-6014] Unused sequential element force_wrcmd_gen_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:669]
+WARNING: [Synth 8-6014] Unused sequential element instr_vld_dly1_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:815]
+WARNING: [Synth 8-6014] Unused sequential element rd_data_counts_asked_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:827]
+WARNING: [Synth 8-6014] Unused sequential element COutA_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:833]
+WARNING: [Synth 8-6014] Unused sequential element rd_data_received_counts_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:851]
+WARNING: [Synth 8-6014] Unused sequential element buf_avail_r_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:875]
+WARNING: [Synth 8-6014] Unused sequential element n_gen_write_only_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:1257]
+WARNING: [Synth 8-6014] Unused sequential element refresh_timer_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:1383]
+WARNING: [Synth 8-6014] Unused sequential element refresh_cmd_en_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:1396]
+WARNING: [Synth 8-6014] Unused sequential element bl_out_reg_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:1633]
+WARNING: [Synth 8-6014] Unused sequential element cmd_vld_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_cmd_gen.v:521]
+WARNING: [Synth 8-6014] Unused sequential element cmd_en_r2_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:207]
+WARNING: [Synth 8-6014] Unused sequential element COuta_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:266]
+WARNING: [Synth 8-6014] Unused sequential element cmd_rdy_o_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:189]
+WARNING: [Synth 8-6014] Unused sequential element wdp_validB_o_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:279]
+WARNING: [Synth 8-6014] Unused sequential element wdp_validC_o_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:280]
+WARNING: [Synth 8-6014] Unused sequential element COutc_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:428]
+WARNING: [Synth 8-6014] Unused sequential element COutd_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:437]
+WARNING: [Synth 8-6014] Unused sequential element data_mode_r_b_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:394]
+WARNING: [Synth 8-6014] Unused sequential element data_mode_r_c_reg was removed.  [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_traffic_gen.v:395]
+WARNING: [Synth 8-3848] Net manual_clear_error in module/entity example_top does not have driver. [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.v:493]
+WARNING: [Synth 8-7129] Port mcb_wr_full_i in module mig_7series_v4_2_memc_flow_vcontrol is either unconnected or has no load
+WARNING: [Synth 8-7129] Port mcb_wr_en_i in module mig_7series_v4_2_memc_flow_vcontrol is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[9] in module mig_7series_v4_2_cmd_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[8] in module mig_7series_v4_2_cmd_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[7] in module mig_7series_v4_2_cmd_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[5] in module mig_7series_v4_2_cmd_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port reading_rd_data_i in module mig_7series_v4_2_cmd_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[31] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[30] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[29] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[28] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[27] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[26] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[25] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[24] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[23] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[22] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[21] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[20] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[19] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[18] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[17] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[16] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[15] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[14] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[13] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[12] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[11] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[10] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[8] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[7] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[6] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[5] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[4] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[3] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[2] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[1] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port cmd_addr[0] in module mig_7series_v4_2_vio_init_pattern_bram is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[31] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[30] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[29] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[28] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[27] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[26] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[25] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[24] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[23] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[22] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[21] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[20] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[19] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[18] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[17] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[16] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[15] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[14] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[13] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[12] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[11] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[10] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[9] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[8] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[7] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[6] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[5] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[4] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[3] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[2] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[1] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[0] in module mig_7series_v4_2_s7ven_data_gen__parameterized0 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[4] in module mig_7series_v4_2_wr_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[3] in module mig_7series_v4_2_wr_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[2] in module mig_7series_v4_2_wr_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port memc_cmd_full_i in module mig_7series_v4_2_wr_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[4] in module mig_7series_v4_2_write_data_path is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[3] in module mig_7series_v4_2_write_data_path is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[2] in module mig_7series_v4_2_write_data_path is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[1] in module mig_7series_v4_2_write_data_path is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rst_i[0] in module mig_7series_v4_2_write_data_path is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[31] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[30] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[29] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[28] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[27] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[26] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[25] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[24] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[23] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[22] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[21] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[20] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[19] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[18] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[17] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[16] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[15] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[14] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[13] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[12] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+WARNING: [Synth 8-7129] Port prbs_fseed_i[11] in module mig_7series_v4_2_s7ven_data_gen is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:13 ; elapsed = 00:00:13 . Memory (MB): peak = 1415.137 ; gain = 693.895
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 1415.137 ; gain = 693.895
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 1415.137 ; gain = 693.895
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.200 . Memory (MB): peak = 1415.137 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/mig_7series_0_ex.gen/sources_1/ip/mig_7series_0/mig_7series_0/mig_7series_0_in_context.xdc] for cell 'u_mig_7series_0'
+Finished Parsing XDC File [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/mig_7series_0_ex.gen/sources_1/ip/mig_7series_0/mig_7series_0/mig_7series_0_in_context.xdc] for cell 'u_mig_7series_0'
+Parsing XDC File [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.xdc]
+Finished Parsing XDC File [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/example_top.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/example_top_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/example_top_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 1490.926 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.085 . Memory (MB): peak = 1490.926 ; gain = 0.000
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 1490.926 ; gain = 769.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7s25csga324-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 1490.926 ; gain = 769.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 1490.926 ; gain = 769.684
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'current_state_reg' in module 'mig_7series_v4_2_init_mem_pattern_ctr'
+WARNING: [Synth 8-3936] Found unconnected internal register 'cmd_reg_reg' and it is trimmed from '3' to '1' bits. [c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/imports/mig_7series_v4_2_memc_flow_vcontrol.v:291]
+INFO: [Synth 8-802] inferred FSM for state register 'current_state_reg' in module 'mig_7series_v4_2_memc_flow_vcontrol'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                    IDLE |                         00000001 |                         00000001
+       SINGLE_STEP_WRITE |                         00010000 |                         00010000
+          INIT_MEM_WRITE |                         00000010 |                         00000010
+                TEST_MEM |                         00001000 |                         00001000
+         SINGLE_CMD_WAIT |                         10000000 |                         10000000
+        SINGLE_STEP_READ |                         00100000 |                         00100000
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'current_state_reg' using encoding 'one-hot' in module 'mig_7series_v4_2_init_mem_pattern_ctr'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                   READY |                             0001 |                             0001
+                    READ |                             0010 |                             0010
+                   WRITE |                             0100 |                             0100
+                CMD_WAIT |                             1000 |                             1000
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'current_state_reg' using encoding 'one-hot' in module 'mig_7series_v4_2_memc_flow_vcontrol'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:30 ; elapsed = 00:00:32 . Memory (MB): peak = 1490.926 ; gain = 769.684
+---------------------------------------------------------------------------------
+INFO: [Synth 8-223] decloning instance 'u_traffic_gen_top/u_memc_traffic_gen/u_c_gen/gen_prbs_instr.instr_prbs_gen_b' (mig_7series_v4_2_cmd_prbs_gen__parameterized0) to 'u_traffic_gen_top/u_memc_traffic_gen/u_c_gen/gen_prbs_bl.bl_prbs_gen'
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   36 Bit       Adders := 1     
+	   3 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 4     
+	   2 Input   24 Bit       Adders := 1     
+	   2 Input   11 Bit       Adders := 3     
+	   2 Input   10 Bit       Adders := 4     
+	   2 Input    9 Bit       Adders := 4     
+	   2 Input    8 Bit       Adders := 32    
+	   2 Input    7 Bit       Adders := 2     
+	   3 Input    7 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 1     
+	   2 Input    5 Bit       Adders := 38    
+	   3 Input    5 Bit       Adders := 4     
+	   2 Input    4 Bit       Adders := 5     
+	   2 Input    2 Bit       Adders := 1     
++---XORs : 
+	   2 Input      1 Bit         XORs := 139   
+	   3 Input      1 Bit         XORs := 128   
+	   4 Input      1 Bit         XORs := 96    
++---Registers : 
+	              320 Bit    Registers := 1     
+	              128 Bit    Registers := 9     
+	               36 Bit    Registers := 1     
+	               32 Bit    Registers := 19    
+	               26 Bit    Registers := 1     
+	               20 Bit    Registers := 2     
+	               16 Bit    Registers := 27    
+	               13 Bit    Registers := 2     
+	               11 Bit    Registers := 4     
+	               10 Bit    Registers := 7     
+	                9 Bit    Registers := 4     
+	                8 Bit    Registers := 64    
+	                7 Bit    Registers := 3     
+	                6 Bit    Registers := 1     
+	                5 Bit    Registers := 36    
+	                4 Bit    Registers := 19    
+	                3 Bit    Registers := 9     
+	                2 Bit    Registers := 5     
+	                1 Bit    Registers := 284   
++---RAMs : 
+	               2K Bit	(16 X 128 bit)          RAMs := 1     
+	              672 Bit	(16 X 42 bit)          RAMs := 1     
+	              128 Bit	(16 X 8 bit)          RAMs := 8     
++---Muxes : 
+	   4 Input  128 Bit        Muxes := 2     
+	   2 Input  127 Bit        Muxes := 2     
+	   2 Input   46 Bit        Muxes := 1     
+	   2 Input   36 Bit        Muxes := 1     
+	   2 Input   32 Bit        Muxes := 22    
+	   2 Input   20 Bit        Muxes := 2     
+	   3 Input   16 Bit        Muxes := 2     
+	   2 Input   16 Bit        Muxes := 2     
+	   2 Input   13 Bit        Muxes := 3     
+	   2 Input   11 Bit        Muxes := 8     
+	   2 Input   10 Bit        Muxes := 15    
+	   6 Input   10 Bit        Muxes := 1     
+	   4 Input   10 Bit        Muxes := 1     
+	   3 Input   10 Bit        Muxes := 1     
+	  18 Input    8 Bit        Muxes := 1     
+	   2 Input    8 Bit        Muxes := 64    
+	   2 Input    4 Bit        Muxes := 33    
+	   6 Input    4 Bit        Muxes := 3     
+	   4 Input    4 Bit        Muxes := 12    
+	   3 Input    4 Bit        Muxes := 4     
+	  17 Input    4 Bit        Muxes := 1     
+	   2 Input    3 Bit        Muxes := 5     
+	   6 Input    3 Bit        Muxes := 2     
+	   4 Input    3 Bit        Muxes := 2     
+	   2 Input    2 Bit        Muxes := 5     
+	   6 Input    2 Bit        Muxes := 1     
+	   2 Input    1 Bit        Muxes := 149   
+	   6 Input    1 Bit        Muxes := 1     
+	   4 Input    1 Bit        Muxes := 3     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 80 (col length:40)
+BRAMs: 90 (col length: RAMB18 40 RAMB36 20)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-6014] Unused sequential element RD_PATH.read_data_path/rd_mdata_fifo/mem_reg was removed. 
+WARNING: [Synth 8-3332] Sequential element (u_traffic_gen_top/u_init_mem_pattern_ctr/FSM_onehot_current_state_reg[7]) is unused and will be removed from module example_top.
+WARNING: [Synth 8-3332] Sequential element (u_traffic_gen_top/u_init_mem_pattern_ctr/FSM_onehot_current_state_reg[6]) is unused and will be removed from module example_top.
+WARNING: [Synth 8-3332] Sequential element (u_traffic_gen_top/u_init_mem_pattern_ctr/FSM_onehot_current_state_reg[5]) is unused and will be removed from module example_top.
+WARNING: [Synth 8-3332] Sequential element (u_traffic_gen_top/u_init_mem_pattern_ctr/FSM_onehot_current_state_reg[4]) is unused and will be removed from module example_top.
+WARNING: [Synth 8-3332] Sequential element (u_traffic_gen_top/u_init_mem_pattern_ctr/FSM_onehot_current_state_reg[2]) is unused and will be removed from module example_top.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:40 ; elapsed = 00:00:42 . Memory (MB): peak = 1490.926 ; gain = 769.684
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------------------------------+--------------------------------------------------------+-----------+----------------------+-------------+
+|Module Name                            | RTL Object                                             | Inference | Size (Depth x Width) | Primitives  | 
++---------------------------------------+--------------------------------------------------------+-----------+----------------------+-------------+
+|\u_traffic_gen_top/u_memc_traffic_gen  | RD_PATH.read_data_path/read_postedfifo/rd_fifo/mem_reg | Implied   | 16 x 42              | RAM32M x 7  | 
++---------------------------------------+--------------------------------------------------------+-----------+----------------------+-------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:48 ; elapsed = 00:00:50 . Memory (MB): peak = 1607.309 ; gain = 886.066
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:48 ; elapsed = 00:00:50 . Memory (MB): peak = 1618.980 ; gain = 897.738
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Distributed RAM: Final Mapping Report
++---------------------------------------+--------------------------------------------------------+-----------+----------------------+-------------+
+|Module Name                            | RTL Object                                             | Inference | Size (Depth x Width) | Primitives  | 
++---------------------------------------+--------------------------------------------------------+-----------+----------------------+-------------+
+|\u_traffic_gen_top/u_memc_traffic_gen  | RD_PATH.read_data_path/read_postedfifo/rd_fifo/mem_reg | Implied   | 16 x 42              | RAM32M x 7  | 
++---------------------------------------+--------------------------------------------------------+-----------+----------------------+-------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:49 ; elapsed = 00:00:50 . Memory (MB): peak = 1638.738 ; gain = 917.496
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++------+--------------+----------+
+|      |BlackBox name |Instances |
++------+--------------+----------+
+|1     |mig_7series_0 |         1|
++------+--------------+----------+
+
+Report Cell Usage: 
++------+------------+------+
+|      |Cell        |Count |
++------+------------+------+
+|1     |mig_7series |     1|
+|2     |CARRY4      |    72|
+|3     |LUT1        |    20|
+|4     |LUT2        |   173|
+|5     |LUT3        |    70|
+|6     |LUT4        |    50|
+|7     |LUT5        |    91|
+|8     |LUT6        |   155|
+|9     |RAM32M      |     5|
+|10    |FDRE        |   418|
+|11    |FDSE        |    17|
+|12    |IBUF        |     2|
+|13    |OBUF        |     2|
++------+------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:55 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 111 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:38 ; elapsed = 00:00:52 . Memory (MB): peak = 1866.660 ; gain = 1069.629
+Synthesis Optimization Complete : Time (s): cpu = 00:00:56 ; elapsed = 00:00:57 . Memory (MB): peak = 1866.660 ; gain = 1145.418
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.036 . Memory (MB): peak = 1875.820 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 77 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1879.531 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 5 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 5 instances
+
+Synth Design complete | Checksum: bca4ec4a
+INFO: [Common 17-83] Releasing license: Synthesis
+85 Infos, 176 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:01 ; elapsed = 00:01:06 . Memory (MB): peak = 1879.531 ; gain = 1317.828
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.005 . Memory (MB): peak = 1879.531 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'c:/Users/zhben/RISC-V_CPU_Project/mig_7series_0_ex/mig_7series_0_ex.runs/synth_1/example_top.dcp' has been generated.
+INFO: [Vivado 12-24828] Executing command : report_utilization -file example_top_utilization_synth.rpt -pb example_top_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Wed May 27 18:22:54 2026...
