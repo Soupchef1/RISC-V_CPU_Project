@@ -30,7 +30,8 @@ module ALU_core (
     input logic [3:0] ALU_op,
     output logic [31:0] ALU_out,
     output logic [31:0] target,
-    output logic [31:0] pc_next
+    output logic [31:0] pc_next,
+    output logic pc_switch
 
 );
 
@@ -69,9 +70,10 @@ module ALU_core (
         endcase
         
     end
-
+    
     assign ALU_out = (MUX_en[4] == 1'b0)? result : (pc + 32'd4);
     assign pc_next = ((MUX_en[3] == 1'b1) & (result[0] == 1'b1))? b_result : (pc + 32'd4);
     assign target = b_result;
+    assign pc_switch = ((MUX_en[3] == 1'b1) & (result[0] == 1'b1))? 1'b1 : 1'b0;
 
 endmodule
