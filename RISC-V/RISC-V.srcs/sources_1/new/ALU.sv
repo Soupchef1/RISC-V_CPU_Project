@@ -5,7 +5,7 @@
 // 
 // Create Date: 05/27/2026 10:21:09 PM
 // Design Name: 
-// Module Name: ALU_core
+// Module Name: ALU
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
