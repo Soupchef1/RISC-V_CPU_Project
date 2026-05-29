@@ -49,7 +49,7 @@ module decoder(
                 rs2 = '0;
                 rd = instr[11:7];
                 func3 = instr[14:12];
-                func7 = '0;
+                func7 = instr[31:25];
                 opcode = instr[6:0];
                 imm = {{20{instr[31]}}, instr[31:20]};
             end
