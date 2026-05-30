@@ -74,7 +74,6 @@ module signal_generator(
                 func3_type = MEMORY;
                 mem_write = LOW;
                 mem_read = HIGH;
-                
                 write_back = HIGH;
             end
 
@@ -84,25 +83,24 @@ module signal_generator(
                 func3_type = MEMORY;
                 mem_write = HIGH;
                 mem_read = LOW;
-                write_back = HIGH;
+                write_back = LOW;
             end
 
             //B-Type
             5'b11000: begin
-                MUX_en = 5'b01001;
+                MUX_en = 5'b01000;
                 func3_type = COMPARE;
                 mem_write = LOW;
                 mem_read = LOW;
-                write_back = HIGH;
+                write_back = LOW;
             end
             
             //jal
             5'b11011: begin
                 MUX_en = 5'b11000;
+                func3_type = NONE;
                 mem_write = LOW;
                 mem_read = LOW;
-                mem_bytes = '0;
-                mem_zero_extend = LOW;
                 write_back = HIGH;
             end
 
@@ -136,9 +134,10 @@ module signal_generator(
 
             default: begin
                 MUX_en = '0;
-                ALU_op = '0;
-                mem_write = '0;
-                write_back = '0;
+                func3_type = NONE;
+                mem_write = LOW;
+                mem_read = LOW;
+                write_back = LOW;
             end
         endcase
 
@@ -192,9 +191,9 @@ module signal_generator(
             3'h0: ALU_comp = 4'd10;
             3'h1: ALU_comp = 4'd11;
             3'h4: ALU_comp = 4'd8;
-            3'd5: ALU_comp = 4'd12;
-            3'd6: ALU_comp = 4'd9;
-            3'd7: ALU_comp = 4'd13;
+            3'h5: ALU_comp = 4'd12;
+            3'h6: ALU_comp = 4'd9;
+            3'h7: ALU_comp = 4'd13;
         endcase
 
         casez(func3_type)
@@ -209,13 +208,13 @@ module signal_generator(
                 mem_zero_extend = LOW;
             end
             MEMORY: begin
-                ALU_op = 4'h1;
+                ALU_op = 4'd0;
                 mem_bytes = mem_bytes_temp;
                 mem_zero_extend = mem_zero_extend_temp;
             end
 
             NONE: begin
-                ALU_op = 4'h1;
+                ALU_op = 4'd0;
                 mem_bytes = '0;
                 mem_zero_extend = LOW;
             end
