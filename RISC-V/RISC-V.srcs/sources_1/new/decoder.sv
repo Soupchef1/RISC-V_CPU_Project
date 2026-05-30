@@ -26,7 +26,7 @@ module decoder(
     output logic [4:0] rs1, rs2, rd,
     output logic [2:0] func3,
     output logic [6:0] func7,
-    output logic [6:0] opcode,
+    output logic [4:0] opcode,
     output logic [31:0] imm
     );
 
@@ -39,7 +39,7 @@ module decoder(
                 rd = instr[11:7];
                 func3 = instr[14:12];
                 func7 = instr[31:25];
-                opcode = instr[6:0];
+                opcode = instr[6:2];
                 imm = '0;
             end
 
@@ -50,7 +50,7 @@ module decoder(
                 rd = instr[11:7];
                 func3 = instr[14:12];
                 func7 = instr[31:25];
-                opcode = instr[6:0];
+                opcode = instr[6:2];
                 imm = {{20{instr[31]}}, instr[31:20]};
             end
 
@@ -61,7 +61,7 @@ module decoder(
                 rd = '0;
                 func3 = instr[14:12];
                 func7 = '0;
-                opcode = instr[6:0];
+                opcode = instr[6:2];
                 imm = {{20{instr[31]}}, instr[31:25], instr[11:7]};
             end
 
@@ -72,7 +72,7 @@ module decoder(
                 rd = '0;
                 func3 = instr[14:12];
                 func7 = '0;
-                opcode = instr[6:0];
+                opcode = instr[6:2];
                 imm = {{19{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8], 1'b0};
             end
 
@@ -83,7 +83,7 @@ module decoder(
                 rd = instr[11:7];
                 func3 = '0;
                 func7 = '0;
-                opcode = instr[6:0];
+                opcode = instr[6:2];
                 imm = {instr[31:12], 12'b0};
             end
 
@@ -94,7 +94,7 @@ module decoder(
                 rd = instr[11:7];
                 func3 = '0;
                 func7 = '0;
-                opcode = instr[6:0];
+                opcode = instr[6:2];
                 imm = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0};
             end
 
