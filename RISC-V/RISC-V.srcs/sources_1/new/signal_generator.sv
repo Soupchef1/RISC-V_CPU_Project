@@ -194,6 +194,7 @@ module signal_generator(
             3'h5: ALU_comp = 4'd12;
             3'h6: ALU_comp = 4'd9;
             3'h7: ALU_comp = 4'd13;
+            default: ALU_comp = 4'd0;
         endcase
 
         casez(func3_type)
