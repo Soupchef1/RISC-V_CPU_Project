@@ -66,7 +66,7 @@ module EX_top (
 
         if (!nrst) begin
             //idk what goes here
-            pc_int <= 32'b0
+            pc_int <= 32'b0;
             rs1_data_int <= 32'b0;
             rs2_data_int <= 32'b0;
             imm_int <= 32'b0;
@@ -75,29 +75,36 @@ module EX_top (
         else begin
 
             case (pipe_cont)     //this could be all wrong
+                
+                default: begin 
+                    //do nothing --> full stall
+                    pc_int <= pc_int;
+                    rs1_data_int <= rs1_data_int;
+                    rs2_data_int <= rs2_data_int;
+                    imm_int <= imm_int;
 
-                default: //do nothing --> full stall
+                end
 
-                2'b00: //normal operations
+                2'b00: begin //normal operations
+                    pc_int <= pc;
+                    rs1_data_int <= rs1_data;
+                    rs2_data_int <= rs2_data;
+                    imm_int <= imm;
+                end
 
-                pc_int <= pc;
-                rs1_data_int <= rs1_data;
-                rs2_data_int <= rs2_data;
-                imm_int <= imm;
+                2'b11: begin //stall and flush
+                    pc_int <= 32'b0;
+                    rs1_data_int <= 32'b0;
+                    rs2_data_int <= 32'b0;
+                    imm_int <= 32'b0;
+                end
 
-                2'b11: //stall and flush,
-
-                pc_int <= 32'b0;
-                rs1_data_int <= 32'b0;
-                rs2_data_int <= 32'b0;
-                imm_int <= 32'b0;
-
-                2'b10: //normal flush
-
-                pc_int <= 32'b0;
-                rs1_data_int <= 32'b0;
-                rs2_data_int <= 32'b0;
-                imm_int <= 32'b0;
+                2'b10: begin //normal flush
+                    pc_int <= 32'b0;
+                    rs1_data_int <= 32'b0;
+                    rs2_data_int <= 32'b0;
+                    imm_int <= 32'b0;
+                end
 
             endcase
         end
@@ -110,33 +117,42 @@ module EX_top (
 
         case (FUmux) 
 
-            default:
-            rs1_ALU = rs1_data_int;
-            rs2_ALU = rs2_data_int;
-            4'b1:
-            rs1_ALU = rs1_data_int;
-            rs2_ALU = ALU_outex;
-            4'b2:
-            rs1_ALU = rs1_data_int;
-            rs2_ALU = ALU_outmem;
-            4'b3:
-            rs1_ALU = ALU_outex;
-            rs2_ALU = rs2_data_int;
-            4'b4:
-            rs1_ALU = ALU_outex;
-            rs2_ALU = ALU_outex;
-            4'b5:
-            rs1_ALU = ALU_outex;
-            rs2_ALU = ALU_outmem;
-            4'b6:
-            rs1_ALU = ALU_outmem;
-            rs2_ALU = rs2_data_int;
-            4'b7:
-            rs1_ALU = ALU_outmem;
-            rs2_ALU = ALU_outex;
-            4'b8:
-            rs1_ALU = ALU_outmem;
-            rs2_ALU = ALU_outmem;
+            default: begin
+                rs1_ALU = rs1_data_int;
+                rs2_ALU = rs2_data_int;
+            end
+            4'd1: begin
+                rs1_ALU = rs1_data_int;
+                rs2_ALU = ALU_outex;
+            end
+            4'd2: begin
+                rs1_ALU = rs1_data_int;
+                rs2_ALU = ALU_outmem;
+            end
+            4'd3: begin
+                rs1_ALU = ALU_outex;
+                rs2_ALU = rs2_data_int;
+            end
+            4'd4: begin
+                rs1_ALU = ALU_outex;
+                rs2_ALU = ALU_outex;
+            end
+            4'd5: begin
+                rs1_ALU = ALU_outex;
+                rs2_ALU = ALU_outmem;
+            end
+            4'd6: begin
+                rs1_ALU = ALU_outmem;
+                rs2_ALU = rs2_data_int;
+            end
+            4'd7: begin
+                rs1_ALU = ALU_outmem;
+                rs2_ALU = ALU_outex;
+            end
+            4'd8: begin
+                rs1_ALU = ALU_outmem;
+                rs2_ALU = ALU_outmem;
+            end
 
         endcase
 
@@ -157,7 +173,4 @@ module EX_top (
 
     );
 
-
-
 endmodule
-
