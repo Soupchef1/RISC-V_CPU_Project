@@ -82,6 +82,7 @@ module Mem_ctrl(
     input logic rlast,
     input logic rvalidl,
     output logic rready    
+    
     );
 
     localparam logic HIGH = 1'b1;
@@ -109,11 +110,10 @@ module Mem_ctrl(
         IDLE,
         SEND_ADDR,
         WRITE
-    } write_state_t;
+    } read_state_t;
 
     logic write_start, read_start;
     logic write_done, read_done;
-    logic next_write_start, next_read_start;
 
     mem_state_t mem_state, next_mem_state;
     write_state_t write_state, next_write_state;
@@ -125,92 +125,107 @@ module Mem_ctrl(
     logic [31:0] write_addr_reg;
     logic [31:0] read_addr_reg;
 
+    logic [31:0] next_write_addr_reg;
+    logic [31:0] next_read_addr_reg;
+    
+    //setting aw defaults
+    assign awlen = 8'd3;
+    assign awsize = 3'b100;
+    assign awburst = 2'b01;
+    assign awlock = 1'b0;
+    assign awcache = 4'b0011;
+    assign awprot = 4'b000;
+    assign awqos = 4'b0000;
+
+    //setting ar defaults
+    assign arlen 8'd3;
+    assign arsize = 3'b100;
+    assign arburst = 2'b01;
+    assign arlock = 1'b0;
+    assign arcache = 4'b0011;
+    assign arprot = 3'b000;
+    assign arqos = 4'b0000;
+
+
+//seq shi for mem state machine
     always_ff @(posedge or negedge nrst) begin
         
         if (!nrst) begin
             mem_state <= IDLE;
-            write_start <= LOW;
-            read_start <= LOW;
-            write_data_reg <= '0;
-            write_addr_reg <= '0;
-            read_addr_reg <= '0;
-            finish <= LOW;
         end
 
         else begin
 
-            case (meme_state)
+            // case (meme_state)
 
-                default: begin
-                    write_data_reg <= '0;
-                    write_addr_reg <= '0;
-                    read_addr_reg <= '0;
-                    finish <= LOW;
-                end
+            //     default: begin
+            //         write_data_reg <= '0;
+            //         write_addr_reg <= '0;
+            //         read_addr_reg <= '0;
+            //         finish <= LOW;
+            //     end
 
-                IDLE: begin
-                    write_data_reg <= '0;
-                    write_addr_reg <= '0;
-                    read_addr_reg <= '0;
-                    finish <= LOW;
-                end
+            //     IDLE: begin
+            //         write_data_reg <= '0;
+            //         write_addr_reg <= '0;
+            //         read_addr_reg <= '0;
+            //         finish <= LOW;
+            //     end
 
-                DATA_WR: begin
-                    write_data_reg <= data_data_in;
-                    write_addr_reg <= data_addr;
-                    read_addr_reg <= '0;
-                    finish <= LOW;
+            //     DATA_WR: begin
+            //         write_data_reg <= data_data_in;
+            //         write_addr_reg <= data_addr;
+            //         read_addr_reg <= '0;
+            //         finish <= LOW;
 
-                end
+            //     end
                 
-                DATA_WR_INS_RD: begin
-                    write_data_reg <= data_data_in;
-                    write_addr_reg <= data_addr;
-                    read_addr_reg <= ins_addr;
-                    finish <= LOW;
+            //     DATA_WR_INS_RD: begin
+            //         write_data_reg <= data_data_in;
+            //         write_addr_reg <= data_addr;
+            //         read_addr_reg <= ins_addr;
+            //         finish <= LOW;
 
-                end
+            //     end
 
-                DATA_RD_DIRT_INS_RD: begin
-                    write_data_reg <= data_data_in;
-                    write_addr_reg <= data_addr;
-                    read_addr_reg <= ins_addr;
-                    finish <= LOW;
-                end
+            //     DATA_RD_DIRT_INS_RD: begin
+            //         write_data_reg <= data_data_in;
+            //         write_addr_reg <= data_addr;
+            //         read_addr_reg <= ins_addr;
+            //         finish <= LOW;
+            //     end
 
-                DATA_RD_DIRT: begin
-                    write_data_reg <= data_data_in;
-                    write_addr_reg <= data_addr;
-                    read_addr_reg <= '0;
-                    finish <= LOW;
-                end
+            //     DATA_RD_DIRT: begin
+            //         write_data_reg <= data_data_in;
+            //         write_addr_reg <= data_addr;
+            //         read_addr_reg <= '0;
+            //         finish <= LOW;
+            //     end
 
-                CLEAN_INS_RD: begin
-                    write_data_reg <= '0;
-                    write_addr_reg <= '0;
-                    read_addr_reg <= '0;
-                    finish <= LOW;
-                end
+            //     CLEAN_INS_RD: begin
+            //         write_data_reg <= '0;
+            //         write_addr_reg <= '0;
+            //         read_addr_reg <= '0;
+            //         finish <= LOW;
+            //     end
 
-                DATA_RD: begin
-                    write_data_reg <= '0;
-                    write_addr_reg <= '0;
-                    read_addr_reg <= data_addr;
-                    finish <= LOW;
-                end
+            //     DATA_RD: begin
+            //         write_data_reg <= '0;
+            //         write_addr_reg <= '0;
+            //         read_addr_reg <= data_addr;
+            //         finish <= LOW;
+            //     end
 
-                FINISH: begin
-                    write_data_reg <= '0;
-                    write_addr_reg <= '0;
-                    read_addr_reg <= '0;
-                    finish <= HIGH;
-                end
+            //     FINISH: begin
+            //         write_data_reg <= '0;
+            //         write_addr_reg <= '0;
+            //         read_addr_reg <= '0;
+            //         finish <= HIGH;
+            //     end
                 
-            endcase
+            // endcase
 
             mem_state <= next_mem_state;
-            write_start <= next_write_start;
-            read_start <= next_read_start;
             
         end
     end
@@ -218,86 +233,153 @@ module Mem_ctrl(
     //memory state machine comb logic
     always_comb begin
         next_mem_state = IDLE;
-        next_write_start = LOW;
-        next_read_start = LOW;
+        write_start = LOW;
+        read_start = LOW;
+
+        write_data_reg = '0;
+        write_addr_reg = '0;
+        read_addr_reg = '0;
+        finish = LOW;
 
         
         casez(mem_state)
             IDLE: begin
                 if((video_data | (data_write_miss & dirty) & !instr_read_miss)) begin
                     next_mem_state = DATA_WR;
-                    next_write_start = HIGH;
-                    next_read_start = LOW;
+                    write_start = HIGH;
+                    read_start = LOW;
                 end else ((video_data | (data_write_miss & dirty) & instr_read_miss)) begin
                     next_mem_state = DATA_WR_INS_RD;
-                    next_write_start = HIGH;
-                    next_read_start = HIGH;
+                    write_start = HIGH;
+                    read_start = HIGH;
                 end else if ((data_rd_miss & data_dirty) & !instr_read_miss) begin
                     next_mem_state = DATA_RD_DIRT;
-                    next_write_start = HIGH;
-                    next_read_start = LOW;
+                    write_start = HIGH;
+                    read_start = LOW;
                 end else if ((data_rd_miss & data_dirty) & instr_read_miss) begin
                     next_mem_state = DATA_RD_DIRT_INS_RD;
-                    next_write_start = HIGH;
-                    next_read_start = HIGH;
+                    write_start = HIGH;
+                    read_start = HIGH;
                 end else if ((data_rd_miss & !data_dirty) & !instr_read_miss) begin        
                     next_mem_state = DATA_RD;
-                    next_write_start = LOW;
-                    next_read_start = HIGH;
+                    write_start = LOW;
+                    read_start = HIGH;
                 end else if ((data_rd_miss & !data_dirty) & instr_read_miss) begin        
                     next_mem_state = CLEAN_INS_RD;
-                    next_write_start = LOW;
-                    next_read_start = HIGH;
+                    write_start = LOW;
+                    read_start = HIGH;
                 end else begin
                     next_mem_state = IDLE;
-                    next_write_start = LOW;
-                    next_read_start = LOW;
+                    write_start = LOW;
+                    read_start = LOW;
                 end
+
+                write_data_reg = '0;
+                write_addr_reg = '0;
+                read_addr_reg = '0;
+                finish = LOW;
             end
             
             DATA_WR: begin
                 next_mem_state = (write_done) ? FINISH : DATA_WR;
-                next_write_start = LOW;
-                next_read_start = LOW;
+                write_start = LOW;
+                read_start = LOW;
+
+                write_data_reg = data_data_in;
+                write_addr_reg = data_addr;
+                read_addr_reg = '0;
+                finish = LOW;
             end
 
             DATA_WR_INS_RD: begin
                 next_mem_state = (write_done & read_done) ? FINISH : DATA_WR_INS_RD;
-                next_write_start = LOW;
-                next_read_start = LOW;
+                write_start = LOW;
+                read_start = LOW;
+
+                write_data_reg = data_data_in;
+                write_addr_reg = data_addr;
+                read_addr_reg = ins_addr;
+                finish = LOW;
             end
 
             DATA_RD_DIRT: begin
                 next_mem_state = (write_done) ? DATA_RD : DATA_RD_DIRT;
-                next_write_start = LOW;
-                next_read_start = (write_done) ? HIGH : LOW;
+                write_start = LOW;
+                read_start = (write_done) ? HIGH : LOW;
+
+                write_data_reg = data_data_in;
+                write_addr_reg = data_addr;
+                read_addr_reg = '0;
+                finish = LOW;
             end
 
             DATA_RD_DIRT_INS_RD: begin
                 next_mem_state = (write_done & read_done) ? DATA_RD : DATA_RD_DIRT_INS_RD;
-                next_write_start = LOW;
-                next_read_start = (write_done & read_done) ? HIGH : LOW;
+                write_start = LOW;
+                read_start = (write_done & read_done) ? HIGH : LOW;
+
+                write_data_reg = data_data_in;
+                write_addr_reg = data_addr;
+                read_addr_reg = ins_addr;
+                finish = LOW;
             end
 
             CLEAN_INS_RD: begin
                 next_mem_state = (read_done) ? DATA_RD : CLEAN_INS_RD;
-                next_write_start = LOW;
-                next_read_start = (read_done) ? HIGH : LOW;
+                write_start = LOW;
+                read_start = (read_done) ? HIGH : LOW;
+
+                write_data_reg = '0;
+                write_addr_reg = '0;
+                read_addr_reg = '0;
+                finish = LOW;
             end
 
             DATA_RD: begin
                 next_mem_state = (read_done) ? FINISH : DATA_RD;
-                next_write_start = LOW;
-                next_read_start = LOW;
+                write_start = LOW;
+                read_start = LOW;
+
+                write_data_reg = '0;
+                write_addr_reg = '0;
+                read_addr_reg = data_addr;
+                finish = LOW;
             end
 
             FINISH: begin
                 next_mem_state = IDLE;
-                next_read_start= LOW;
-                next_read_start = LOW;
+                read_start= LOW;
+                read_start = LOW;
+
+                write_data_reg = '0;
+                write_addr_reg = '0;
+                read_addr_reg = '0;
+                finish = HIGH;
             end            
         endcase
     end
+
+
+//read FSM seq
+
+always_ff @(poseedge clk, negedge nrst) begin
+    if (!nrst) begin
+    //idk
+    end
+    else begin
+        case(read_state) 
+
+        endcase
+    end
+end
+
+
+//read FSM comb
+
+always_comb begin
+
+end
+
 
 
 
