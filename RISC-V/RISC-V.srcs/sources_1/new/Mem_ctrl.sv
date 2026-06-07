@@ -1,17 +1,17 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+// Company: GOON LLC
+// Engineer: Benjamin Li and Ryan Karami
 // 
 // Create Date: 06/05/2026 10:56:22 PM
-// Design Name: 
+// Design Name: Memory controller
 // Module Name: Mem_ctrl
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
+// Project Name: GOON-PU
+// Target Devices: ARTY s7-25
+// Tool Versions: VIVADO 25.2
+// Description: GOON-PU memory controller FSMs for AXI read/write to DDR
 // 
-// Dependencies: 
+// Dependencies: brain
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -109,7 +109,7 @@ module Mem_ctrl(
     typedef enum [1:0] {
         IDLE,
         SEND_ADDR,
-        WRITE
+        READ
     } read_state_t;
 
     logic write_start, read_start;
@@ -121,12 +121,16 @@ module Mem_ctrl(
 
     logic [511:0] write_data_reg; //represents all bits of data that need to be written in write state machine;
     logic [511:0] read_data_reg; //represents all bits of data that need to be read;
+    logic [511:0] next_read_data_reg;
 
     logic [31:0] write_addr_reg;
     logic [31:0] read_addr_reg;
 
     logic [31:0] next_write_addr_reg;
     logic [31:0] next_read_addr_reg;
+
+    logic [1:0] write_cnt, next_write_cnt;
+    logic [1:0] read_cnt, next_read_cnt;
     
     //setting aw defaults
     assign awlen = 8'd3;
@@ -155,6 +159,32 @@ module Mem_ctrl(
         end
 
         else begin
+            casez(mem_state)
+                default: begin
+                    data_data_out <= data_data_out;
+                    ins_data_out <= ins_data_out;
+                end
+
+                DATA_WR_INS_RD: begin
+                    data_data_out <= data_data_out;
+                    ins_data_out <= read_data_reg;
+                end
+
+                DATA_RD_DIRT_INS_RD: begin
+                    data_data_out <= data_data_out;
+                    ins_data_out <= read_data_reg;
+                end
+
+                CLEAN_INS_RD: begin
+                    data_data_out <= data_data_out;
+                    ins_data_out <= read_data_reg;
+                end
+
+                DATA_RD: begin
+                    data_data_out <= read_data_reg;
+                    ins_data_out <= ins_data_out;
+                end
+            endcase
 
             // case (meme_state)
 
@@ -240,7 +270,6 @@ module Mem_ctrl(
         write_addr_reg = '0;
         read_addr_reg = '0;
         finish = LOW;
-
         
         casez(mem_state)
             IDLE: begin
@@ -362,23 +391,79 @@ module Mem_ctrl(
 
 //read FSM seq
 
-always_ff @(poseedge clk, negedge nrst) begin
-    if (!nrst) begin
-    //idk
-    end
-    else begin
-        case(read_state) 
+    always_ff @(poseedge clk, negedge nrst) begin
 
+        if (!nrst) begin
+            read_state <= IDLE;
+            arvalid <= LOW;
+            rready <= LOW;
+            read_data_reg <= '0;
+        end
+
+        else begin
+
+            case(read_state) 
+
+                IDLE: begin
+                    araddr <= araddr;
+                    arvalid <= LOW;
+                    rready <= LOW;
+                end
+
+                SEND_ADDR: begin
+                    araddr <= read_addr_reg;
+                    arvalid <= HIGH;
+                    rready <= LOW;
+                end
+                
+                READ: begin
+                    araddr <= araddr;
+                    arvalid <= LOW;
+                    rready <= HIGH;
+                end
+
+            endcase
+
+            read_state <= next_read_state;
+            read_cnt <= next_read_cnt;
+            read_data_reg <= next_read_data_reg;
+        end
+        
+    end
+
+    //read FSM comb
+    always_comb begin
+        casez(read_state) 
+            next_read_state = read_state;
+            read_done = LOW;
+            next_read_cnt = read_cnt;
+            next_read_data_reg = read_data_reg;
+            
+            IDLE: begin
+                next_read_state = (read_start == HIGH) ? SEND_ADDR : IDLE;
+                next_read_cnt = read_cnt;
+                read_done = HIGH;
+            end
+
+            SEND_ADDR: begin
+                next_read_state = (arready == HIGH) ? SEND_ADDR : IDLE;
+                next_read_cnt = 2'd0;
+                read_done = LOW;
+            end
+
+            READ: begin
+                if(rvalid == HIGH) begin
+                    next_read_data_reg[count * 128 +: 128] = rdata;
+                    next_read_cnt = read_cnt + 2'd1;
+                    next_read_state = (read_cnt == 2'd3) ? IDLE : READ;
+                end else begin
+                    next_read_cnt = read_cnt;
+                    next_read_state = READ;
+                end
+                read_done = LOW;
+            end
         endcase
     end
-end
-
-
-//read FSM comb
-
-always_comb begin
-
-end
 
 
 
