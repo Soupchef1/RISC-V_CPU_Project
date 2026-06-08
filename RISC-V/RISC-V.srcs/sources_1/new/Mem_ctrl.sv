@@ -44,6 +44,7 @@ module Mem_ctrl(
 
     //misc.
     output logic finish,
+    output logic read_done,
 
     //axi shi
     output logic [31:0] awaddr,
@@ -80,7 +81,7 @@ module Mem_ctrl(
     input logic [127:0] rdata,
     input logic [1:0] rresp,
     input logic rlast,
-    input logic rvalidl,
+    input logic rvalid,
     output logic rready    
     
     );
@@ -100,20 +101,20 @@ module Mem_ctrl(
     } mem_state_t;
 
     typedef enum [1:0] {
-        IDLE,
-        SEND_ADDR,
+        W_IDLE,
+        W_SEND_ADDR,
         WRITE,
-        WAIT
+        PAUSE
     } write_state_t;
 
     typedef enum [1:0] {
-        IDLE,
-        SEND_ADDR,
+        R_IDLE,
+        R_SEND_ADDR,
         READ
     } read_state_t;
 
     logic write_start, read_start;
-    logic write_done, read_done;
+    logic write_done;
 
     mem_state_t mem_state, next_mem_state;
     write_state_t write_state, next_write_state;
@@ -142,7 +143,7 @@ module Mem_ctrl(
     assign awqos = 4'b0000;
 
     //setting ar defaults
-    assign arlen 8'd3;
+    assign arlen = 8'd3;
     assign arsize = 3'b100;
     assign arburst = 2'b01;
     assign arlock = 1'b0;
@@ -150,9 +151,13 @@ module Mem_ctrl(
     assign arprot = 3'b000;
     assign arqos = 4'b0000;
 
+    //setting w/r defaults
+    assign wstrb = 16'b1111111111111111;
+
+
 
 //seq shi for mem state machine
-    always_ff @(posedge or negedge nrst) begin
+    always_ff @(posedge clk, negedge nrst) begin
         
         if (!nrst) begin
             mem_state <= IDLE;
@@ -186,75 +191,6 @@ module Mem_ctrl(
                 end
             endcase
 
-            // case (meme_state)
-
-            //     default: begin
-            //         write_data_reg <= '0;
-            //         write_addr_reg <= '0;
-            //         read_addr_reg <= '0;
-            //         finish <= LOW;
-            //     end
-
-            //     IDLE: begin
-            //         write_data_reg <= '0;
-            //         write_addr_reg <= '0;
-            //         read_addr_reg <= '0;
-            //         finish <= LOW;
-            //     end
-
-            //     DATA_WR: begin
-            //         write_data_reg <= data_data_in;
-            //         write_addr_reg <= data_addr;
-            //         read_addr_reg <= '0;
-            //         finish <= LOW;
-
-            //     end
-                
-            //     DATA_WR_INS_RD: begin
-            //         write_data_reg <= data_data_in;
-            //         write_addr_reg <= data_addr;
-            //         read_addr_reg <= ins_addr;
-            //         finish <= LOW;
-
-            //     end
-
-            //     DATA_RD_DIRT_INS_RD: begin
-            //         write_data_reg <= data_data_in;
-            //         write_addr_reg <= data_addr;
-            //         read_addr_reg <= ins_addr;
-            //         finish <= LOW;
-            //     end
-
-            //     DATA_RD_DIRT: begin
-            //         write_data_reg <= data_data_in;
-            //         write_addr_reg <= data_addr;
-            //         read_addr_reg <= '0;
-            //         finish <= LOW;
-            //     end
-
-            //     CLEAN_INS_RD: begin
-            //         write_data_reg <= '0;
-            //         write_addr_reg <= '0;
-            //         read_addr_reg <= '0;
-            //         finish <= LOW;
-            //     end
-
-            //     DATA_RD: begin
-            //         write_data_reg <= '0;
-            //         write_addr_reg <= '0;
-            //         read_addr_reg <= data_addr;
-            //         finish <= LOW;
-            //     end
-
-            //     FINISH: begin
-            //         write_data_reg <= '0;
-            //         write_addr_reg <= '0;
-            //         read_addr_reg <= '0;
-            //         finish <= HIGH;
-            //     end
-                
-            // endcase
-
             mem_state <= next_mem_state;
             
         end
@@ -273,27 +209,27 @@ module Mem_ctrl(
         
         casez(mem_state)
             IDLE: begin
-                if((video_data | (data_write_miss & dirty) & !instr_read_miss)) begin
+                if((video_data | (data_wr_miss & data_dirty) & !ins_rd_miss)) begin
                     next_mem_state = DATA_WR;
                     write_start = HIGH;
                     read_start = LOW;
-                end else ((video_data | (data_write_miss & dirty) & instr_read_miss)) begin
+                end else if ((video_data | (data_wr_miss & data_dirty) & ins_rd_miss)) begin
                     next_mem_state = DATA_WR_INS_RD;
                     write_start = HIGH;
                     read_start = HIGH;
-                end else if ((data_rd_miss & data_dirty) & !instr_read_miss) begin
+                end else if ((data_rd_miss & data_dirty) & !ins_rd_miss) begin
                     next_mem_state = DATA_RD_DIRT;
                     write_start = HIGH;
                     read_start = LOW;
-                end else if ((data_rd_miss & data_dirty) & instr_read_miss) begin
+                end else if ((data_rd_miss & data_dirty) & ins_rd_miss) begin
                     next_mem_state = DATA_RD_DIRT_INS_RD;
                     write_start = HIGH;
                     read_start = HIGH;
-                end else if ((data_rd_miss & !data_dirty) & !instr_read_miss) begin        
+                end else if ((data_rd_miss & !data_dirty) & !ins_rd_miss) begin        
                     next_mem_state = DATA_RD;
                     write_start = LOW;
                     read_start = HIGH;
-                end else if ((data_rd_miss & !data_dirty) & instr_read_miss) begin        
+                end else if ((data_rd_miss & !data_dirty) & ins_rd_miss) begin        
                     next_mem_state = CLEAN_INS_RD;
                     write_start = LOW;
                     read_start = HIGH;
@@ -389,12 +325,12 @@ module Mem_ctrl(
     end
 
 
-//read FSM seq
+    //read FSM seq
 
-    always_ff @(poseedge clk, negedge nrst) begin
+    always_ff @(posedge clk, negedge nrst) begin
 
         if (!nrst) begin
-            read_state <= IDLE;
+            read_state <= R_IDLE;
             arvalid <= LOW;
             rready <= LOW;
             read_data_reg <= '0;
@@ -404,13 +340,19 @@ module Mem_ctrl(
 
             case(read_state) 
 
-                IDLE: begin
+                default: begin
                     araddr <= araddr;
                     arvalid <= LOW;
                     rready <= LOW;
                 end
 
-                SEND_ADDR: begin
+                R_IDLE: begin
+                    araddr <= araddr;
+                    arvalid <= LOW;
+                    rready <= LOW;
+                end
+
+                R_SEND_ADDR: begin
                     araddr <= read_addr_reg;
                     arvalid <= HIGH;
                     rready <= LOW;
@@ -433,29 +375,31 @@ module Mem_ctrl(
 
     //read FSM comb
     always_comb begin
-        casez(read_state) 
-            next_read_state = read_state;
-            read_done = LOW;
-            next_read_cnt = read_cnt;
-            next_read_data_reg = read_data_reg;
+        
+        next_read_state = read_state;
+        read_done = LOW;
+        next_read_cnt = read_cnt;
+        next_read_data_reg = read_data_reg;
             
-            IDLE: begin
-                next_read_state = (read_start == HIGH) ? SEND_ADDR : IDLE;
+        casez(read_state) 
+            
+            R_IDLE: begin
+                next_read_state = (read_start == HIGH) ? R_SEND_ADDR : R_IDLE;
                 next_read_cnt = read_cnt;
                 read_done = HIGH;
             end
 
-            SEND_ADDR: begin
-                next_read_state = (arready == HIGH) ? SEND_ADDR : IDLE;
+            R_SEND_ADDR: begin
+                next_read_state = (arready == HIGH) ? R_SEND_ADDR : R_IDLE;
                 next_read_cnt = 2'd0;
                 read_done = LOW;
             end
 
             READ: begin
                 if(rvalid == HIGH) begin
-                    next_read_data_reg[count * 128 +: 128] = rdata;
+                    next_read_data_reg[read_cnt * 128 +: 128] = rdata;
                     next_read_cnt = read_cnt + 2'd1;
-                    next_read_state = (read_cnt == 2'd3) ? IDLE : READ;
+                    next_read_state = (read_cnt == 2'd3) ? R_IDLE : READ;
                 end else begin
                     next_read_cnt = read_cnt;
                     next_read_state = READ;
@@ -465,7 +409,116 @@ module Mem_ctrl(
         endcase
     end
 
+    //write FSM seq
+    always_ff @(posedge clk, negedge nrst) begin
 
+        if (!nrst) begin
+            awaddr <= '0;
+            wvalid <= LOW;
+            awvalid <= LOW;
+            wlast <= LOW;
+            bready <= LOW;
+            wdata <= '0; 
+        end
+        else begin
 
+            case (write_state)
+
+                W_IDLE: begin
+                    awaddr <= awaddr;
+                    wvalid <= LOW;
+                    awvalid <= LOW;
+                    wlast <= LOW;
+                    bready <= LOW;
+                    wdata <= wdata; 
+                end
+
+                W_SEND_ADDR: begin
+                    awaddr <= write_addr_reg;
+                    wvalid <= LOW;
+                    awvalid <= HIGH;
+                    wlast <= LOW;
+                    bready <= LOW;
+                    wdata <= wdata;
+                end
+
+                WRITE: begin
+                    awaddr <= awaddr;
+                    wvalid <= HIGH;
+                    awvalid <= LOW;
+                    wlast <= (write_cnt == 3) ? HIGH : LOW;
+                    bready <= LOW;
+                    wdata <= write_data_reg[write_cnt * 128 +: 128];
+                end
+
+                PAUSE: begin
+                    awaddr <= awaddr;
+                    wvalid <= LOW;
+                    awvalid <= LOW;
+                    wlast <= LOW;
+                    bready <= HIGH;
+                    wdata <= wdata;
+                end
+
+                default: begin
+                    awaddr <= awaddr;
+                    wvalid <= LOW;
+                    awvalid <= LOW;
+                    wlast <= LOW;
+                    bready <= LOW;
+                    wdata <= wdata;
+                end
+
+            endcase
+
+            write_state <= next_write_state;
+            write_cnt <= next_write_cnt;
+            
+        end
+    end
+
+    //write FSM comb
+    always_comb begin
+        next_write_state = write_state;
+        write_done = LOW;
+        next_write_cnt = write_cnt;
+
+        casez(write_state)
+            W_IDLE: begin
+                next_write_state = (write_start == HIGH) ? W_SEND_ADDR : W_IDLE;
+                write_done = HIGH;
+                next_write_cnt = write_cnt;
+            end
+
+            W_SEND_ADDR: begin
+                next_write_state = (awready == HIGH) ? WRITE : W_SEND_ADDR;
+                write_done = LOW;
+                next_write_cnt = 2'd0;
+            end
+
+            WRITE: begin
+                if(wready == HIGH) begin
+                    next_write_state = (write_cnt == 2'd3) ? PAUSE : WRITE;
+                    next_write_cnt = write_cnt + 2'd1;
+                end else begin
+                    next_write_state = WRITE;
+                    next_write_cnt = write_cnt;
+                end
+                write_done = LOW;
+            end
+
+            PAUSE: begin
+                next_write_state = (bvalid == HIGH) ? W_IDLE : PAUSE;
+                write_done = LOW;
+                next_write_cnt = write_cnt;
+            end
+
+            default: begin
+                next_write_state = write_state;
+                write_done = LOW;
+                next_write_cnt = write_cnt;
+            end
+        endcase
+    end
 
 endmodule
