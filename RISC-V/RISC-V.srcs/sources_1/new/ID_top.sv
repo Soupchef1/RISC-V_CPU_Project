@@ -73,8 +73,7 @@ module ID_top(
         .w_en(wb_en),
         .rs1_data(rs1_data),
         .rs2_data(rs2_data)
-    )
-
+    );
 
     decoder decode_inst (
         .instr(instr_use),
@@ -85,5 +84,5 @@ module ID_top(
         .func7(func7),
         .opcode(opcode),
         .imm(imm)
-    )
+    );
 endmodule
