@@ -30,13 +30,13 @@ module Mem_ctrl(
 
     //instruction
     input logic [31:0] ins_addr,
-    output logic [535:0] ins_data_out, //[511:0] is actual data, [535:512] is tagline
+    output logic [511:0] ins_data_out, //[511:0] is actual data
     input logic ins_rd_miss,
 
     //data
     input logic [31:0] data_addr,
     input logic [511:0] data_data_in, //data coming in from cache
-    output logic [535:0] data_data_out, //correct data going into cache
+    output logic [511:0] data_data_out, //correct data going into cache
     input logic data_rd_miss,
     input logic data_wr_miss,
     input logic data_dirty,
@@ -44,9 +44,8 @@ module Mem_ctrl(
 
     //misc.
     output logic finish,
-    output logic read_done,
-
-    //axi shi
+    output logic ins_read_done,
+    output logic data_read_done,    //axi shi
     output logic [31:0] awaddr,
     output logic [7:0] awlen,   //should be 3, cuz its ts + 1 for actual size
     output logic [2:0] awsize,  //128 bits 
@@ -114,7 +113,7 @@ module Mem_ctrl(
     } read_state_t;
 
     logic write_start, read_start;
-    logic write_done;
+    logic write_done, read_done;
 
     mem_state_t mem_state, next_mem_state;
     write_state_t write_state, next_write_state;
@@ -206,14 +205,16 @@ module Mem_ctrl(
         write_addr_reg = '0;
         read_addr_reg = '0;
         finish = LOW;
+        data_read_done = LOW;
+        ins_read_done = LOW;
         
         casez(mem_state)
             IDLE: begin
-                if((video_data | (data_wr_miss & data_dirty) & !ins_rd_miss)) begin
+                if ((video_data | (data_wr_miss & data_dirty)) & !ins_rd_miss) begin
                     next_mem_state = DATA_WR;
                     write_start = HIGH;
                     read_start = LOW;
-                end else if ((video_data | (data_wr_miss & data_dirty) & ins_rd_miss)) begin
+                end else if ((video_data | (data_wr_miss & data_dirty)) & ins_rd_miss) begin
                     next_mem_state = DATA_WR_INS_RD;
                     write_start = HIGH;
                     read_start = HIGH;
@@ -233,6 +234,10 @@ module Mem_ctrl(
                     next_mem_state = CLEAN_INS_RD;
                     write_start = LOW;
                     read_start = HIGH;
+                end else if (data_wr_miss & !data_dirty) begin
+                    next_mem_state = DATA_RD;
+                    write_start = LOW;
+                    read_start = HIGH;
                 end else begin
                     next_mem_state = IDLE;
                     write_start = LOW;
@@ -246,9 +251,15 @@ module Mem_ctrl(
             end
             
             DATA_WR: begin
-                next_mem_state = (write_done) ? FINISH : DATA_WR;
-                write_start = LOW;
-                read_start = LOW;
+                if(write_done) begin
+                    next_mem_state = (video_data) ? FINISH : DATA_RD;
+                    write_start = (video_data) ? LOW : LOW;
+                    read_start = (video_data) ? LOW : HIGH;
+                end else begin
+                    next_mem_state = DATA_WR;
+                    write_start = LOW;
+                    read_start = LOW;
+                end
 
                 write_data_reg = data_data_in;
                 write_addr_reg = data_addr;
@@ -257,14 +268,22 @@ module Mem_ctrl(
             end
 
             DATA_WR_INS_RD: begin
-                next_mem_state = (write_done & read_done) ? FINISH : DATA_WR_INS_RD;
-                write_start = LOW;
-                read_start = LOW;
+                if(write_done & read_done) begin
+                    next_mem_state = (video_data) ? FINISH : DATA_RD;
+                    write_start = (video_data) ? LOW : LOW;
+                    read_start = (video_data) ? LOW : HIGH;
+                end else begin
+                    next_mem_state = DATA_WR_INS_RD;
+                    write_start = LOW;
+                    read_start = LOW;
+                end
 
                 write_data_reg = data_data_in;
                 write_addr_reg = data_addr;
                 read_addr_reg = ins_addr;
                 finish = LOW;
+                
+                ins_read_done = (read_done);
             end
 
             DATA_RD_DIRT: begin
@@ -287,6 +306,8 @@ module Mem_ctrl(
                 write_addr_reg = data_addr;
                 read_addr_reg = ins_addr;
                 finish = LOW;
+
+                ins_read_done = (read_done);
             end
 
             CLEAN_INS_RD: begin
@@ -298,6 +319,8 @@ module Mem_ctrl(
                 write_addr_reg = '0;
                 read_addr_reg = '0;
                 finish = LOW;
+
+                ins_read_done = (read_done);
             end
 
             DATA_RD: begin
@@ -309,6 +332,8 @@ module Mem_ctrl(
                 write_addr_reg = '0;
                 read_addr_reg = data_addr;
                 finish = LOW;
+
+                data_read_done = (read_done);
             end
 
             FINISH: begin
