@@ -1,22 +1,22 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+// Company: GOON LLC
+// Engineer: Benjamin Li and Ryan Karami
 // 
 // Create Date: 06/15/2026 08:01:40 PM
-// Design Name: 
+// Design Name: Data cache
 // Module Name: Data_cache
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
+// Project Name: GOON-PU
+// Target Devices: ARTY s7-25
+// Tool Versions: idk
+// Description: implements cache :)
 // 
-// Dependencies: 
+// Dependencies: brain
 // 
-// Revision:
+// Revision: 50!
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
+// Trip faded us
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -31,7 +31,8 @@ module Data_cache(
     input logic EX_write_en,
 
     input logic [31:0] MA_addr,
-    input logic [31:0] MA_data_in,
+    //input logic [31:0] MA_data_in,
+    input logic MA_read_en, MA_write_en,
     output logic [31:0] MA_data_out,
 
     input logic ddr_rd_done,
@@ -54,30 +55,44 @@ module Data_cache(
     logic [8:0] addra, addrb;
     logic [535:0] dina, doutb;
 
-    logic [23:0] tag_in ; //tag being written to BRAM
-    logic [23:0] tag_out; //tag being read from BRAM
+    logic [23:0] tagline_in; //tag being written to BRAM
+    logic [23:0] tagline_out; //tag being read from BRAM
     logic [511:0] data_in; //data written to BRAM
     logic [511:0] data_out; //data read from BRAM
     logic write_en, read_en;
     logic [8:0] addr;
 
-    logic [31:0] MA_addr;
-
+    // regular operation signals
     logic [511:0] regular_data_in;
+    logic [23:0] regular_tagline_in;
     logic [66:0] regular_wea;
 
+    // cache miss signals
+    typedef enum logic { 
+        IDLE,
+        PAUSE
+    } state_t;
+
+    state_t state, next_state;
+
+    logic cache_miss, rd_miss, wr_miss;
+
+    logic [16:0] tag_out;
+    logic dirty;
+    logic valid;
+
     assign enb = HIGH;
-    assign dina = {tag_in, data_in};
+    assign dina = {tagline_in, data_in};
     assign data_out = doutb[511:0];
-    assign tag_out = doutb[535:512];
+    assign tagline_out = doutb[535:512];
     assign addrb = addr;
     assign addra = addr;
     
-    // TODO: make sure to implement these 
-    assign data_in =
-    assign wea =
-    assign ena = 
-    assign addr = //during regular operation, addr is EX_addr. during cache miss, addr is MA_addr
+    assign data_in = (state == PAUSE) ? ddr_data_in : regular_data_in;
+    assign tagline_in = (state == PAUSE) ? ddr_tagline : regular_tagline_in;
+    assign wea = (state == PAUSE) ? ddr_wea : regular_wea;
+    assign ena = (state == PAUSE) ? ddr_rd_done : (EX_addr != {fill in here}); //TODO: figure Out what is the video data address
+    assign addr = (state == PAUSE) ? MA_addr : EX_addr; //during regular operation, addr is EX_addr. during cache miss, addr is MA_addr
 
     blk_mem_gen_0_sv freak_bob (
         .clka(clk), // input wire clka
@@ -91,14 +106,14 @@ module Data_cache(
         .doutb(doutb) // output wire [535:0] doutb
     );
 
-    //make sure to change so that signals comply when cache miss
+    //TODO: figure out how things change with valid
     always_comb begin
 
         //reading combinational logic
-        MA_data_out = data_out[MA_addr[5:2] * 32 +: 32];  //picks out right word
+        MA_data_out = (state == PAUSE) ? data_out[MA_addr[5:2] * 32 +: 32] : ddr_data_in[MA_addr[5:2] * 32 +: 32];  //picks out right word
 
         //writing combinational logic
-        tag_in = {5'b0, 1'b1, 1'b1, EX_addr[31:15]};
+        regular_tagline_in = {5'b0, 1'b1, 1'b1, EX_addr[31:15]};
 
         regular_data_in = '0;
         regular_wea = '0;
@@ -126,28 +141,71 @@ module Data_cache(
             endcase
         end
     end
-
+    
     //cache miss logic
-    logic cache_miss;
 
-    typedef enum logic { 
-        IDLE,
-        PAUSE
-    } state_t;
+    assign tag_out = tagline_out[16:0];
+    assign dirty = tagline_out[17];
+    assign valid = tagline_out[18];
 
-    state_t state, next_state;
+//cache miss logic
+    assign cache_miss = tag_out != MA_addr[31:15];
+    assign rd_miss = cache_miss & MA_read_en;
+    assign wr_miss = cache_miss & MA_write_en;
 
-    //TODO: write code for cache miss
+    assign ddr_rd_miss = rd_miss;
+    assign ddr_wr_miss = wr_miss;
+    assign ddr_dirty = dirty;
+    assign is_video_data = MA_addr == ;//TODO: figure Out what is the video data address
 
-    //data in pseudo code
-    // if regular:
-    //     just make data_in whats above (lines 86-120)
-    // if drr_rd_done:
-    //     make data_in data from ddr with data from lines 86-120 inserted.
+    logic [23:0] ddr_tagline;
+    logic [66:0] ddr_wea;
 
-    // if cache miss:
-    //     make ena LOW until ready to write data;
-    // otherwise:
-    //     make ena what EX_read_en is
+    //need to drive ddr versions of tag_line, data_in, wea, addr
+    //also need to drive stall_out
+
+    always_comb begin
+
+        ddr_tagline = {5'b0, 1'b1, 1'b0, MA_addr[31:15]};
+        ddr_wea = '1;
+        case(state)
+            IDLE: begin
+                if (rd_miss | wr_miss | is_video_data) begin
+                    next_state = PAUSE;
+                    stall_out = HIGH;
+                end
+                else begin
+                    next_state = IDLE;
+                    stall_out = LOW;
+                end
+            end
+
+            PAUSE: begin
+                if(ddr_rd_done) begin
+                    next_state = IDLE;                  
+                end
+                else begin
+                    next_state = PAUSE;
+                end
+                stall_out = HIGH;
+            end
+        endcase
+    end
+
+    always_ff @(posedge clk, negedge nrst) begin
+        if(!nrst) begin
+            state <= IDLE;
+            ddr_data_out <= '0;
+        end else begin
+            state <= next_state;
+            if(state == IDLE) begin
+                ddr_data_out <= data_out;    
+            end else begin
+                ddr_data_out <= ddr_data_out;
+            end  
+        end
+    end
+
+    
 
 endmodule
