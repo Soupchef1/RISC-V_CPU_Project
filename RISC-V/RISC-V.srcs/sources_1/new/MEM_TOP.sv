@@ -98,8 +98,8 @@ module MEM_TOP(
         //based on last 2 bits of MA_addr, make sure to pick the write byte to sign entend
         case(MA_mem_bytes)
             2'b00: sign_extend_data = CACHE_data_out;
-            2'b01: sign_extend_data = (mem_zero_extend) ? {24'b0, CACHE_data_out[MA_addr[1:0] * 8 +: 8]} : {24{CACHE_data_out[7]}, CACHE_data_out[MA_addr[1:0] * 8 +: 8]};
-            2'b10: sign_extend_data = (mem_zero_extend) ? {16'b0, CACHE_data_out[MA_addr[1] * 16 +: 16]} : {16{CACHE_data_out[15]}, CACHE_data_out[MA_addr[1] * 16 +: 16]};
+            2'b01: sign_extend_data = (mem_zero_extend) ? {24'b0, CACHE_data_out[MA_addr[1:0] * 8 +: 8]} : {{24{CACHE_data_out[7]}}, CACHE_data_out[MA_addr[1:0] * 8 +: 8]};
+            2'b10: sign_extend_data = (mem_zero_extend) ? {16'b0, CACHE_data_out[MA_addr[1] * 16 +: 16]} : {{16{CACHE_data_out[15]}}, CACHE_data_out[MA_addr[1] * 16 +: 16]};
             2'b11: sign_extend_data = CACHE_data_out;
         endcase
 
