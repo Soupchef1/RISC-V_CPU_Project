@@ -56,7 +56,7 @@ module ID_top(
         if(!nrst | flush_en) begin
             PC_reg <= '0;
         end else if(stall_en) begin
-            PC_reg <= PC_in;
+            PC_reg <= PC_reg;
         end else begin
             PC_reg <= PC_in;
         end
