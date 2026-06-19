@@ -71,7 +71,7 @@ module Ins_cache(
     assign data_out = doutb[511:0];
     assign tagline_out = doutb[535:512];
 
-    blk_mem_gen_0_sv ryans_boyfriend (
+    blk_mem_gen_0_sv Ben_hella_gay (
         .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
@@ -119,7 +119,7 @@ module Ins_cache(
                 enb = HIGH;
                 addrb = PC_in[14:6];
 
-                instr = ddr_data_in[PC_in[5:2] * 32 +: 32];
+                instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
             end
         endcase
 
@@ -131,13 +131,20 @@ module Ins_cache(
     //state machine comb
     always_comb begin
         next_state = state;
+        stall_out = LOW;
 
         case(state)
-            STARTUP: next_state = (start_done) ? IDLE : STARTUP;
-
-            IDLE: next_state = (rd_miss) ? PAUSE : IDLE;
-
-            PAUSE: next_state = (ddr_rd_done) ? IDLE : PAUSE;
+            STARTUP: begin
+                next_state = (start_done) ? IDLE : STARTUP;
+            end
+            IDLE: begin
+                next_state = (rd_miss) ? PAUSE : IDLE;
+                stall_out = (rd_miss) ? HIGH : LOW;
+            end
+            PAUSE: begin
+                next_state = (ddr_rd_done) ? IDLE : PAUSE;
+                stall_out = HIGH;
+            end
         endcase
     end
 
