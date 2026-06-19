@@ -44,7 +44,7 @@ module Data_cache(
     output logic ddr_dirty,
     output logic is_video_data,
 
-    output logic stall_out;
+    output logic stall_out
     );
     
     localparam logic HIGH = 1'b1;
@@ -118,7 +118,7 @@ module Data_cache(
         regular_data_in = '0;
         regular_wea = '0;
         if(EX_write_en) begin
-            case(EX_mem_bytes):
+            case(EX_mem_bytes)
                 2'b00: begin 
                     regular_wea = '0;
                     regular_data_in = '0;
