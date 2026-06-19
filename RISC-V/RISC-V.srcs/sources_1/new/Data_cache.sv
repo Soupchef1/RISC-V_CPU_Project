@@ -92,7 +92,7 @@ module Data_cache(
     assign tagline_in = (state == PAUSE) ? ddr_tagline : regular_tagline_in;
     assign wea = (state == PAUSE) ? ddr_wea : regular_wea;
     assign ena = (state == PAUSE) ? ddr_rd_done : (EX_addr != {fill in here}); //TODO: figure Out what is the video data address
-    assign addr = (state == PAUSE) ? MA_addr : EX_addr; //during regular operation, addr is EX_addr. during cache miss, addr is MA_addr
+    assign addr = (state == PAUSE) ? MA_addr[14:6] : EX_addr[14:6]; //during regular operation, addr is EX_addr. during cache miss, addr is MA_addr
 
     blk_mem_gen_0_sv freak_bob (
         .clka(clk), // input wire clka
@@ -110,7 +110,7 @@ module Data_cache(
     always_comb begin
 
         //reading combinational logic
-        MA_data_out = (state == PAUSE) ? data_out[MA_addr[5:2] * 32 +: 32] : ddr_data_in[MA_addr[5:2] * 32 +: 32];  //picks out right word
+        MA_data_out = (state == PAUSE) ? ddr_data_in[MA_addr[5:2] * 32 +: 32] : data_out[MA_addr[5:2] * 32 +: 32];  //picks out right word
 
         //writing combinational logic
         regular_tagline_in = {5'b0, 1'b1, 1'b1, EX_addr[31:15]};
@@ -168,6 +168,7 @@ module Data_cache(
 
         ddr_tagline = {5'b0, 1'b1, 1'b0, MA_addr[31:15]};
         ddr_wea = '1;
+        ddr_addr = MA_addr;
         case(state)
             IDLE: begin
                 if (rd_miss | wr_miss | is_video_data) begin
