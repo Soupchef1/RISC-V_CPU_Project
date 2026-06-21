@@ -24,7 +24,6 @@ module program_counter(
 
     input logic clk, nrst,
     input logic flush, stall,
-    input logic branch_en,   //idek where this comes from but its in the diagram
     input logic [1:0] bht, //BHT 2-bit from branch memory
     input logic [4:0] MUX_en,
     input logic [31:0] PC_next, //from ex stage
