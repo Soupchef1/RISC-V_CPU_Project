@@ -201,15 +201,15 @@ module Data_cache(
                 end
 
                 2'b01: begin
-                    regular_data_in[MA_addr[5:0] * 8 +: 8] = MA_data_in[7:0]; // fills data_in with 64 of the same byte
+                    ddr_data_in_fixed[MA_addr[5:0] * 8 +: 8] = MA_data_in[7:0];
                 end
                 
                 2'b10: begin
-                    regular_data_in[{MA_addr[5:1], 1'b0} * 16 +: 16] = EX_data[15:0];
+                    ddr_data_in_fixed[{MA_addr[5:1], 1'b0} * 16 +: 16] = MA_data_in[15:0];
                 end
 
                 2'b11: begin
-                    regular_data_in[{EX_addr[5:2], 2'b00} * 32 +: 32] = EX_data;
+                    ddr_data_in_fixed[{EX_addr[5:2], 2'b00} * 32 +: 32] = MA_data_in;
                 end
             endcase
         end
