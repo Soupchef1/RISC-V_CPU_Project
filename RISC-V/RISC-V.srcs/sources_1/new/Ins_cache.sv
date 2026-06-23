@@ -65,7 +65,7 @@ module Ins_cache(
 
     logic rd_miss;
     
-    assign ddr_rd_miss = rd_miss;
+    assign ddr_rd_miss = rd_miss | !tagline_out[18];
 
     assign dina = {tagline_in, data_in};
     assign data_out = doutb[511:0];

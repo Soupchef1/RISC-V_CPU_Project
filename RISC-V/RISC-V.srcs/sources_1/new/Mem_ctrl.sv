@@ -226,16 +226,16 @@ module Mem_ctrl(
                     next_mem_state = DATA_RD_DIRT_INS_RD;
                     write_start = HIGH;
                     read_start = HIGH;
-                end else if ((data_rd_miss & !data_dirty) & !ins_rd_miss) begin        
+                end else if (((data_rd_miss & !data_dirty) | (data_wr_miss & !data_dirty)) & !ins_rd_miss) begin        
                     next_mem_state = DATA_RD;
                     write_start = LOW;
                     read_start = HIGH;
-                end else if ((data_rd_miss & !data_dirty) & ins_rd_miss) begin        
+                end else if (((data_rd_miss & !data_dirty) | (data_wr_miss & !data_dirty)) & ins_rd_miss) begin        
                     next_mem_state = CLEAN_INS_RD;
                     write_start = LOW;
                     read_start = HIGH;
-                end else if (data_wr_miss & !data_dirty) begin
-                    next_mem_state = DATA_RD;
+                end else if (ins_rd_miss & !data_rd_miss & !data_wr_miss) begin
+                    next_mem_state = CLEAN_INS_RD;
                     write_start = LOW;
                     read_start = HIGH;
                 end else begin
@@ -311,9 +311,14 @@ module Mem_ctrl(
             end
 
             CLEAN_INS_RD: begin
-                next_mem_state = (read_done) ? DATA_RD : CLEAN_INS_RD;
+                if(read_done) begin
+                    next_mem_state = (data_rd_miss) ? DATA_RD : FINISH;
+                    read_start = (data_rd_miss) ? HIGH : LOW;
+                end else begin
+                    next_mem_state = CLEAN_INS_RD;
+                    read_start = LOW;
+                end
                 write_start = LOW;
-                read_start = (read_done) ? HIGH : LOW;
 
                 write_data_reg = '0;
                 write_addr_reg = '0;

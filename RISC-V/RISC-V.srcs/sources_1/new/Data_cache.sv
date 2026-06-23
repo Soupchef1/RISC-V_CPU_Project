@@ -31,8 +31,9 @@ module Data_cache(
     input logic EX_write_en,
 
     input logic [31:0] MA_addr,
-    //input logic [31:0] MA_data_in,
+    input logic [31:0] MA_data_in, //new signal
     input logic MA_read_en, MA_write_en,
+    input logic [1:0] MA_mem_bytes, //new signal
     output logic [31:0] MA_data_out,
 
     input logic ddr_rd_done,
@@ -88,7 +89,7 @@ module Data_cache(
     assign addrb = addr;
     assign addra = addr;
     
-    assign data_in = (state == PAUSE) ? ddr_data_in : regular_data_in;
+    assign data_in = (state == PAUSE) ? ddr_data_in_fixed : regular_data_in;
     assign tagline_in = (state == PAUSE) ? ddr_tagline : regular_tagline_in;
     assign wea = (state == PAUSE) ? ddr_wea : regular_wea;
     assign ena = (state == PAUSE) ? ddr_rd_done : (EX_addr != {fill in here}); //TODO: figure Out what is the video data address
@@ -106,7 +107,6 @@ module Data_cache(
         .doutb(doutb) // output wire [535:0] doutb
     );
 
-    //TODO: figure out how things change with valid
     always_comb begin
 
         //reading combinational logic
@@ -145,21 +145,22 @@ module Data_cache(
     //cache miss logic
 
     assign tag_out = tagline_out[16:0];
-    assign dirty = tagline_out[17];
-    assign valid = tagline_out[18];
+    assign dirty = tagline_out[17]; //dirty bit
+    assign valid = tagline_out[18]; //valid bit
 
-//cache miss logic
+    //cache miss logic
     assign cache_miss = tag_out != MA_addr[31:15];
     assign rd_miss = cache_miss & MA_read_en;
     assign wr_miss = cache_miss & MA_write_en;
 
-    assign ddr_rd_miss = rd_miss;
-    assign ddr_wr_miss = wr_miss;
-    assign ddr_dirty = dirty;
+    assign ddr_rd_miss = rd_miss | !valid;
+    assign ddr_wr_miss = wr_miss | (!valid & !is_video_data);
+    assign ddr_dirty = dirty & valid;
     assign is_video_data = MA_addr == ;//TODO: figure Out what is the video data address
 
     logic [23:0] ddr_tagline;
     logic [66:0] ddr_wea;
+    logic [511:0] ddr_data_in_fixed;
 
     //need to drive ddr versions of tag_line, data_in, wea, addr
     //also need to drive stall_out
@@ -191,6 +192,27 @@ module Data_cache(
                 stall_out = HIGH;
             end
         endcase
+
+        ddr_data_in_fixed = ddr_data_in;
+        if(MA_write_en) begin
+            case(MA_mem_bytes)
+                2'b00: begin 
+                    ddr_data_in_fixed = ddr_data_in;
+                end
+
+                2'b01: begin
+                    regular_data_in[MA_addr[5:0] * 8 +: 8] = MA_data_in[7:0]; // fills data_in with 64 of the same byte
+                end
+                
+                2'b10: begin
+                    regular_data_in[{MA_addr[5:1], 1'b0} * 16 +: 16] = EX_data[15:0];
+                end
+
+                2'b11: begin
+                    regular_data_in[{EX_addr[5:2], 2'b00} * 32 +: 32] = EX_data;
+                end
+            endcase
+        end
     end
 
     always_ff @(posedge clk, negedge nrst) begin
