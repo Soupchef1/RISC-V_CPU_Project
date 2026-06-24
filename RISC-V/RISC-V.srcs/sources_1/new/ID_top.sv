@@ -40,10 +40,10 @@ module ID_top(
         input logic flush_en, stall_en,   
         output logic [2:0] func3,
         output logic [6:0] func7,
+        output logic [4:0] rs1_addr, rs2_addr,
         output logic [4:0] opcode
     );
 
-    logic [4:0] rs1_adr, rs2_addr;
     logic [31:0] instr_use;
     logic [31:0] PC_reg;
 
@@ -66,7 +66,7 @@ module ID_top(
         .clk(clk),
         .nrst(nrst),
         .rs1_addr(rs1_addr),
-        .rs2_addr(rs1_addr),
+        .rs2_addr(rs2_addr),
         .write_addr(wb_addr),
         .write_data(wb_data),
         .rd_en(1'b1),
