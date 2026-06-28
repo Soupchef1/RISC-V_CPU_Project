@@ -83,8 +83,8 @@ module ALU_tb();
    
     ALU Ben_bottom_frag (
         .pc(pc),
-        .rs1_data(rs1),
-        .rs2_data(rs2),
+        .rs1_data(rs1_data),
+        .rs2_data(rs2_data),
         .imm(imm),
         .ALU_op(ALU_op),
         .MUX_en(MUX_en),
