@@ -22,8 +22,8 @@
 
 module Branch_mem(
 
-    input logic clk, nrst,
-
+    input logic clk, nrst, flush,
+    
     input logic [31:0] pc_in, //pc from IF stage
     input logic [31:0] pc_d, //pc of branch instruction in execute stage
     input logic [31:0] target, //from ex_stage
@@ -50,7 +50,7 @@ module Branch_mem(
     assign addra = pc_d[11:2];
     assign addrb = pc_in[11:2];
     assign branch_addr = doutb[31:0];
-    assign bht = (doutb[34]) ? doutb[33:32] : 2'b00;  //just checks valid bit also so we nevr take if valid bit is zero
+    assign bht = (doutb[34] & tag_match) ? doutb[33:32] : 2'b00;  //just checks valid bit also so we nevr take if valid bit is zero
     assign dina = target_data;
 
     logic [19:0] pc_tag;
@@ -70,16 +70,20 @@ module Branch_mem(
     assign tag_match = (pc_tag == branch_tag);
 
     always_ff @(posedge clk, negedge nrst) begin
-        if(!nrst) begin
-        //TODO: idk
-            // pc_tag <= '0;
-            // branch_data_ex <= '0;
-            // tag_match_ex <= '0;
-            // branch_en_ex <= '0;
+        if(!nrst | flush) begin
+            pc_tag <= '0;
+            branch_data_ex <= '0;
+            tag_match_ex <= '0;
+            branch_en_ex <= '0;
+        end
+        else if (stall) begin
+            pc_tag <= pc_tag;
+            branch_data_ex <= branch_data_ex;
+            tag_match_ex <= tag_match_ex;
+            branch_en_ex <= branch_en_ex;
         end
         else begin 
             pc_tag <= pc_in[31:12];
-
             //piplined cache line for a certain intruction so we can write back
             branch_data_ex <= branch_data;
             // pipelined checks
