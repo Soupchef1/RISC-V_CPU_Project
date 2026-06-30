@@ -1,2 +1,0 @@
-blk_mem_gen_1.v,verilog,xil_defaultlib,../../../../RISC-V.gen/sources_1/ip/blk_mem_gen_1/sim/blk_mem_gen_1.v,incdir="../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef"
-glbl.v,Verilog,xil_defaultlib,glbl.v
