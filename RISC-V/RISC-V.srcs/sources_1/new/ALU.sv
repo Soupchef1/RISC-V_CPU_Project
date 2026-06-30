@@ -57,9 +57,9 @@ module ALU(
             4'd2: result = op_a ^ op_b;
             4'd3: result = op_a | op_b;
             4'd4: result = op_a & op_b;
-            4'd5: result = op_a << op_b;
-            4'd6: result = op_a >> op_b;
-            4'd7: result = $signed(op_a) >>> op_b;
+            4'd5: result = op_a << op_b[4:0];
+            4'd6: result = op_a >> op_b[4:0];
+            4'd7: result = $signed(op_a) >>> op_b[4:0];
             4'd8: result = ($signed(op_a) < $signed(op_b))? 32'd1 : 32'd0;
             4'd9: result = (op_a < op_b)? 32'd1 : 32'd0;
             4'd10: result = (op_a == op_b)? 32'd1 : 32'd0;
@@ -72,8 +72,8 @@ module ALU(
     end
     
     assign ALU_out = (MUX_en[4] == 1'b0)? result : (pc + 32'd4);
-    assign pc_next = ((MUX_en[3] == 1'b1) & (result[0] == 1'b1))? b_result : (pc + 32'd4);
+    assign pc_next = (MUX_en[4] | (MUX_en[3] == 1'b1) & (result[0] == 1'b1))? b_result : (pc + 32'd4);
     assign target = b_result;
-    assign pc_switch = ((MUX_en[3] == 1'b1) & (result[0] == 1'b1))? 1'b1 : 1'b0;
+    assign pc_switch = (MUX_en[4] | (MUX_en[3] == 1'b1) & (result[0] == 1'b1))? 1'b1 : 1'b0;
 
 endmodule

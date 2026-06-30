@@ -27,7 +27,6 @@ module Register_file #(
 )(
 
     input  logic clk,
-    input  logic nrst,
     input  logic [ADDR_width-1:0] rs1_addr,
     input  logic [ADDR_width-1:0] rs2_addr,
     input  logic [ADDR_width-1:0] write_addr,
@@ -45,7 +44,6 @@ logic [DATA_width-1:0] register [0:31];    //creating the actual registers
 //write logic
 
 always_ff @(posedge clk) begin
-
     if (w_en) begin
         register[write_addr] <= (write_addr == '0)? '0 : write_data;
     end
@@ -55,20 +53,27 @@ end
 
 //read logic
 
-always_ff @(posedge clk or negedge nrst) begin
-
-    if (!nrst) begin                  //not sure if this block is needed
-        rs1_data <= '0;
-        rs2_data <= '0;
-    end
-    else begin
-        if (rd_en) begin
-            rs1_data <= (rs1_addr == '0)? '0 : register[rs1_addr];
-            rs2_data <= (rs2_addr == '0)? '0 : register[rs2_addr];
+always_comb begin
+        if (rs1_addr == '0) begin
+            rs1_data = '0;                      
+        end 
+        else if ((rs1_addr == write_addr) && w_en) begin
+            rs1_data = write_data;              // RAW Hazard Bypass: Forward new data
+        end 
+        else begin
+            rs1_data = register[rs1_addr];      // Normal read
         end
 
+        if (rs2_addr == '0) begin
+            rs2_data = '0;                      
+        end 
+        else if ((rs2_addr == write_addr) && w_en) begin
+            rs2_data = write_data;              // RAW Hazard Bypass: Forward new data
+        end 
+        else begin
+            rs2_data = register[rs2_addr];      // Normal read
+        end
     end
-end
 
 endmodule
 
