@@ -71,7 +71,7 @@ module Ins_cache(
     assign data_out = doutb[511:0];
     assign tagline_out = doutb[535:512];
 
-    blk_mem_gen_0_sv Ben_hella_gay (
+    blk_mem_gen_0 Ben_hella_gay (
         .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea

@@ -92,10 +92,10 @@ module Data_cache(
     assign data_in = (state == PAUSE) ? ddr_data_in_fixed : regular_data_in;
     assign tagline_in = (state == PAUSE) ? ddr_tagline : regular_tagline_in;
     assign wea = (state == PAUSE) ? ddr_wea : regular_wea;
-    assign ena = (state == PAUSE) ? ddr_rd_done : (EX_addr != {fill in here}); //TODO: figure Out what is the video data address
+    assign ena = (state == PAUSE) ? ddr_rd_done : (EX_addr[27:23] != 5'b11111);
     assign addr = (state == PAUSE) ? MA_addr[14:6] : EX_addr[14:6]; //during regular operation, addr is EX_addr. during cache miss, addr is MA_addr
 
-    blk_mem_gen_0_sv freak_bob (
+    blk_mem_gen_0 freak_bob (
         .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
@@ -156,7 +156,7 @@ module Data_cache(
     assign ddr_rd_miss = rd_miss | !valid;
     assign ddr_wr_miss = wr_miss | (!valid & !is_video_data);
     assign ddr_dirty = dirty & valid;
-    assign is_video_data = MA_addr == ;//TODO: figure Out what is the video data address
+    assign is_video_data = MA_addr[27:23] ==  5'b11111;
 
     logic [23:0] ddr_tagline;
     logic [66:0] ddr_wea;
