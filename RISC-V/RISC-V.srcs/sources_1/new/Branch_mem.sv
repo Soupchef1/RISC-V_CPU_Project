@@ -22,7 +22,7 @@
 
 module Branch_mem(
 
-    input logic clk, nrst, flush,
+    input logic clk, nrst, flush, stall,
     
     input logic [31:0] pc_in, //pc from IF stage
     input logic [31:0] pc_d, //pc of branch instruction in execute stage
@@ -126,7 +126,7 @@ module Branch_mem(
     // else if tag_match is high and branch_en is high, write and +1 or -1 depending on pc_switch
     // else don't write
 
-blk_mem_gen_1_sv Trip_balls_theorem (
+blk_mem_gen_1 Trip_balls_theorem (
   .clka(clk), // input wire clka
   .ena(ena), // input wire ena
   .wea(wea), // input wire [6:0] wea
