@@ -28,15 +28,15 @@ module IF_top(
         output logic [31:0] PC_out, //to decode pipeline reg
 
         //branch mem signals
-        input logic predicted_jump, //from ex stage
+        output logic predicted_jump, //from ex stage
         input logic [4:0] MUX_en, //from decode stage
         input logic pc_switch, //from ex stage
         input logic [31:0] PC_Ex, //from ex stage
+        input logic [31:0] target, //from ex_stage
 
         //instruction cache signals
         input logic [31:0] ID_addr, //PC from decode stage
         input logic [31:0] start_data,
-        input logic [31:0] start_data, 
         input logic [31:0] start_addr,
         input logic start_done,
         input logic ddr_rd_done,
@@ -48,6 +48,8 @@ module IF_top(
 
     logic [1:0] bht;
     logic [31:0] branch_addr;
+
+    assign instr = catch_this.instr;
     
     program_counter gaming_pc(
         .PC_in(PC_out),
