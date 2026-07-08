@@ -75,7 +75,7 @@ module Data_cache(
     logic [66:0] regular_wea;
 
     // cache miss signals
-    typedef enum logic { 
+    typedef enum logic [1:0] { 
         STARTUP,
         IDLE,
         PAUSE
@@ -89,26 +89,34 @@ module Data_cache(
     logic dirty;
     logic valid;
 
+    //cache miss logic
+    assign tag_out = tagline_out[16:0];
+    assign dirty = tagline_out[17]; //dirty bit
+    assign valid = tagline_out[18]; //valid bit
+
+    //cache miss logic
+    assign cache_miss = tag_out != MA_addr[31:15];
+    assign rd_miss = cache_miss & MA_read_en;
+    assign wr_miss = cache_miss & MA_write_en;
+
+    logic [23:0] ddr_tagline;
+    logic [66:0] ddr_wea;
+    logic [511:0] ddr_data_in_fixed;
+
+    assign enb = HIGH;
+    assign data_out = doutb[511:0];
+    assign tagline_out = doutb[535:512];
+
+    assign dina = {tagline_in, data_in};
+    assign addrb = addr;
+    assign addra = addr;
+
+    assign ddr_rd_miss = rd_miss | !valid;
+    assign ddr_wr_miss = wr_miss | (!valid & !is_video_data);
+    assign ddr_dirty = dirty & valid;
+    assign is_video_data = MA_addr[27:23] ==  5'b11111;
+
     always_comb begin
-        enb = HIGH;
-        data_out = doutb[511:0];
-        tagline_out = doutb[535:512];
-
-        // data_in = (state == PAUSE) ? ddr_data_in_fixed : regular_data_in;
-        // tagline_in = (state == PAUSE) ? ddr_tagline : regular_tagline_in;
-        // wea = (state == PAUSE) ? ddr_wea           : regular_wea;
-        // ena = (state == PAUSE) ? ddr_rd_done       : (EX_addr[27:23] != 5'b11111);
-        // addr = (state == PAUSE) ? MA_addr[14:6]     : EX_addr[14:6]; //during regular operation, addr is EX_addr. during cache miss, addr is MA_addr
-
-        dina = {tagline_in, data_in};
-        addrb = addr;
-        addra = addr;
-
-        ddr_rd_miss = rd_miss | !valid;
-        ddr_wr_miss = wr_miss | (!valid & !is_video_data);
-        ddr_dirty = dirty & valid;
-        is_video_data = MA_addr[27:23] ==  5'b11111;
-
         case(state) 
             STARTUP: begin
                 ena = HIGH;
@@ -116,11 +124,6 @@ module Data_cache(
                 addr = start_addr[14:6];
                 data_in = '0;
                 tagline_in = '0;
-
-                ddr_rd_miss = LOW;  //doing these here so it doenst make MEM_ctrl change states during startup.
-                ddr_wr_miss = LOW;
-                ddr_dirty = LOW;
-                is_video_data = LOW;
             end
 
             IDLE: begin
@@ -138,7 +141,7 @@ module Data_cache(
                 ena = ddr_rd_done;
                 addr = MA_addr[14:6];
             end
-            
+
             default: begin
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
@@ -222,40 +225,18 @@ module Data_cache(
                 end
 
                 2'b11: begin
-                    ddr_data_in_fixed[{EX_addr[5:2], 2'b00} * 32 +: 32] = MA_data_in;
+                    ddr_data_in_fixed[{MA_addr[5:2], 2'b00} * 32 +: 32] = MA_data_in;
                 end
 
                 default: begin
-                    regular_wea = '0;
-                    regular_data_in = '0;
+                   ddr_data_in_fixed = '0;
                 end
+
             endcase
         end
         
     end
     
-    //cache miss logic
-
-    assign tag_out = tagline_out[16:0];
-    assign dirty = tagline_out[17]; //dirty bit
-    assign valid = tagline_out[18]; //valid bit
-
-    //cache miss logic
-    assign cache_miss = tag_out != MA_addr[31:15];
-    assign rd_miss = cache_miss & MA_read_en;
-    assign wr_miss = cache_miss & MA_write_en;
-
-    // assign ddr_rd_miss = rd_miss | !valid;
-    // assign ddr_wr_miss = wr_miss | (!valid & !is_video_data);
-    // assign ddr_dirty = dirty & valid;
-    // assign is_video_data = MA_addr[27:23] ==  5'b11111;
-
-    logic [23:0] ddr_tagline;
-    logic [66:0] ddr_wea;
-    logic [511:0] ddr_data_in_fixed;
-
-    //need to drive ddr versions of tag_line, data_in, wea, addr
-    //also need to drive stall_out
 
     always_comb begin
 
@@ -314,7 +295,5 @@ module Data_cache(
             end  
         end
     end
-
-    
 
 endmodule
