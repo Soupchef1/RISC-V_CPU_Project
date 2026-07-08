@@ -138,6 +138,14 @@ module Data_cache(
                 ena = ddr_rd_done;
                 addr = MA_addr[14:6];
             end
+            
+            default: begin
+                data_in = regular_data_in;
+                tagline_in = regular_tagline_in;
+                wea = regular_wea;
+                ena = (EX_addr[27:23] != 5'b11111);
+                addr = EX_addr[14:6];
+            end
 
         endcase
     end
@@ -161,9 +169,15 @@ module Data_cache(
 
         //writing combinational logic no misses
         regular_tagline_in = {5'b0, 1'b1, 1'b1, EX_addr[31:15]};
-
         regular_data_in = '0;
         regular_wea = '0;
+
+        //w/ misses
+        ddr_data_in_fixed = ddr_data_in;
+        ddr_tagline = {5'b0, 1'b1, 1'b0, MA_addr[31:15]};
+        ddr_wea = '1;
+        ddr_addr = MA_addr;
+
         if(EX_write_en) begin
             case(EX_mem_bytes)
                 2'b00: begin 
@@ -185,8 +199,39 @@ module Data_cache(
                     regular_wea[{EX_addr[5:2], 2'b00} +: 4] = 4'b1111;
                     regular_data_in = {16{EX_data}};
                 end
+
+                default: begin
+                    regular_wea = '0;
+                    regular_data_in = '0;
+                end
             endcase
         end
+
+        if(MA_write_en) begin
+            case(MA_mem_bytes)
+                2'b00: begin 
+                    ddr_data_in_fixed = ddr_data_in;
+                end
+
+                2'b01: begin
+                    ddr_data_in_fixed[MA_addr[5:0] * 8 +: 8] = MA_data_in[7:0];
+                end
+                
+                2'b10: begin
+                    ddr_data_in_fixed[{MA_addr[5:1], 1'b0} * 16 +: 16] = MA_data_in[15:0];
+                end
+
+                2'b11: begin
+                    ddr_data_in_fixed[{EX_addr[5:2], 2'b00} * 32 +: 32] = MA_data_in;
+                end
+
+                default: begin
+                    regular_wea = '0;
+                    regular_data_in = '0;
+                end
+            endcase
+        end
+        
     end
     
     //cache miss logic
@@ -214,9 +259,6 @@ module Data_cache(
 
     always_comb begin
 
-        ddr_tagline = {5'b0, 1'b1, 1'b0, MA_addr[31:15]};
-        ddr_wea = '1;
-        ddr_addr = MA_addr;
         case(state)
             STARTUP: begin
                 if(start_done) begin
@@ -248,28 +290,13 @@ module Data_cache(
                 end
                 stall_out = HIGH;
             end
+
+            default: begin
+                stall_out = LOW;
+                next_state = IDLE;
+            end
         endcase
 
-        ddr_data_in_fixed = ddr_data_in;
-        if(MA_write_en) begin
-            case(MA_mem_bytes)
-                2'b00: begin 
-                    ddr_data_in_fixed = ddr_data_in;
-                end
-
-                2'b01: begin
-                    ddr_data_in_fixed[MA_addr[5:0] * 8 +: 8] = MA_data_in[7:0];
-                end
-                
-                2'b10: begin
-                    ddr_data_in_fixed[{MA_addr[5:1], 1'b0} * 16 +: 16] = MA_data_in[15:0];
-                end
-
-                2'b11: begin
-                    ddr_data_in_fixed[{EX_addr[5:2], 2'b00} * 32 +: 32] = MA_data_in;
-                end
-            endcase
-        end
     end
 
     always_ff @(posedge clk, negedge nrst) begin
