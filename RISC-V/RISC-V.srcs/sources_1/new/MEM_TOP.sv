@@ -48,7 +48,7 @@ module MEM_TOP(
     input logic flush, stall,
 
     //to write back
-    output logic MUX_data_out,
+    output logic [31:0] MUX_data_out,
     output logic [4:0] mem_rd
     );
 
