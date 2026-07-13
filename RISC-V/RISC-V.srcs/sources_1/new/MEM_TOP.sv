@@ -49,7 +49,11 @@ module MEM_TOP(
 
     //to write back
     output logic [31:0] MUX_data_out,
-    output logic [4:0] mem_rd
+    output logic [4:0] mem_rd,
+
+    //startup
+    input logic [31:0] start_addr,
+    input logic start_done
     );
 
     logic [31:0] MA_addr;  //same as ALU_outex
@@ -76,7 +80,9 @@ module MEM_TOP(
         .ddr_addr(ddr_addr),
         .ddr_dirty(ddr_dirty),
         .is_video_data(is_video_data),
-        .stall_out(stall_out)
+        .stall_out(stall_out),
+        .start_addr(start_addr),
+        .start_done(start_done)
     );
     
 

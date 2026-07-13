@@ -48,7 +48,6 @@ module Data_cache(
     output logic stall_out,
 
     //startup signals
-    input logic [31:0] start_data, 
     input logic [31:0] start_addr,
     input logic start_done
 
