@@ -94,7 +94,7 @@ module Data_cache(
     assign valid = tagline_out[18]; //valid bit
 
     //cache miss logic
-    assign cache_miss = tag_out != MA_addr[31:15];
+    assign cache_miss = (tag_out != MA_addr[31:15]) | !valid;
     assign rd_miss = cache_miss & MA_read_en;
     assign wr_miss = cache_miss & MA_write_en;
 
@@ -110,10 +110,11 @@ module Data_cache(
     assign addrb = addr;
     assign addra = addr;
 
+
     assign ddr_rd_miss = rd_miss | !valid;
     assign ddr_wr_miss = wr_miss | (!valid & !is_video_data);
     assign ddr_dirty = dirty & valid;
-    assign is_video_data = MA_addr[27:23] ==  5'b11111;
+    assign is_video_data = (MA_addr[27:23] ==  5'b11111) & (MA_read_en | MA_write_en);
 
     always_comb begin
         case(state) 
@@ -129,12 +130,12 @@ module Data_cache(
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
                 wea = regular_wea;
-                ena = (EX_addr[27:23] != 5'b11111);
+                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
                 addr = EX_addr[14:6];
             end
 
             PAUSE: begin
-                data_in =  ddr_data_in_fixed;
+                data_in = ddr_data_in_fixed;
                 tagline_in = ddr_tagline;
                 wea = ddr_wea;
                 ena = ddr_rd_done;
@@ -145,7 +146,7 @@ module Data_cache(
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
                 wea = regular_wea;
-                ena = (EX_addr[27:23] != 5'b11111);
+                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
                 addr = EX_addr[14:6];
             end
 
@@ -176,7 +177,7 @@ module Data_cache(
 
         //w/ misses
         ddr_data_in_fixed = ddr_data_in;
-        ddr_tagline = {5'b0, 1'b1, 1'b0, MA_addr[31:15]};
+        ddr_tagline = {5'b0, 1'b1, MA_write_en, MA_addr[31:15]};
         ddr_wea = '1;
         ddr_addr = MA_addr;
 
@@ -189,16 +190,19 @@ module Data_cache(
 
                 2'b01: begin
                     regular_wea[EX_addr[5:0]] = HIGH;
+                    regular_wea [66:64] = '1;
                     regular_data_in = {64{EX_data[7:0]}}; // fills data_in with 64 of the same byte
                 end
                 
                 2'b10: begin
                     regular_wea[{EX_addr[5:1], 1'b0} +: 2] = 2'b11;
+                    regular_wea [66:64] = '1;
                     regular_data_in = {32{EX_data[15:0]}};
                 end
 
                 2'b11: begin
                     regular_wea[{EX_addr[5:2], 2'b00} +: 4] = 4'b1111;
+                    regular_wea [66:64] = '1;
                     regular_data_in = {16{EX_data}};
                 end
 
