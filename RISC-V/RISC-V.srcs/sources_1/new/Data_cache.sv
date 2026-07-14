@@ -59,7 +59,7 @@ module Data_cache(
     logic ena, enb;
     logic [66:0] wea;
     logic [8:0] addra, addrb;
-    logic [535:0] dina, doutb;
+    logic [535:0] dina, doutb, douta;
 
     logic [23:0] tagline_in; //tag being written to BRAM
     logic [23:0] tagline_out; //tag being read from BRAM
@@ -103,8 +103,11 @@ module Data_cache(
     logic [511:0] ddr_data_in_fixed;
 
     assign enb = HIGH;
-    assign data_out = doutb[511:0];
-    assign tagline_out = doutb[535:512];
+    // assign data_out = doutb[511:0];
+    // assign tagline_out = doutb[535:512];
+
+    assign data_out    = MA_write_en ? douta[511:0]   : doutb[511:0];
+    assign tagline_out = MA_write_en ? douta[535:512] : doutb[535:512];
 
     assign dina = {tagline_in, data_in};
     assign addrb = addr;
@@ -153,7 +156,7 @@ module Data_cache(
         endcase
     end
 
-    blk_mem_gen_0 freak_bob (
+    blk_mem_gen_2 freak_bob (
         .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
@@ -162,7 +165,8 @@ module Data_cache(
         .clkb(clk), // input wire clkb
         .enb(enb), // input wire enb
         .addrb(addrb), // input wire [8:0] addrb
-        .doutb(doutb) // output wire [535:0] doutb
+        .doutb(doutb), // output wire [535:0] doutb
+        .douta(douta)
     );
 
     always_comb begin

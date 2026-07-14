@@ -108,8 +108,6 @@ module MEM_TOP_tb(
         clk = ~clk;
     end
 
-    assign stall = stall_out;
-
     initial begin
         test_num = 0;
         tests_passed = 0;
@@ -141,18 +139,20 @@ module MEM_TOP_tb(
 
         $display("\n\ntesting: %s @ %t", test_case, $time);
         reset_dut();
+        stall = HIGH;
 
-        @(posedge clk);@(posedge clk);
-        
         $display("\nloading BRAM");
         for(int i = 0; i < 8192; i++) begin
             start_addr = i * 4;
-            if(i = 8191) begin
+            if(i == 8191) begin
                 start_done = HIGH;
             end
             @(posedge clk);
         end
 
+        @(posedge clk);@(posedge clk);
+        
+        stall = LOW;
         start_done = LOW;
 
         test_case = "Non Load/Store Case";
@@ -213,7 +213,7 @@ module MEM_TOP_tb(
         @(posedge clk);
 
 //TODO: make sure ts is right gng
-        test_case = "Cold Miss Store & Read Hit";
+        test_case = "write Miss, Store & Read";
         $display("\nTesting: %s @ %t", test_case, $time);
         
         // 1. Issue Write in EX Stage to a cold address
@@ -279,13 +279,6 @@ module MEM_TOP_tb(
         test_num++;
 
         MA_rd_en = LOW;
-
-
-
-
-
-
-
 
 
 
