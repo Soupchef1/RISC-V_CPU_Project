@@ -212,7 +212,7 @@ module MEM_TOP_tb(
 
         @(posedge clk);
 
-//TODO: make sure ts is right gng
+//TODO: make sure ts is right gng - DONE
         test_case = "write Miss, Store & Read";
         $display("\nTesting: %s @ %t", test_case, $time);
         
@@ -279,6 +279,63 @@ module MEM_TOP_tb(
         test_num++;
 
         MA_rd_en = LOW;
+
+
+//TODO: read miss test -DONE
+        test_case = "read Miss";
+        $display("\nTesting: %s @ %t", test_case, $time);
+        
+        // 1. Issue read in EX Stage to a prevous cache line address w/ diff tag
+        EX_addr = 32'h0000_8100; // Index 4, Offset 0
+        EX_wr_en = LOW; EX_rd_en = HIGH;
+        EX_mem_bytes = 2'b11; // 4 bytes
+        
+        @(posedge clk);
+        
+        // 2. Move Write control signals to MA stage
+        // (MEM_TOP automatically propagates EX_addr and EX_data to MA stage registers)
+        EX_rd_en = LOW; 
+        MA_rd_en = HIGH;
+        MA_mem_bytes = 2'b11;
+
+        @(negedge clk); // Check miss logic on negedge
+        
+        // At this point, valid = 0, so ddr_wr_miss and stall_out should be HIGH
+        if (stall_out !== HIGH || ddr_rd_miss !== HIGH) begin
+            $display("Test failed: miss did not trigger pipeline stall.");
+        end else begin
+            $display(" miss detected. Simulating DDR block fetch...");
+            
+            // Wait a few cycles to simulate DDR latency
+            #(CLK_PERIOD * 2); 
+            
+            // The memory controller returns the surrounding 64-byte block (all 0s)
+            // Your MA_data_in splicing logic will insert AABBCCDD into this block automatically
+            ddr_data_in = {16{32'h0000_ABCD}}; 
+            ddr_rd_done = HIGH;
+            
+            @(posedge clk); // Clock in the ddr_rd_done signal
+            ddr_rd_done = LOW;
+            
+            @(negedge clk); // Evaluate the read output
+            
+            if (ddr_dirty !== HIGH) begin
+                $display("Test failed: Dirty bit was not asserted for the evicted block.");
+            end
+
+            if (MUX_data_out !== 32'h0000_ABCD) begin
+                $display("Test failed: Read miss returned wrong data. Expected: 0000_ABCD, Got: %0h", MUX_data_out);
+            end else begin
+                tests_passed++;
+            end
+        end
+        
+        test_num++;
+        MA_rd_en = LOW;
+        
+        @(posedge clk);
+
+
 
 
 
