@@ -212,6 +212,8 @@ module MEM_TOP_tb(
 
         @(posedge clk);
 
+        stall = stall_out;
+
 //TODO: make sure ts is right gng - DONE
         test_case = "write Miss, Store & Read";
         $display("\nTesting: %s @ %t", test_case, $time);
@@ -280,6 +282,7 @@ module MEM_TOP_tb(
 
         MA_rd_en = LOW;
 
+        @(posedge clk);
 
 //TODO: read miss test -DONE
         test_case = "read Miss";
