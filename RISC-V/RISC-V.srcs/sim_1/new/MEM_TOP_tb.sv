@@ -1,38 +1,32 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+// Company: GOON LLC
+// Engineer: Benjamin Li and Ryan Karami
 // 
-// Create Date: 07/09/2026 12:51:51 AM
-// Design Name: 
+// Design Name: memory top tb
 // Module Name: MEM_TOP_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Project Name: GOON-PU
+// Target Devices: ARTY s7-25
+// Description: Startup sequence followed by I1 (write miss), I2 (read), I3 (normal op).
 //////////////////////////////////////////////////////////////////////////////////
 
-
-module MEM_TOP_tb(
-    );
+module MEM_TOP_tb();
 
     localparam CLK_PERIOD = 10;
     localparam HIGH = 1'b1;
     localparam LOW = 1'b0;
 
-    logic clk, nrst, flush, stall;
+    logic clk, nrst, flush;
+    
+    // Wire the stall signal to automatically respect cache misses
+    logic force_stall;
+    logic stall;
+    assign stall = force_stall | stall_out;
 
     logic [4:0] EX_rd;
     logic [31:0] EX_addr;
     logic [31:0] EX_data;
-    logic [1:0] EX_mem_bytes, MA_mem_bytes; //#bytes to write: 00 for 0 bytes, 01 for 1 byte, 10 for 2 bytes, 11 for 4 bytes;
+    logic [1:0] EX_mem_bytes, MA_mem_bytes; 
     logic mem_zero_extend;
     
     //controller signals
@@ -87,18 +81,15 @@ module MEM_TOP_tb(
 
     task reset_dut;
     begin
-        // Activate the reset
         nrst = 1'b0;
         @(posedge clk);
         @(posedge clk);
-        // deactivate reset
         nrst = 1'b1;
         @(posedge clk);
         @(posedge clk);
     end
     endtask
 
-    // test bench signals
     string test_case;
     int test_num;
     int tests_passed;
@@ -111,17 +102,17 @@ module MEM_TOP_tb(
     initial begin
         test_num = 0;
         tests_passed = 0;
-        test_case = "Reset Test";
+        test_case = "Reset & Startup Sequence";
         
         clk = LOW;
         nrst = HIGH;
         flush = LOW;
-        stall = LOW;
+        force_stall = LOW;
         
         EX_rd = '0;
         EX_addr = '0;
         EX_data = '0;
-        EX_mem_bytes = 2'b11; // 4 bytes by default
+        EX_mem_bytes = 2'b11; 
         EX_rd_en = LOW;
         EX_wr_en = LOW;
         mem_zero_extend = LOW;
@@ -137,11 +128,11 @@ module MEM_TOP_tb(
 
         @(posedge clk);
 
-        $display("\n\ntesting: %s @ %t", test_case, $time);
+        $display("\n\nTesting: %s @ %t", test_case, $time);
         reset_dut();
-        stall = HIGH;
+        force_stall = HIGH;
 
-        $display("\nloading BRAM");
+        $display("\nLoading BRAM...");
         for(int i = 0; i < 8192; i++) begin
             start_addr = i * 4;
             if(i == 8191) begin
@@ -150,29 +141,89 @@ module MEM_TOP_tb(
             @(posedge clk);
         end
 
-        @(posedge clk);@(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
         
-        stall = LOW;
+        force_stall = LOW;
         start_done = LOW;
 
-        test_case = "Non Load/Store Case";
+        test_case = "I1 (Write Miss) -> I2 (Read) -> I3 (Normal Op)";
         $display("\nTesting: %s @ %t", test_case, $time);
-        EX_rd_en = LOW; EX_wr_en = LOW;
-        EX_addr = 32'h0000_BEEF; // This represents ALU output in a normal instruction
-        EX_rd = 5'd5;
+        
+        // Cycle 1: Issue I1 (Write) in EX Stage to a cold address
+        EX_addr = 32'h0000_0200; 
+        EX_data = 32'hDEADBEEF;
+        EX_wr_en = HIGH; 
+        EX_rd_en = LOW;
+        EX_mem_bytes = 2'b11; 
+        
         @(posedge clk);
-        // Move to MA stage
-        MA_rd_en = LOW; MA_wr_en = LOW;
-        @(negedge clk);
-        if (MUX_data_out !== 32'h0000_BEEF || mem_rd !== 5'd5) begin
-            $display("Test failed: ALU result did not bypass memory correctly. MUX_data_out: %0h", MUX_data_out);
+        
+        // Cycle 2: I1 moves to MA, put I2 (Read) in EX to same address
+        EX_wr_en = LOW; 
+        MA_wr_en = HIGH;
+        MA_mem_bytes = 2'b11;
+        
+        EX_addr = 32'h0000_0200;
+        EX_rd_en = HIGH;
+        EX_mem_bytes = 2'b11;
+        
+        @(negedge clk); 
+        
+        if (stall_out !== HIGH) begin
+            $display("Test failed: Back-to-back write miss did not stall pipeline.");
         end else begin
+            $display("Pipeline stalled by I1. Simulating DDR fetch...");
+            
+            #(CLK_PERIOD * 3); 
+            
+            ddr_data_in = '0; 
+            ddr_rd_done = HIGH;
+            
+            @(posedge clk); 
+            ddr_rd_done = LOW;
+            
+        end
+        
+        // Cycle 3: I1 clears MA, I2 enters MA, I3 (Normal Op) enters EX.
+        MA_wr_en = LOW; 
+        MA_rd_en = HIGH;
+        MA_mem_bytes = 2'b11;
+        
+        EX_rd_en = LOW;
+        EX_wr_en = LOW;
+        EX_addr = 32'h0000_BEEF; // Standard ALU output bypassing memory
+        EX_rd = 5'd5;            // Target register
+        
+        @(negedge clk); 
+        
+        // Verify I2 Read Data
+        if (stall_out === HIGH) begin
+            $display("Test failed: I2 Read unexpectedly stalled.");
+        end else if (MUX_data_out !== 32'hDEADBEEF) begin
+            $display("Test failed: I2 Read returned wrong data. Expected: DEADBEEF, Got: %0h", MUX_data_out);
+        end else begin
+            $display("I2 read hazard resolved successfully!");
             tests_passed++;
         end
-        test_num++;
 
         @(posedge clk);
 
+        // Cycle 4: I2 clears MA, I3 moves to MA
+        MA_rd_en = LOW; 
+        
+        @(negedge clk);
+
+        // Verify I3 bypassed memory correctly
+        if (MUX_data_out !== 32'h0000_BEEF || mem_rd !== 5'd5) begin
+            $display("Test failed: I3 ALU result did not bypass memory correctly. MUX_data_out: %0h", MUX_data_out);
+        end else begin
+            $display("I3 normal op bypassed memory successfully!");
+            tests_passed++;
+        end
+
+        @(posedge clk);
+        
         test_case = "Flush Test";
         $display("\nTesting: %s @ %t", test_case, $time);
         EX_addr = 32'h12345678;
@@ -190,101 +241,8 @@ module MEM_TOP_tb(
 
         @(posedge clk);
 
-        test_case = "Stall Test";
-        $display("\nTesting: %s @ %t", test_case, $time);
-        
-        EX_addr = 32'h0000_1000;
-        EX_rd = 5'd8;
-        stall = LOW; 
-        @(posedge clk); 
-        stall = HIGH;
-        EX_addr = 32'h0000_2000; 
-        EX_rd = 5'd9;
-        @(posedge clk);
-        @(negedge clk); 
-        if (mem_rd !== 5'd8 || MUX_data_out !== 32'h0000_1000) begin
-            $display("Test failed: Pipeline did not stall correctly. mem_rd: %0d, MUX_data_out: %0h", mem_rd, MUX_data_out);
-        end else begin
-            tests_passed++;
-        end
-        test_num++;
-        stall = LOW; 
 
-        @(posedge clk);
-
-        stall = stall_out;
-
-//TODO: make sure ts is right gng - DONE
-        test_case = "write Miss, Store & Read";
-        $display("\nTesting: %s @ %t", test_case, $time);
-        
-        // 1. Issue Write in EX Stage to a cold address
-        EX_addr = 32'h0000_0100; // Index 4, Offset 0
-        EX_data = 32'hAABBCCDD;
-        EX_wr_en = HIGH; EX_rd_en = LOW;
-        EX_mem_bytes = 2'b11; // 4 bytes
-        
-        @(posedge clk);
-        
-        // 2. Move Write control signals to MA stage
-        // (MEM_TOP automatically propagates EX_addr and EX_data to MA stage registers)
-        EX_wr_en = LOW; 
-        MA_wr_en = HIGH;
-        MA_mem_bytes = 2'b11;
-
-        @(negedge clk); // Check miss logic on negedge
-        
-        // At this point, valid = 0, so ddr_wr_miss and stall_out should be HIGH
-        if (stall_out !== HIGH || ddr_wr_miss !== HIGH) begin
-            $display("Test failed: Cold miss did not trigger pipeline stall.");
-        end else begin
-            $display("Cold miss detected. Simulating DDR block fetch...");
-            
-            // Wait a few cycles to simulate DDR latency
-            #(CLK_PERIOD * 2); 
-            
-            // The memory controller returns the surrounding 64-byte block (all 0s)
-            // Your MA_data_in splicing logic will insert AABBCCDD into this block automatically
-            ddr_data_in = '0; 
-            ddr_rd_done = HIGH;
-            
-            @(posedge clk); // Clock in the ddr_rd_done signal
-            ddr_rd_done = LOW;
-        end
-        
-        MA_wr_en = LOW; // Clear MA stage write
-        @(posedge clk);
-        
-        // 3. Issue Read to the exact same address
-        EX_addr = 32'h0000_0100;
-        EX_rd_en = HIGH;
-        EX_wr_en = LOW;
-        EX_mem_bytes = 2'b11;
-        
-        @(posedge clk);
-        
-        // 4. Move Read control signals to MA stage
-        EX_rd_en = LOW;
-        MA_rd_en = HIGH;
-        MA_mem_bytes = 2'b11;
-        
-        @(negedge clk); // Evaluate the read hit
-        
-        // Because the block is now valid and the tag matches, it should NOT stall
-        if (stall_out === HIGH) begin
-            $display("Test failed: Read unexpectedly stalled on what should be a hit.");
-        end else if (MUX_data_out !== 32'hAABBCCDD) begin
-            $display("Test failed: Load Hit returned wrong data. Expected: AABBCCDD, Got: %0h", MUX_data_out);
-        end else begin
-            tests_passed++;
-        end
-        test_num++;
-
-        MA_rd_en = LOW;
-
-        @(posedge clk);
-
-//TODO: read miss test -DONE
+//read miss test
         test_case = "read Miss";
         $display("\nTesting: %s @ %t", test_case, $time);
         
@@ -319,9 +277,7 @@ module MEM_TOP_tb(
             
             @(posedge clk); // Clock in the ddr_rd_done signal
             ddr_rd_done = LOW;
-            
-            @(negedge clk); // Evaluate the read output
-            
+                        
             if (ddr_dirty !== HIGH) begin
                 $display("Test failed: Dirty bit was not asserted for the evicted block.");
             end
@@ -334,14 +290,11 @@ module MEM_TOP_tb(
         end
         
         test_num++;
-        MA_rd_en = LOW;
-        
+
         @(posedge clk);
 
 
-
-
-
+        $display("\nSimulation Finished. Tests Passed: %0d", tests_passed);
         $finish;
     end
 

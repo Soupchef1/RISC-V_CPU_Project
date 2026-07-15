@@ -114,8 +114,8 @@ module Data_cache(
     assign addra = addr;
 
 
-    assign ddr_rd_miss = rd_miss | !valid;
-    assign ddr_wr_miss = wr_miss | (!valid & !is_video_data);
+    assign ddr_rd_miss = rd_miss;
+    assign ddr_wr_miss = wr_miss & !is_video_data;
     assign ddr_dirty = dirty & valid;
     assign is_video_data = (MA_addr[27:23] ==  5'b11111) & (MA_read_en | MA_write_en);
 
