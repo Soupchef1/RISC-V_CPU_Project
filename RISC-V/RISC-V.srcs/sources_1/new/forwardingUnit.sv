@@ -20,71 +20,66 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
+
+// DEF = use value from register file
+// EX = forward result from execute stage
+// MEM = forward result from memory stage
+typedef enum logic[3:0] { 
+    RS1_DEF_RS2_DEF,
+    RS1_DEF_RS2_EX,
+    RS1_DEF_RS2_MEM,
+    RS1_EX_RS2_DEF,
+    RS1_EX_RS2_EX,
+    RS1_EX_RS2_MEM,
+    RS1_MEM_RS2_DEF,
+    RS1_MEM_RS2_EX,
+    RS1_MEM_RS2_MEM
+} forwarding_setting_t;
+
 module forwardingUnit(
-    input logic clk,
-    input logic nrst,
     input logic [4:0] rs1_decode,
     input logic [4:0] rs2_decode,
     input logic [4:0] rd_ex,
     input logic [4:0] rd_mem,
-    input logic flush,
-    input logic stall,
-    output logic [3:0] FUmux
+    output forwarding_setting_t FUmux
     );
 
-    always_ff @(posedge clk, negedge nrst) begin
-        //reset and flush logic
-        if(!nrst | flush) begin
-            FUmux <= '0;
-        end
+    always_comb begin 
+        // forwarding logic
+        FUmux = RS1_DEF_RS2_DEF; //default case
 
-        else if(stall) begin
-            FUmux <= FUmux;
+        // checking for matching register addresses
+        if(rs1_decode == rd_ex) begin
+            if(rs2_decode == rd_ex)begin
+                FUmux = RS1_EX_RS2_EX;
+            end
+            else if(rs2_decode == rd_mem)begin
+                FUmux = RS1_EX_RS2_MEM;
+            end
+            else begin 
+                FUmux = RS1_EX_RS2_DEF;
+            end
         end
-
+        else if(rs1_decode == rd_mem) begin
+            if(rs2_decode == rd_ex)begin
+                FUmux = RS1_MEM_RS2_EX;
+            end
+            else if(rs2_decode == rd_mem)begin
+                FUmux = RS1_MEM_RS2_MEM;
+            end
+            else begin 
+                FUmux = RS1_MEM_RS2_DEF;
+            end
+        end
         else begin
-            if(rs2_decode == rd_ex) begin
-                if(rs1_decode == rd_ex)begin
-                    FUmux <= 4'd4;
-                end
-
-                else if(rs1_decode == rd_mem)begin
-                    FUmux <= 4'd7;
-                end
-
-                else begin //rs1 cannot be forwarded
-                    FUmux <= 4'd1;
-                end
-                
+            if(rs2_decode == rd_ex)begin
+                FUmux = RS1_DEF_RS2_EX;
             end
-            
-            else if(rs2_decode == rd_mem) begin
-                if(rs1_decode == rd_ex)begin
-                    FUmux <= 4'd5;
-                end
-
-                else if(rs1_decode == rd_mem)begin
-                    FUmux <= 4'd8;
-                end
-
-                else begin //rs1 cannot be forwarded
-                    FUmux <= 4'd2;
-                end
-                
+            else if(rs2_decode == rd_mem)begin
+                FUmux = RS1_DEF_RS2_MEM;
             end
-            // rs2 cannot be forwarded
-            else begin
-                if(rs1_decode == rd_ex)begin
-                    FUmux <= 4'd3;
-                end
-
-                else if(rs1_decode == rd_mem)begin
-                    FUmux <= 4'd6;
-                end
-
-                else begin //rs1 cannot be forwarded
-                    FUmux <= 4'd0;
-                end
+            else begin 
+                FUmux = RS1_DEF_RS2_DEF;
             end
         end
     end
