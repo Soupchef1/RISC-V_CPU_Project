@@ -18,7 +18,22 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+typedef enum logic[3:0]{
+    ADD                          = 4'd0,
+    SUB                          = 4'd1,
+    XOR                          = 4'd2,
+    OR                           = 4'd3,
+    AND                          = 4'd4,
+    SHIFT_L_LOGIC                = 4'd5,
+    SHIFT_R_LOGIC                = 4'd6,
+    SHIFT_R_ARITH                = 4'd7,
+    IS_LESS_THAN_SIGNED          = 4'd8,
+    IS_LESS_THAN_UNSIGNED        = 4'd9,
+    IS_EQUAL                     = 4'd10,
+    IS_NOT_EQUAL                 = 4'd11,
+    IS_GREATER_OR_EQUAL_SIGNED   = 4'd12,
+    IS_GREATER_OR_EQUAL_UNSIGNED = 4'd13
+} ALU_op_t;
 
 module ALU(
 
@@ -52,21 +67,21 @@ module ALU(
         b_result = op_c + op_d;
         
         case (ALU_op)
-            4'd0: result = op_a + op_b;
-            4'd1: result = op_a - op_b;
-            4'd2: result = op_a ^ op_b;
-            4'd3: result = op_a | op_b;
-            4'd4: result = op_a & op_b;
-            4'd5: result = op_a << op_b[4:0];
-            4'd6: result = op_a >> op_b[4:0];
-            4'd7: result = $signed(op_a) >>> op_b[4:0];
-            4'd8: result = ($signed(op_a) < $signed(op_b))? 32'd1 : 32'd0;
-            4'd9: result = (op_a < op_b)? 32'd1 : 32'd0;
-            4'd10: result = (op_a == op_b)? 32'd1 : 32'd0;
-            4'd11: result = (op_a != op_b)? 32'd1 : 32'd0;
-            4'd12: result = ($signed(op_a) >= $signed(op_b))? 32'd1 : 32'd0;
-            4'd13: result = (op_a >= op_b)? 32'd1 : 32'd0;
-            default: result = 32'b0;
+            ADD:                                 result = op_a + op_b;
+            SUB:                                 result = op_a - op_b;
+            XOR:                                 result = op_a ^ op_b;
+            OR:                                  result = op_a | op_b;
+            AND:                                 result = op_a & op_b;
+            SHIFT_L_LOGIC:                       result = op_a << op_b[4:0];
+            SHIFT_R_LOGIC:                       result = op_a >> op_b[4:0];
+            SHIFT_R_ARITH:                       result = $signed(op_a) >>> op_b[4:0];
+            IS_LESS_THAN_SIGNED:                 result = ($signed(op_a) < $signed(op_b))? 32'd1 : 32'd0;
+            IS_LESS_THAN_UNSIGNED:               result = (op_a < op_b)? 32'd1 : 32'd0;
+            IS_EQUAL:                            result = (op_a == op_b)? 32'd1 : 32'd0;
+            IS_NOT_EQUAL:                        result = (op_a != op_b)? 32'd1 : 32'd0;
+            IS_GREATER_OR_EQUAL_SIGNED:          result = ($signed(op_a) >= $signed(op_b))? 32'd1 : 32'd0;
+            IS_GREATER_OR_EQUAL_UNSIGNED:        result = (op_a >= op_b)? 32'd1 : 32'd0;
+            default:                             result = 32'b0;
         endcase
         
     end
