@@ -25,7 +25,7 @@ module signal_generator_tb(
     // testbench parameters
     localparam CLK_PERIOD = 10;
     localparam HIGH = 1'b1;
-    localparam LWO = 1'b0;
+    localparam LOW = 1'b0;
 
     // testbench trackers
     string test_case;
@@ -76,7 +76,7 @@ module signal_generator_tb(
         // input instruction
         opcode = opcode_tb;
         func3 = func3_tb;
-        func3 = func7_tb;
+        func7 = func7_tb;
         #(2);
         $display("\nTesting opcode %b, func3 %b, func7 %b at time %t", opcode, func3, func7, $time);
 
@@ -120,16 +120,137 @@ module signal_generator_tb(
     end
 
 // defining test cases and expected values
-    logic [4:0] opcode_tb_arr = '{};
-    logic [2:0] func3_tb_arr =  '{};
-    logic [6:0] func7_tb_arr =  '{};
-    logic [4:0] expected_MUX_en_arr = '{};
-    logic [3:0] expected_ALU_op_arr = '{};
-    logic expected_mem_write_arr = '{};
-    logic expected_mem_read_arr = '{};
-    logic expected_write_back_arr = '{};
-    logic [1:0] expected_mem_bytes_arr = '{};
-    logic expected_mem_zero_extend_arr = '{};
+    logic [4:0] opcode_tb_arr = '{
+        5'b01100, // ADD
+        5'b01100, // SUB
+        5'b01100, // AND
+        5'b01100, // OR
+        5'b01100, // XOR
+        5'b00100, // ADDI
+        5'b00000, // LW
+        5'b00000, // LB
+        5'b00000, // LBU
+        5'b01000, // SW
+        5'b01000  // SB
+    }';
+
+    logic [2:0] func3_tb_arr =  '{
+        3'b000, // ADD
+        3'b000, // SUB
+        3'b111, // AND
+        3'b110, // OR
+        3'b100, // XOR
+        3'b000, // ADDI
+        3'b010, // LW
+        3'b000, // LB
+        3'b100, // LBU
+        3'b010, // SW
+        3'b000  // SB
+    };
+    logic [6:0] func7_tb_arr =  '{
+        7'b0000000, // ADD
+        7'b0100000, // SUB
+        7'b0000000, // AND
+        7'b0000000, // OR
+        7'b0000000, // XOR
+        7'b0000000, // ADDI
+        7'b0000000, // LW
+        7'b0000000, // LB
+        7'b0000000, // LBU
+        7'b0000000, // SW
+        7'b0000000  // SB
+    };
+    logic [4:0] expected_MUX_en_arr = '{ //check this
+        5'b00000, // ADD
+        5'b00000, // SUB
+        5'b00000, // AND
+        5'b00000, // OR
+        5'b00000, // XOR
+        5'b00001, // ADDI
+        5'b00010, // LW
+        5'b00010, // LB
+        5'b00010, // LBU
+        5'b00001, // SW
+        5'b00001  // SB
+    };
+    logic [3:0] expected_ALU_op_arr = '{
+        4'b0000, // ADD
+        4'b0001, // SUB
+        4'b0010, // AND
+        4'b0011, // OR
+        4'b0100, // XOR
+        4'b0000, // ADDI
+        4'b0000, // LW
+        4'b0000, // LB
+        4'b0000, // LBU
+        4'b0000, // SW
+        4'b0000  // SB
+    };
+    logic expected_mem_write_arr = '{
+        1'b0, // ADD
+        1'b0, // SUB
+        1'b0, // AND
+        1'b0, // OR
+        1'b0, // XOR
+        1'b0, // ADDI
+        1'b0, // LW
+        1'b0, // LB
+        1'b0, // LBU
+        1'b1, // SW
+        1'b1  // SB
+    };
+    logic expected_mem_read_arr = '{
+        1'b0, // ADD
+        1'b0, // SUB
+        1'b0, // AND
+        1'b0, // OR
+        1'b0, // XOR
+        1'b0, // ADDI
+        1'b1, // LW
+        1'b1, // LB
+        1'b1, // LBU
+        1'b0, // SW
+        1'b0  // SB
+    };
+    logic expected_write_back_arr = '{
+        1'b1, // ADD
+        1'b1, // SUB
+        1'b1, // AND
+        1'b1, // OR
+        1'b1, // XOR
+        1'b1, // ADDI
+        1'b1, // LW
+        1'b1, // LB
+        1'b1, // LBU
+        1'b0, // SW
+        1'b0  // SB
+    };
+    logic [1:0] expected_mem_bytes_arr = '{
+        2'b00, // ADD
+        2'b00, // SUB
+        2'b00, // AND
+        2'b00, // OR
+        2'b00, // XOR
+        2'b00, // ADDI
+        2'b11, // LW  (4 bytes)
+        2'b01, // LB  (1 byte)
+        2'b01, // LBU (1 byte)
+        2'b11, // SW  (4 bytes)
+        2'b01  // SB  (1 byte)
+    };
+    logic expected_mem_zero_extend_arr = '{
+        1'b0, // ADD
+        1'b0, // SUB
+        1'b0, // AND
+        1'b0, // OR
+        1'b0, // XOR
+        1'b0, // ADDI
+        1'b0, // LW
+        1'b0, // LB signed extend
+        1'b1, // LBU zero extend
+        1'b0, // SW
+        1'b0  // SB
+    };
 // 
 
     //running test cases
@@ -162,7 +283,7 @@ module signal_generator_tb(
         mem_bytes = '0;
         mem_zero_extend = LOW;
 
-        for(int i = 0; i < $size(opcode_tb_arr), i++) begin
+        for(int i = 0; i < $size(opcode_tb_arr); i++) begin
             @(posedge clk);
             check_signal_gen(opcode_tb_arr[i], func3_tb_arr[i], func7_tb_arr[i],
             expected_MUX_en_arr[i], expected_ALU_op_arr[i], expected_mem_write[i], 
