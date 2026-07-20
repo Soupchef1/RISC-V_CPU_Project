@@ -211,6 +211,44 @@
                 "SV": "xilinx.com:ip:axi_vdma:6.3",
                 "TM": "both",
                 "TU": "register"
+            },
+            "V4": {
+                "VT": "AC",
+                "BA": "0x80000000",
+                "HA": "0x8FFFFFFF",
+                "BP": "C_BASEADDR",
+                "HP": "C_HIGHADDR",
+                "MA": "CACHE_AXI_0",
+                "MX": "/",
+                "MI": "CACHE_AXI_0",
+                "MS": "SEG_mig_7series_0_memaddr",
+                "MV": ":::",
+                "SX": "/mig_7series_0",
+                "SI": "S_AXI",
+                "MM": "memmap",
+                "SS": "memaddr",
+                "SV": "xilinx.com:ip:mig_7series:4.2",
+                "TM": "both",
+                "TU": "memory"
+            },
+            "V5": {
+                "VT": "AC",
+                "BA": "0x80000000",
+                "HA": "0x8FFFFFFF",
+                "BP": "C_BASEADDR",
+                "HP": "C_HIGHADDR",
+                "MA": "Data_MM2S",
+                "MX": "/axi_vdma_0",
+                "MI": "M_AXI_MM2S",
+                "MS": "SEG_mig_7series_0_memaddr",
+                "MV": "xilinx.com:ip:axi_vdma:6.3",
+                "SX": "/mig_7series_0",
+                "SI": "S_AXI",
+                "MM": "memmap",
+                "SS": "memaddr",
+                "SV": "xilinx.com:ip:mig_7series:4.2",
+                "TM": "both",
+                "TU": "memory"
             }
         },
         "edges": [
@@ -224,6 +262,16 @@
             },
             {
                 "src": "V3",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V4",
+                "trg": "V2",
+                "EH": "2"
+            },
+            {
+                "src": "V5",
                 "trg": "V2",
                 "EH": "2"
             }
