@@ -48,39 +48,13 @@ module MEM_TOP(
     input logic flush, stall,
 
     //to write back
-    output logic [31:0] MUX_data_out,
-    output logic [4:0] mem_rd,
-
-    //startup
-    input logic [31:0] start_addr,
-    input logic start_done
+    output logic MUX_data_out,
+    output logic [4:0] mem_rd
     );
 
     logic [31:0] MA_addr;  //same as ALU_outex
     logic [31:0] CACHE_data_out;
     logic [31:0] sign_extend_data;
-    logic [31:0] MA_data_in;
-
-    always_ff @(posedge clk, negedge nrst) begin
-        if(!nrst) begin
-            MA_addr <= '0;
-            mem_rd <= '0;
-            MA_data_in <= '0;
-        end else if (flush) begin
-            MA_addr <= '0;
-            mem_rd <= '0;
-            MA_data_in <= '0;
-        end else if (stall) begin
-            MA_addr <= MA_addr;
-            mem_rd <= mem_rd;
-            MA_data_in <= MA_data_in;
-        end
-        else begin
-            MA_addr <= EX_addr;
-            mem_rd <= EX_rd;
-            MA_data_in <= EX_data;
-        end
-    end
 
     Data_cache Gary (
         .clk(clk),
@@ -94,8 +68,6 @@ module MEM_TOP(
         .MA_read_en(MA_rd_en), 
         .MA_write_en(MA_wr_en),
         .MA_data_out(CACHE_data_out),
-        .MA_data_in(MA_data_in),
-        .MA_mem_bytes(MA_mem_bytes),
         .ddr_rd_done(ddr_rd_done),
         .ddr_data_in(ddr_data_in),
         .ddr_rd_miss(ddr_rd_miss),
@@ -104,28 +76,34 @@ module MEM_TOP(
         .ddr_addr(ddr_addr),
         .ddr_dirty(ddr_dirty),
         .is_video_data(is_video_data),
-        .stall_out(stall_out),
-        .start_addr(start_addr),
-        .start_done(start_done)
+        .stall_out(stall_out)
     );
+    
 
-    logic byte_sign_bit;
-    logic hw_sign_bit;
+    always_ff @(posedge clk, negedge nrst) begin
+        if(!nrst | flush) begin
+            MA_addr <= '0;
+            mem_rd <= '0;
+        end else if (stall) begin
+            MA_addr <= MA_addr;
+            mem_rd <= mem_rd;
+        end
+        else begin
+            MA_addr <= EX_addr;
+            mem_rd <= EX_rd;
+        end
+    end
 
     always_comb begin
-        // Extract the actual sign bit of the targeted byte/halfword
-        byte_sign_bit = CACHE_data_out[MA_addr[1:0] * 8 + 7];
-        hw_sign_bit = CACHE_data_out[MA_addr[1] * 16 + 15];
-
+        //based on last 2 bits of MA_addr, make sure to pick the write byte to sign entend
         case(MA_mem_bytes)
             2'b00: sign_extend_data = CACHE_data_out;
-            2'b01: sign_extend_data = (mem_zero_extend) ? {24'b0, CACHE_data_out[MA_addr[1:0] * 8 +: 8]} : {{24{byte_sign_bit}}, CACHE_data_out[MA_addr[1:0] * 8 +: 8]};
-            2'b10: sign_extend_data = (mem_zero_extend) ? {16'b0, CACHE_data_out[MA_addr[1] * 16 +: 16]} : {{16{hw_sign_bit}}, CACHE_data_out[MA_addr[1] * 16 +: 16]};
+            2'b01: sign_extend_data = (mem_zero_extend) ? {24'b0, CACHE_data_out[MA_addr[1:0] * 8 +: 8]} : {{24{CACHE_data_out[7]}}, CACHE_data_out[MA_addr[1:0] * 8 +: 8]};
+            2'b10: sign_extend_data = (mem_zero_extend) ? {16'b0, CACHE_data_out[MA_addr[1] * 16 +: 16]} : {{16{CACHE_data_out[15]}}, CACHE_data_out[MA_addr[1] * 16 +: 16]};
             2'b11: sign_extend_data = CACHE_data_out;
         endcase
 
         MUX_data_out = (MA_rd_en) ? sign_extend_data : MA_addr;
-
     end
     
 endmodule
