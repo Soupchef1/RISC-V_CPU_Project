@@ -20,6 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // Axi-lite protocol: https://www.realdigital.org/doc/a9fee931f7a172423e1ba73f66ca4081
+localparam HIGH = 1'b1;
+localparam LOW = 1'b0;
 import axi_lite_pkg::*;
 
 // VDMA config
@@ -47,23 +49,33 @@ module vdma_controller(
     );
 
     typedef enum logic[2:0] { 
-        STARTUP,
-        IDLE,
-        WRITE_ADDR,
-        WRITE_DATA,
-        WAIT_RESPONSE
-     } state_t;
+        AXI_STARTUP,
+        AXI_IDLE,
+        AXI_WRITE_ADDR_DATA,
+        AXI_WAIT_RESPONSE,
+        AXI_CHECK_RESPONSE
+     } axi_state_t;
 
-    state_t state;
-    state_t next_state;
+    axi_state_t axi_state;
 
     // VDMA utility and register addresses
     vdma_config_t vdma_config;
 
-        // 720x480
-    localparam logic[31:0] SCREEN_WIDTH = 32'd40960; // 720*WORD_LENGTH
-    localparam logic[31:0] SCREEN_HEIGHT = 32'd480;
-    localparam logic VDMA_ON = 1'b1;
+    typedef enum logic[2:0] { 
+        SEND_CONTROL_VALUE,
+        SEND_PARK_PTR,
+        SEND_START_ADDR1,
+        SEND_START_ADDR2,
+        SEND_DELAY_STRIDE,
+        SEND_FRAME_WIDTH,
+        SEND_FRAME_HEIGHT
+    } vdma_AXI_STARTUP_index_t;
+
+        // 1080x720
+    localparam logic[31:0] SCREEN_WIDTH         = 32'd40960; // 1080*WORD_LENGTH
+    localparam logic[31:0] SCREEN_HEIGHT        = 32'd720;
+    localparam logic[31:0] DEF_DELAY_STRIDE     = 32'd40960;
+    localparam logic VDMA_ON                    = 32'b1;
 
     localparam logic[31:0] CONTROL_VALUE_ADDR   = 32'h0000_0000;
     localparam logic[31:0] PARK_PTR_ADDR        = 32'h0000_0028;
@@ -73,33 +85,109 @@ module vdma_controller(
     localparam logic[31:0] FRAME_WIDTH_ADDR     = 32'h0000_0054;
     localparam logic[31:0] FRAME_HEIGHT_ADDR    = 32'h0000_0050;
 
-    //---------------------------------------------------------------------
+    vdma_confitg_t DEFAULT_CONFIG = '{
+                control_value : VDMA_ON;
+                park_ptr : '0;
+                start_addr1 : START_ADDR1_ADDR;
+                start_addr2 : START_ADDR2_ADDR;
+                delay_stride : DEF_DELAY_STRIDE
+                frame_width : SCREEN_WIDTH;
+                frame_height : SCREEN_HEIGHT;
+    }
+
+    //AXI-TRANSACTION FSM---------------------------------------------------------------------
 
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
-            state <= STARTUP;
+            axi_state <= AXI_STARTUP;
         end
 
-        casez(state)
+        casez(axi_state)
 
-            STARTUP: begin
+            AXI_STARTUP: begin
                 // default values
-                vdma_config.control_value = '0;
-                vdma_config.control_value[0] = VDMA_ON;
-                vdma_config.park_ptr = '0;
-                vdma_config.start_addr1 = START_ADDR1_ADDR;
-                vdma_config.start_addr2 = START_ADDR2_ADDR;
-                vdma_config.delay_stride = '0;
-                vdma_config.delay_stride[15:0] = 16'd40960;
-                vdma_config.frame_width = SCREEN_WIDTH;
-                vdma_config.frame_height = SCREEN_HEIGHT;
+                vdma_config <= DEFAULT_CONFIG;
+                confirm_change <= LOW;
+                axi_state <= AXI_IDLE;
             end
 
+            AXI_IDLE: begin
+                if(buffer_change == HIGH)begin
+                    axi_state <= AXI_WRITE_ADDR_DATA;
+                end
+            end
+
+            AXI_WRITE_ADDR_DATA: begin
+                if(axi_write_in.wready == HIGH) begin
+                    axi_state <= AXI_WAIT_RESPONSE;
+                end
+            end
+
+            AXI_WAIT_RESPONSE: begin
+                if(axi_write_in.bvalid) begin
+                    axi_state <= READ_RESPONSE;
+                end
+            end
+
+            AXI_CHECK_RESPONSE: begin
+                if(axi_write_in.bresp != AXI_OKAY) begin
+                    axi_state <= AXI_STARTUP; //reset on bad write
+                end
+
+                else begin
+                    confirm_change <= LOW;
+                    axi_state <= AXI_IDLE;
+                end
+            end
         endcase
     end
 
-    // ---------------------------------------------------------------------
+    // AXI-TRANSACTION SIGNAL LOGIC ---------------------------------------------------------------------
     always_comb begin
-        
+        casez(axi_state) 
+            AXI_STARTUP: begin
+                axi_write_out.awaddr = '0;
+                axi_write_out.awvalid = LOW;
+                axi_write_out.wdata = '0;
+                axi_write_out.wvalid = '0;
+                axi_write_out.bready = LOW;
+            end
+
+            AXI_IDLE: begin
+                axi_write_out.awaddr = '0;
+                axi_write_out.awvalid = LOW;
+                axi_write_out.wdata = '0;
+                axi_write_out.wvalid = LOW;
+                axi_write_out.bready = LOW;
+            end
+
+            AXI_WRITE_ADDR_DATA: begin
+                confirm_change = HIGH;
+                axi_write_out.awaddr = PARK_PTR_ADDR;
+                axi_write_out.awvalid = HIGH;
+                axi_write_out.wdata = vdma_config.park_ptr;
+                axi_write_out.wvalid = HIGH;
+                axi_write_out.bready = LOW;
+            end
+
+            AXI_WAIT_RESPONSE: begin
+                axi_write_out.awaddr = '0;
+                axi_write_out.awvalid = LOW;
+                axi_write_out.wdata = '0;
+                axi_write_out.wvalid = LOW;
+
+                if(axi_write_in.bvalid == HIGH) begin
+                    axi_write_out.bready = HIGH;
+                end
+
+                else begin
+                    axi_write_out.bready = LOW;
+                end
+            end
+
+            AXI_CHECK_RESPONSE: begin
+                
+            end
+        endcase
     end
 endmodule
