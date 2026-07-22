@@ -1,60 +1,60 @@
 {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"1.03556",
-   "Default View_TopLeft":"-286,151",
+   "Default View_ScaleFactor":"0.767171",
+   "Default View_TopLeft":"576,190",
    "ExpandedHierarchyInLayout":"",
-   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:21.0 threadsafe
+   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:21.0
 #  -string -flagsOSRD
-preplace port ddr3_sdram -pg 1 -lvl 5 -x 1620 -y 290 -defaultsOSRD
-preplace port vid_io_out_0 -pg 1 -lvl 5 -x 1620 -y 600 -defaultsOSRD
-preplace port S_AXI_LITE_0 -pg 1 -lvl 0 -x 0 -y 380 -defaultsOSRD
+preplace port ddr3_sdram -pg 1 -lvl 5 -x 1580 -y 290 -defaultsOSRD
+preplace port vid_io_out_0 -pg 1 -lvl 5 -x 1580 -y 600 -defaultsOSRD
+preplace port S_AXI_LITE_0 -pg 1 -lvl 0 -x 0 -y 400 -defaultsOSRD
 preplace port CACHE_AXI_0 -pg 1 -lvl 0 -x 0 -y 260 -defaultsOSRD
 preplace port port-id_sys_clk_i -pg 1 -lvl 0 -x 0 -y 200 -defaultsOSRD
-preplace port port-id_reset -pg 1 -lvl 0 -x 0 -y 410 -defaultsOSRD
-preplace port port-id_clk_100 -pg 1 -lvl 5 -x 1620 -y 470 -defaultsOSRD
-preplace port port-id_locked_0 -pg 1 -lvl 5 -x 1620 -y 810 -defaultsOSRD
-preplace port port-id_pixel_clk -pg 1 -lvl 5 -x 1620 -y 500 -defaultsOSRD
-preplace port port-id_serial_clk -pg 1 -lvl 5 -x 1620 -y 530 -defaultsOSRD
-preplace port port-id_axi_resetn_0 -pg 1 -lvl 0 -x 0 -y 490 -defaultsOSRD
-preplace port port-id_init_calib_complete_MIG -pg 1 -lvl 5 -x 1620 -y 390 -defaultsOSRD
-preplace port port-id_GND -pg 1 -lvl 0 -x 0 -y 760 -defaultsOSRD
-preplace inst mig_7series_0 -pg 1 -lvl 4 -x 1420 -y 340 -defaultsOSRD
-preplace inst clk_wiz_0 -pg 1 -lvl 3 -x 1010 -y 660 -defaultsOSRD
-preplace inst axi_vdma_0 -pg 1 -lvl 2 -x 580 -y 430 -defaultsOSRD
-preplace inst v_axi4s_vid_out_0 -pg 1 -lvl 4 -x 1420 -y 670 -defaultsOSRD
-preplace inst v_tc_0 -pg 1 -lvl 3 -x 1010 -y 920 -defaultsOSRD
-preplace inst proc_sys_reset_pixel -pg 1 -lvl 2 -x 580 -y 650 -defaultsOSRD
-preplace inst proc_sys_reset_100 -pg 1 -lvl 1 -x 190 -y 510 -defaultsOSRD
-preplace inst proc_sys_reset_0 -pg 1 -lvl 3 -x 1010 -y 100 -defaultsOSRD
-preplace inst smartconnect_0 -pg 1 -lvl 3 -x 1010 -y 300 -defaultsOSRD
-preplace netloc GND 1 0 4 NJ 760 NJ 760 NJ 760 1260J
-preplace netloc axi_resetn_0_1 1 0 1 NJ 490
-preplace netloc clk_wiz_0_clk_out1 1 0 5 20 400 380 310 810 480 1220 470 NJ
-preplace netloc clk_wiz_0_clk_out2 1 1 4 390 550 810 570 1240 510 1600J
-preplace netloc clk_wiz_0_clk_out3 1 3 2 1180J 530 NJ
-preplace netloc clk_wiz_0_locked 1 2 3 840 810 1250 810 NJ
+preplace port port-id_reset -pg 1 -lvl 0 -x 0 -y 430 -defaultsOSRD
+preplace port port-id_clk_100 -pg 1 -lvl 5 -x 1580 -y 470 -defaultsOSRD
+preplace port port-id_locked_0 -pg 1 -lvl 5 -x 1580 -y 810 -defaultsOSRD
+preplace port port-id_pixel_clk -pg 1 -lvl 5 -x 1580 -y 500 -defaultsOSRD
+preplace port port-id_serial_clk -pg 1 -lvl 5 -x 1580 -y 530 -defaultsOSRD
+preplace port port-id_axi_resetn_0 -pg 1 -lvl 0 -x 0 -y 510 -defaultsOSRD
+preplace port port-id_init_calib_complete_MIG -pg 1 -lvl 5 -x 1580 -y 390 -defaultsOSRD
+preplace port port-id_GND -pg 1 -lvl 0 -x 0 -y 780 -defaultsOSRD
+preplace inst mig_7series_0 -pg 1 -lvl 4 -x 1390 -y 340 -defaultsOSRD
+preplace inst clk_wiz_0 -pg 1 -lvl 3 -x 990 -y 680 -defaultsOSRD
+preplace inst axi_vdma_0 -pg 1 -lvl 2 -x 580 -y 450 -defaultsOSRD
+preplace inst v_axi4s_vid_out_0 -pg 1 -lvl 4 -x 1390 -y 670 -defaultsOSRD
+preplace inst v_tc_0 -pg 1 -lvl 3 -x 990 -y 920 -defaultsOSRD
+preplace inst proc_sys_reset_pixel -pg 1 -lvl 2 -x 580 -y 670 -defaultsOSRD
+preplace inst proc_sys_reset_100 -pg 1 -lvl 1 -x 190 -y 530 -defaultsOSRD
+preplace inst proc_sys_reset_0 -pg 1 -lvl 3 -x 990 -y 100 -defaultsOSRD
+preplace inst smartconnect_0 -pg 1 -lvl 3 -x 990 -y 300 -defaultsOSRD
+preplace netloc GND 1 0 4 NJ 780 NJ 780 NJ 780 1220J
+preplace netloc axi_resetn_0_1 1 0 1 NJ 510
+preplace netloc clk_wiz_0_clk_out1 1 0 5 20 420 390 560 800 440 1160 470 NJ
+preplace netloc clk_wiz_0_clk_out2 1 1 4 390 790 810 790 1190 500 NJ
+preplace netloc clk_wiz_0_clk_out3 1 3 2 1170J 530 NJ
+preplace netloc clk_wiz_0_locked 1 2 3 820 1020 1180 810 NJ
 preplace netloc mig_7series_0_init_calib_complete 1 4 1 NJ 390
-preplace netloc mig_7series_0_ui_addn_clk_0 1 2 3 830 470 1200 450 1580
-preplace netloc mig_7series_0_ui_clk 1 2 3 820 500 NJ 500 1590
-preplace netloc mig_7series_0_ui_clk_sync_rst 1 2 3 840 490 NJ 490 1600
-preplace netloc proc_sys_reset_0_peripheral_aresetn 1 3 1 1210 140n
-preplace netloc proc_sys_reset_0_peripheral_reset 1 2 2 790 750 NJ
-preplace netloc proc_sys_reset_1_interconnect_aresetn 1 1 2 370 320 780J
-preplace netloc proc_sys_reset_1_peripheral_aresetn 1 1 3 380 540 NJ 540 1200J
-preplace netloc proc_sys_reset_pixel_peripheral_aresetn 1 2 1 770 690n
-preplace netloc reset_1 1 0 4 NJ 410 360 300 800 410 1180J
-preplace netloc sys_clk_i_1 1 0 4 20J 290 NJ 290 790J 400 1190J
-preplace netloc v_axi4s_vid_out_0_vtg_ce 1 2 3 820 520 NJ 520 1580
+preplace netloc mig_7series_0_ui_addn_clk_0 1 2 3 810 450 1210 450 1550
+preplace netloc mig_7series_0_ui_clk 1 2 3 820 400 1160J 230 1550
+preplace netloc mig_7series_0_ui_clk_sync_rst 1 2 3 820 460 NJ 460 1560
+preplace netloc proc_sys_reset_0_peripheral_aresetn 1 3 1 1190 140n
+preplace netloc proc_sys_reset_0_peripheral_reset 1 2 2 790 800 1230J
+preplace netloc proc_sys_reset_1_interconnect_aresetn 1 1 2 380 340 NJ
+preplace netloc proc_sys_reset_1_peripheral_aresetn 1 1 3 360 770 NJ 770 1200J
+preplace netloc proc_sys_reset_pixel_peripheral_aresetn 1 2 1 770 710n
+preplace netloc reset_1 1 0 4 NJ 430 370 570 780 410 1170J
+preplace netloc sys_clk_i_1 1 0 4 NJ 200 NJ 200 NJ 200 1180J
+preplace netloc v_axi4s_vid_out_0_vtg_ce 1 2 3 820 820 NJ 820 1550
 preplace netloc S00_AXI_0_1 1 0 3 NJ 260 NJ 260 NJ
-preplace netloc S_AXI_LITE_0_1 1 0 2 NJ 380 NJ
-preplace netloc axi_vdma_0_M_AXIS_MM2S 1 2 2 770 460 1210J
+preplace netloc S_AXI_LITE_0_1 1 0 2 NJ 400 NJ
+preplace netloc axi_vdma_0_M_AXIS_MM2S 1 2 2 790 590 NJ
 preplace netloc axi_vdma_0_M_AXI_MM2S 1 2 1 770 280n
 preplace netloc mig_7series_0_DDR3 1 4 1 NJ 290
 preplace netloc smartconnect_1_M00_AXI 1 3 1 N 300
 preplace netloc v_axi4s_vid_out_0_vid_io_out 1 4 1 NJ 600
-preplace netloc v_tc_0_vtiming_out 1 3 1 1230 610n
-levelinfo -pg 1 0 190 580 1010 1420 1620
-pagesize -pg 1 -db -bbox -sgen -140 0 1840 1030
+preplace netloc v_tc_0_vtiming_out 1 3 1 1210 610n
+levelinfo -pg 1 0 190 580 990 1390 1580
+pagesize -pg 1 -db -bbox -sgen -140 0 1800 1030
 "
 }
 {
