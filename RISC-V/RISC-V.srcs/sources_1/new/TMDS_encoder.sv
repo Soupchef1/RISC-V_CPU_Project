@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: ryan
 // 
 // Create Date: 07/21/2026 12:52:46 PM
 // Design Name: 
@@ -36,11 +36,11 @@ module TMDS_encoder (
 
     logic [3:0] ones_cnt; //cnt for color data
     logic [3:0] zero_cnt;
-    logic [3:0] ones_cnt_t; //cnt for tmds values
-    logic [3:0] zero_cnt_t; 
+    logic signed [4:0] ones_cnt_t; //cnt for tmds values
+    logic signed [4:0] zero_cnt_t; 
     logic [8:0] q_m; //intermediate tmds data
     logic use_xnor; 
-    logic [4:0] disparity;
+    logic signed [5:0] disparity;
 
     always_comb begin
         ones_cnt = '0;
@@ -70,18 +70,18 @@ module TMDS_encoder (
         for (int i = 0; i < 8; i++) begin
             ones_cnt_t += q_m[i];
         end
-        zero_cnt_t = 4'd8 - ones_cnt_t;
+        zero_cnt_t = 5'sd8 - ones_cnt_t;
 
     end
 
     always_ff @(posedge pixel_clk, negedge nrst) begin
 
         if(!nrst) begin
-            disparity <= 5'sd0;
+            disparity <= 6'sd0;
             tmds <= '0;
         end
         else if (!vid_active) begin
-            disparity <= 5'sd0;
+            disparity <= 6'sd0;
             case ({vsync, hsync}) 
                 2'b00:   tmds <= 10'b1101010100;
                 2'b01:   tmds <= 10'b0010101011;
@@ -91,23 +91,23 @@ module TMDS_encoder (
             endcase
         end
         else begin
-            if ((disparity == 5'sd0) || (ones_cnt_t == zero_cnt_t)) begin
+            if ((disparity == 6'sd0) || (ones_cnt_t == zero_cnt_t)) begin
                 tmds[9] <= ~q_m[8];
                 tmds[8] <= q_m[8];
                 tmds[7:0] <= (q_m[8] ? q_m[7:0] : ~q_m[7:0]);
                 disparity <= (q_m[8] ? (disparity + (ones_cnt_t - zero_cnt_t)) : (disparity + (zero_cnt_t - ones_cnt_t)));
             end
-            else if (((disparity > 5'sd0) && (ones_cnt_t > zero_cnt_t)) || ((disparity < 5'sd0) && (zero_cnt_t > ones_cnt_t))) begin
+            else if (((disparity > 6'sd0) && (ones_cnt_t > zero_cnt_t)) || ((disparity < 6'sd0) && (zero_cnt_t > ones_cnt_t))) begin
                 tmds[9] <= 1'b1;
                 tmds[8] <= q_m[8];
                 tmds[7:0] <=  ~q_m[7:0];
-                disparity <= disparity + {q_m[8], 1'b0} + (zero_cnt_t - ones_cnt_t);
+                disparity <= disparity + $signed({1'b0, q_m[8], 1'b0}) + (zero_cnt_t - ones_cnt_t);
             end
             else begin
                 tmds[9] <= 1'b0;
                 tmds[8] <= q_m[8];
                 tmds[7:0] <=  q_m[7:0];
-                disparity <= disparity - {~q_m[8], 1'b0} + (ones_cnt_t - zero_cnt_t);
+                disparity <= disparity - $signed({1'b0, ~q_m[8], 1'b0}) + (ones_cnt_t - zero_cnt_t);
             end
         end
             
