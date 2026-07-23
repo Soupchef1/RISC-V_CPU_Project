@@ -31,7 +31,7 @@ module Ins_cache(
     //startup signals
     input logic [31:0] start_data, 
     input logic [31:0] start_addr,
-    input logic start_done,
+    input logic start_done, start_valid, start_write_en,
 
     //mem ctrl signals
     input logic ddr_rd_done,
@@ -95,18 +95,20 @@ module Ins_cache(
         instr = '0;
 
         case(state)
+            //during start up, specify which word address and data to write to
             STARTUP: begin
-                ena = HIGH;
+                ena = start_write_en & (start_addr[31:15] == 17'd0); //only write first 64 KB instruction
                 wea[{start_addr[5:2], 2'b00} +: 4] = 4'b1111;
+                wea[66:64] = 3'b111;
                 addra = start_addr[14:6];
                 data_in = {16{start_data}};
-                tagline_in = {5'b0, 1'b1, 1'b0, start_addr[31:15]}; //set dirty LOW (unused) and valid HIGH
+                tagline_in = {5'b0, start_valid, 1'b0, 17'd0}; //set dirty LOW (unused) and valid HIGH
             end
             
             IDLE: begin
                 enb = HIGH;
                 addrb = PC_in[14:6];
-                instr = data_out[PC_in[5:2] * 32 +: 32];
+                instr = data_out[ID_addr[5:2] * 32 +: 32];
             end 
 
             PAUSE: begin
@@ -117,7 +119,7 @@ module Ins_cache(
                 tagline_in = {5'b0, 1'b1, 1'b0, ID_addr[31:15]}; //set dirty LOW (unused) and valid HIGH
 
                 enb = HIGH;
-                addrb = PC_in[14:6];
+                addrb = ID_addr[14:6];
 
                 instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
             end

@@ -27,8 +27,7 @@ module ID_top_tb();
     
     // DUT signals
     // global signals
-    logic clk;
-    logic nrst;
+    logic clk, nrst;
     
     //decode signals 
     logic [31:0] PC_in;
