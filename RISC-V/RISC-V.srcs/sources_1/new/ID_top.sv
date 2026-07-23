@@ -64,7 +64,6 @@ module ID_top(
 
     Register_file rf_inst (
         .clk(clk),
-        .nrst(nrst),
         .rs1_addr(rs1_addr),
         .rs2_addr(rs2_addr),
         .write_addr(wb_addr),
