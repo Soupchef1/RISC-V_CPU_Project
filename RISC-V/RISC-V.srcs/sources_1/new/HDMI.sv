@@ -53,7 +53,8 @@ module HDMI(
 
     logic [9:0] tmds_red, tmds_blue, tmds_green;
 
-    logic oce = (!nrst) ? LOW : HIGH;
+    logic oce;
+    assign oce = nrst;
 
     TMDS_encoder encode_red (
         .pixel_clk(pixel_clk),
@@ -73,7 +74,7 @@ module HDMI(
         .vsync(vsync),
         .color(blue),
         .tmds(tmds_blue)
-    );
+    );  
 
     TMDS_encoder encode_green (
         .pixel_clk(pixel_clk),
@@ -121,7 +122,7 @@ module HDMI(
         .oce(oce),
         .tmds_data(10'b1111100000),
         .tmds_out(ser_clk)
-    )
+    );
 
     //blue
     OBUFDS #(
