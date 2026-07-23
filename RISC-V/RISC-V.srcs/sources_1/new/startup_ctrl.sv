@@ -27,6 +27,7 @@ module startup_ctrl(
         input logic pkt_ready, pkt_finish,
 
         input logic mig_calib_complete,
+        output logic boot_start,
 
         output logic [31:0] data, addr,
         output logic start_done, start_valid, start_write_en,
@@ -64,6 +65,8 @@ module startup_ctrl(
                 next_addr_cnt = (addr_cnt == 10'd1047) ? addr_cnt : addr_cnt + 10'd1;
                 next_state = (addr_cnt == 10'd1047 && mig_calib_complete) ? BOOT : VALID;
 
+                boot_start = LOW;
+
                 start_done = LOW;
                 start_valid = LOW;
                 start_write_en = LOW;
@@ -75,6 +78,8 @@ module startup_ctrl(
             BOOT: begin
                 next_addr_cnt = 10'd0;
                 next_state = (pkt_finish) ? PAUSE : BOOT;
+
+                boot_start = HIGH;
 
                 start_done = LOW;
                 start_valid = HIGH;
@@ -88,6 +93,8 @@ module startup_ctrl(
                 next_addr_cnt = '0;
                 next_state = (axi_ctrl_bvalid) ? PAUSE : IDLE;
 
+                boot_start = LOW;
+
                 start_done = LOW;
                 start_valid = LOW;
                 start_write_en = LOW;
@@ -100,6 +107,8 @@ module startup_ctrl(
                 next_addr_cnt = '0;
                 next_state = IDLE;
 
+                boot_start = LOW;
+
                 start_done = HIGH;
                 start_valid = LOW;
                 start_write_en = LOW;
@@ -111,6 +120,8 @@ module startup_ctrl(
             default: begin
                 next_addr_cnt = '0;
                 next_state = IDLE;
+
+                boot_start = LOW;
 
                 start_done = LOW;
                 start_valid = LOW;
