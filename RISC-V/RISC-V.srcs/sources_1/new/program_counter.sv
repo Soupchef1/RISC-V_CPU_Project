@@ -41,18 +41,17 @@ module program_counter(
     logic [31:0] pc;
     logic [31:0] pc_internal; //internal wire connected to PC_in
 
+    assign pc_reg = (flush) ? (PC_next) : (pc_internal + 4);
+
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             pc <= '0; 
         end  
-        else if (flush) begin
-            pc <= PC_next;
-        end
         else if (stall) begin
             pc <= pc;
         end
         else begin
-            pc <= pc_internal + 4;
+            pc <= pc_reg;
         end
     end
 
