@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // Axi-lite protocol: https://www.realdigital.org/doc/a9fee931f7a172423e1ba73f66ca4081
-localparam HIGH = 1'b1;
-localparam LOW = 1'b0;
+localparam logic HIGH = 1'b1;
+localparam logic LOW = 1'b0;
 import axi_lite_pkg::*;
 
 // VDMA config
@@ -48,8 +48,8 @@ module vdma_controller(
     output logic confirm_change,
     );
 
-    typedef enum logic[2:0] { 
-        AXI_STARTUP,
+    // State definitions
+    typedef enum logic[1:0] { 
         AXI_IDLE,
         AXI_WRITE_ADDR_DATA,
         AXI_WAIT_RESPONSE,
@@ -57,6 +57,24 @@ module vdma_controller(
      } axi_state_t;
 
     axi_state_t axi_state;
+
+    // main FSM -> AXI
+    logic write_start;
+    logic write_address;
+    logic write_data;
+
+    // AXI -> main FSM
+    logic write_busy;
+    logic write_done;
+    logic write_error;
+
+    typedef enum logic[1:0] { 
+        STARTUP,
+        IDLE,
+        CHANGING_FRAME
+    } controller_state_t;
+
+    controller_state_t controller_state;
 
     // VDMA utility and register addresses
     vdma_config_t vdma_config;
@@ -69,13 +87,15 @@ module vdma_controller(
         SEND_DELAY_STRIDE,
         SEND_FRAME_WIDTH,
         SEND_FRAME_HEIGHT
-    } vdma_AXI_STARTUP_index_t;
+    } vdma_axi_startup_index_t;
 
-        // 1080x720
-    localparam logic[31:0] SCREEN_WIDTH         = 32'd40960; // 1080*WORD_LENGTH
+    vdma_axi_startup_index_t startup_index;
+
+        // 1280x720
+    localparam logic[31:0] SCREEN_WIDTH         = 32'd40960; // 1280*WORD_LENGTH
     localparam logic[31:0] SCREEN_HEIGHT        = 32'd720;
     localparam logic[31:0] DEF_DELAY_STRIDE     = 32'd40960;
-    localparam logic VDMA_ON                    = 32'b1;
+    logic VDMA_ON                    = 32'b1;
 
     localparam logic[31:0] CONTROL_VALUE_ADDR   = 32'h0000_0000;
     localparam logic[31:0] PARK_PTR_ADDR        = 32'h0000_0028;
@@ -85,34 +105,171 @@ module vdma_controller(
     localparam logic[31:0] FRAME_WIDTH_ADDR     = 32'h0000_0054;
     localparam logic[31:0] FRAME_HEIGHT_ADDR    = 32'h0000_0050;
 
-    vdma_confitg_t DEFAULT_CONFIG = '{
-                control_value : VDMA_ON;
-                park_ptr : '0;
-                start_addr1 : START_ADDR1_ADDR;
-                start_addr2 : START_ADDR2_ADDR;
-                delay_stride : DEF_DELAY_STRIDE
-                frame_width : SCREEN_WIDTH;
-                frame_height : SCREEN_HEIGHT;
-    }
+    vdma_config_t DEFAULT_CONFIG = '{
+        control_value : VDMA_ON,
+        park_ptr : '0,
+        start_addr1 : START_ADDR1_ADDR,
+        start_addr2 : START_ADDR2_ADDR,
+        delay_stride : DEF_DELAY_STRIDE,
+        frame_width : SCREEN_WIDTH,
+        frame_height : SCREEN_HEIGHT,
+        };
+
+    //VDMA Controller FSM---------------------------------------------------------------
+
+    always_ff @(posedge clk, negedge nrst) begin
+        if(!nrst) begin
+            write_status <= WRITE_IDLE;
+            controller_state <= STARTUP;
+        end
+
+        casez(controller_state) 
+            STARTUP: begin
+                startup_index = SEND_CONTROL_VALUE;
+
+                casez(startup_index)
+                    SEND_CONTROL_VALUE: begin
+                        if(write_done == HIGH) begin
+                            startup_index <= SEND_PARK_PTR;
+                        end
+                    end
+
+                    SEND_PARK_PTR: begin
+                        if(write_done == HIGH) begin
+                            startup_index <= SEND_START_ADDR1;
+                        end
+                    end
+
+                    SEND_START_ADDR1: begin
+                        if(write_done == HIGH) begin
+                            startup_index <= SEND_START_ADDR2;
+                        end
+                    end
+
+                    SEND_START_ADDR2: begin
+                        if(write_done == HIGH) begin
+                            startup_index <= SEND_DELAY_STRIDE;
+                        end
+                    end
+
+                    SEND_DELAY_STRIDE: begin
+                        if(write_done == HIGH) begin
+                            startup_index <= SEND_FRAME_WIDTH;
+                        end
+                    end
+
+                    SEND_FRAME_WIDTH: begin
+                        if(write_done == HIGH) begin
+                            startup_index <= SEND_FRAME_HEIGHT;
+                        end
+                    end
+
+                    SEND_FRAME_HEIGHT: begin
+                        if(write_done == HIGH) begin
+                            controller_state <= IDLE; //END OF CONFIG STARTUP
+                        end
+                    end
+                endcase
+
+            end
+
+            IDLE: begin
+                if(buffer_change == HIGH) begin
+                    confirm_change <= HIGH;
+                    controller_state <= CHANGING_FRAME;
+                end
+            end
+
+            CHANGING_FRAME: begin
+            end
+        endcase
+    end
+
+    always_comb begin
+        casez(controller_state)
+            STARTUP: begin
+                casez(startup_index)
+                    SEND_CONTROL_VALUE: begin
+                        if(!write_busy) begin
+                            write_address = CONTROL_VALUE_ADDR;
+                            write_data = DEFAULT_CONFIG.control_value;
+                            write_start = HIGH;
+                        end
+                    end
+
+                    SEND_PARK_PTR: begin
+                        if(!write_busy) begin
+                            write_address = PARK_PTR_ADDR;
+                            write_data = DEFAULT_CONFIG.park_ptr;
+                            write_start = HIGH;
+                        end
+                    end
+
+                    SEND_START_ADDR1: begin
+                        if(!write_busy) begin
+                            write_address = START_ADDR1_ADDR;
+                            write_data = DEFAULT_CONFIG.start_addr1;
+                            write_start = HIGH;
+                        end
+                    end
+
+                    SEND_START_ADDR2: begin
+                        if(!write_busy) begin
+                            write_address = START_ADDR2_ADDR;
+                            write_data = DEFAULT_CONFIG.start_addr2;
+                            write_start = HIGH;
+                        end
+                    end
+
+                    SEND_DELAY_STRIDE: begin
+                        if(!write_busy) begin
+                            write_address = DELAY_STRIDE_ADDR;
+                            write_data = DEFAULT_CONFIG.delay_stride;
+                            write_start = HIGH;
+                        end
+                    end
+
+                    SEND_FRAME_WIDTH: begin
+                        if(!write_busy) begin
+                            write_address = FRAME_WIDTH_ADDR;
+                            write_data = DEFAULT_CONFIG.frame_width;
+                            write_start = HIGH;
+                        end
+                    end
+
+                    SEND_FRAME_HEIGHT: begin
+                        if(!write_busy) begin
+                            write_address = START_ADDR1_ADDR;
+                            write_data = DEFAULT_CONFIG.start_addr1;
+                            write_start = HIGH;
+                        end
+                    end
+                endcase
+            end
+
+            IDLE: begin
+            end
+
+            CHANGING_FRAME: begin
+                if(!write_busy) begin
+                    write_address = PARK_PTR_ADDR;
+                    
+                end
+            end
+        endcase
+    end
 
     //AXI-TRANSACTION FSM---------------------------------------------------------------------
 
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
-            axi_state <= AXI_STARTUP;
+            axi_state <= AXI_IDLE;
         end
 
         casez(axi_state)
 
-            AXI_STARTUP: begin
-                // default values
-                vdma_config <= DEFAULT_CONFIG;
-                confirm_change <= LOW;
-                axi_state <= AXI_IDLE;
-            end
-
             AXI_IDLE: begin
-                if(buffer_change == HIGH)begin
+                if(write_status == WRITE_START)begin
                     axi_state <= AXI_WRITE_ADDR_DATA;
                 end
             end
@@ -131,12 +288,13 @@ module vdma_controller(
 
             AXI_CHECK_RESPONSE: begin
                 if(axi_write_in.bresp != AXI_OKAY) begin
-                    axi_state <= AXI_STARTUP; //reset on bad write
+                    axi_state <= AXI_IDLE; //reset on bad write
+                    confirm_write = WRITE_ERROR;
                 end
 
                 else begin
-                    confirm_change <= LOW;
                     axi_state <= AXI_IDLE;
+                    confirm_write = WRITE_DONE;
                 end
             end
         endcase
@@ -145,13 +303,6 @@ module vdma_controller(
     // AXI-TRANSACTION SIGNAL LOGIC ---------------------------------------------------------------------
     always_comb begin
         casez(axi_state) 
-            AXI_STARTUP: begin
-                axi_write_out.awaddr = '0;
-                axi_write_out.awvalid = LOW;
-                axi_write_out.wdata = '0;
-                axi_write_out.wvalid = '0;
-                axi_write_out.bready = LOW;
-            end
 
             AXI_IDLE: begin
                 axi_write_out.awaddr = '0;
@@ -163,9 +314,9 @@ module vdma_controller(
 
             AXI_WRITE_ADDR_DATA: begin
                 confirm_change = HIGH;
-                axi_write_out.awaddr = PARK_PTR_ADDR;
+                axi_write_out.awaddr = axi_address;
                 axi_write_out.awvalid = HIGH;
-                axi_write_out.wdata = vdma_config.park_ptr;
+                axi_write_out.wdata = axi_data;
                 axi_write_out.wvalid = HIGH;
                 axi_write_out.bready = LOW;
             end
