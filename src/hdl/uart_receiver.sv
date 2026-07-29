@@ -47,7 +47,7 @@ module uart_receiver(
 
     logic rx_sync, rx_sync_m; //registers for stable and unstable rx values
 
-    assign rx_ready = valid;
+    assign rx_valid = valid;
     assign rx_data = data;
 
     always_ff @(posedge clk, negedge nrst) begin
