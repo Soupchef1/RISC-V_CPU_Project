@@ -53,9 +53,9 @@ module MEM_TOP(
 
     //startup
     input logic [31:0] start_addr,
-    input logic start_done
+    input logic start_done,
 
-    output logic buffer_change;
+    output logic buffer_change
 
     );
 
@@ -89,7 +89,7 @@ module MEM_TOP(
             MA_addr <= EX_addr;
             mem_rd <= EX_rd;
             MA_data_in <= EX_data;
-            buffer_change_reg <= (EX_addr == 0x1000_0000 && EX_wr_en) ? HIGH : LOW;
+            buffer_change_reg <= (EX_addr == 32'h1000_0000 && EX_wr_en) ? HIGH : LOW;
         end
     end
 

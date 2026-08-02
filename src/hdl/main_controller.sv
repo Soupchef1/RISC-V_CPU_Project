@@ -22,21 +22,11 @@
 localparam logic HIGH = 1'b1;
 localparam logic LOW = 1'b0;
 
-
-typedef struct packed {
-    logic[4:0] MUX_en;
-    logic[3:0] ALU_op;
-    logic mem_write;
-    logic mem_read;
-    logic write_back;
-    logic [1:0] mem_bytes;
-    logic mem_zero_extend;
-    logic predicted_jump;
-} ctrl_signal_t;
+import ctrl_signal_pkg::*;
 
 module main_controller(
-    input logic clk;
-    input logic nrst;
+    input logic clk,
+    input logic nrst,
 
     input logic[4:0] opcode,
     input logic[2:0] func3,

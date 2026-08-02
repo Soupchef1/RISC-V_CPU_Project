@@ -23,6 +23,7 @@
 module Branch_mem(
 
     input logic clk, nrst, flush, stall,
+    input logic startup_done,
     
     input logic [31:0] pc_in, //pc from IF stage
     input logic [31:0] pc_d, //pc of branch instruction in execute stage
@@ -36,8 +37,16 @@ module Branch_mem(
     
     );
 
-    localparam logic HIGH = 1'b1;
-    localparam logic LOW = 1'b0;
+    localparam logic HIGH   = 1'b1;
+    localparam logic LOW    = 1'b0;
+
+    typedef enum logic[1:0] { 
+        STARTUP,
+        IDLE
+     } state_t;
+
+    state_t state;
+    state_t next_state;
 
     logic ena, enb;
     logic [6:0] wea;
@@ -69,27 +78,51 @@ module Branch_mem(
     logic tag_match_ex;
     assign tag_match = (pc_tag == branch_tag);
 
+    // state machine for startup
     always_ff @(posedge clk, negedge nrst) begin
-        if(!nrst | flush) begin
-            pc_tag <= '0;
-            branch_data_ex <= '0;
-            tag_match_ex <= '0;
-            branch_en_ex <= '0;
+        if(!nrst) begin
+            state <= STARTUP;
         end
-        else if (stall) begin
-            pc_tag <= pc_tag;
-            branch_data_ex <= branch_data_ex;
-            tag_match_ex <= tag_match_ex;
-            branch_en_ex <= branch_en_ex;
+        
+        if(startup_done) begin
+          state <= IDLE;
         end
-        else begin 
-            pc_tag <= pc_in[31:12];
-            //piplined cache line for a certain intruction so we can write back
-            branch_data_ex <= branch_data;
-            // pipelined checks
-            tag_match_ex <= tag_match;
-            branch_en_ex <= branch_en;
-        end
+    end
+    
+    // pipeline 
+    always_ff @(posedge clk, negedge nrst) begin
+        case(state) 
+
+            STARTUP: begin
+                pc_tag <= '0;
+                branch_data_ex <= '0;
+                tag_match_ex <= '0;
+                branch_en_ex <= '0;
+            end
+
+            IDLE: begin
+                if(!nrst | flush) begin
+                    pc_tag <= '0;
+                    branch_data_ex <= '0;
+                    tag_match_ex <= '0;
+                    branch_en_ex <= '0;
+                end
+                else if (stall) begin
+                    pc_tag <= pc_tag;
+                    branch_data_ex <= branch_data_ex;
+                    tag_match_ex <= tag_match_ex;
+                    branch_en_ex <= branch_en_ex;
+                end
+                else begin 
+                    pc_tag <= pc_in[31:12];
+                    //piplined cache line for a certain intruction so we can write back
+                    branch_data_ex <= branch_data;
+                    // pipelined checks
+                    tag_match_ex <= tag_match;
+                    branch_en_ex <= branch_en;
+                end
+            end
+        endcase
     end
 
 //write logic

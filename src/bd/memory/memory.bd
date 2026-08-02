@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x8D1A16A3B6ED6A38",
+      "boundary_crc": "0x8D1A16A303596FBC",
       "device": "xc7s25csga324-1",
       "name": "memory",
       "rev_ctrl_bd_flag": "RevCtrlBdOff",
