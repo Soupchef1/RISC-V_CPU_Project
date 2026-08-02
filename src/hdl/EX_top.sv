@@ -25,6 +25,7 @@ module EX_top (
     input logic [31:0] pc,           //s
     input logic [31:0] rs1_data,     //s
     input logic [31:0] rs2_data,     //s
+    input logic [4:0] rd,
     input logic [31:0] imm,          //s
     input logic [4:0] MUX_en,        //c
     input logic [3:0] ALU_op,        //c
@@ -54,22 +55,25 @@ module EX_top (
     logic [31:0] pc_int;          //s
     logic [31:0] rs1_data_int;    //s
     logic [31:0] rs2_data_int;     //s
+    logic [4:0] rd_int;
     logic [31:0] imm_int;          //s
     logic [1:0] pipe_cont;
     logic [31:0] rs1_ALU;
     logic [31:0] rs2_ALU;
 
     assign pipe_cont = {flush_en, stall_en};
+    assign rs2_data_o = rs2_ALU;
 
     //pipeline based signals
     always_ff @(posedge clk or negedge nrst) begin
 
         if (!nrst) begin
             //idk what goes here
-            pc_int <= 32'b0;
-            rs1_data_int <= 32'b0;
-            rs2_data_int <= 32'b0;
-            imm_int <= 32'b0;
+            pc_int <=       '0;
+            rs1_data_int <= '0;
+            rs2_data_int <= '0;
+            imm_int <=      '0;
+            rd <=           '0;
         end
 
         else begin
@@ -82,7 +86,7 @@ module EX_top (
                     rs1_data_int <= rs1_data_int;
                     rs2_data_int <= rs2_data_int;
                     imm_int <= imm_int;
-
+                    rd <= rd;
                 end
 
                 2'b00: begin //normal operations
@@ -90,20 +94,23 @@ module EX_top (
                     rs1_data_int <= rs1_data;
                     rs2_data_int <= rs2_data;
                     imm_int <= imm;
+                    rd_int <= rd;
                 end
 
                 2'b11: begin //stall and flush
-                    pc_int <= 32'b0;
-                    rs1_data_int <= 32'b0;
-                    rs2_data_int <= 32'b0;
-                    imm_int <= 32'b0;
+                    pc_int <=           '0;
+                    rs1_data_int <=     '0;
+                    rs2_data_int <=     '0;
+                    imm_int <=          '0;
+                    rd_int <=           '0;
                 end
 
                 2'b10: begin //normal flush
-                    pc_int <= 32'b0;
-                    rs1_data_int <= 32'b0;
-                    rs2_data_int <= 32'b0;
-                    imm_int <= 32'b0;
+                    pc_int <=       '0;
+                    rs1_data_int <= '0;
+                    rs2_data_int <= '0;
+                    imm_int <=      '0;
+                    rd_int <=       '0;
                 end
 
             endcase

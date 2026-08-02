@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+imescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -30,7 +30,8 @@ module vdma_controller(
     // General
     input logic clk,
     input logic nrst,
-    input logic buffer_change
+    input logic buffer_change,
+    input logic startup_done
     );
 
     localparam logic HIGH = 1'b1;
@@ -114,7 +115,7 @@ module vdma_controller(
         start_addr2 : START_ADDR2_ADDR,
         delay_stride : DEF_DELAY_STRIDE,
         frame_width : SCREEN_WIDTH,
-        frame_height : SCREEN_HEIGHT,
+        frame_height : SCREEN_HEIGHT
         };
 
     //VDMA Controller FSM---------------------------------------------------------------
@@ -169,7 +170,9 @@ module vdma_controller(
 
                         SEND_FRAME_HEIGHT: begin
                             if(write_done == HIGH) begin
-                                controller_state <= IDLE; //END OF CONFIG STARTUP
+                                if(startup_done) begin
+                                    controller_state <= IDLE; //END OF CONFIG STARTUP
+                                end
                             end
                         end
 
