@@ -60,15 +60,18 @@ module uart_packet_reader(
             data <= '0;
             pkt_ready <= LOW;
             calculated_checksum <= '0;
+            pkt_failed <= LOW;
         end else begin
             state <= next_state;
             addr <= next_addr;
-            data <= next_addr;
+            data <= next_data;
             pkt_ready <= next_pkt_ready;
             calculated_checksum <= next_calculated_checksum;
 
-            if(state == CHECKSUM && rx_valid &&calculated_checksum != rx_data) begin
+            if(state == CHECKSUM && rx_valid && calculated_checksum != rx_data) begin
                 pkt_failed <= HIGH;
+            end else begin
+                pkt_failed <= pkt_failed;
             end
         end
     end

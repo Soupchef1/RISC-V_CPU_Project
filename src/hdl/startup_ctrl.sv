@@ -49,7 +49,7 @@ module startup_ctrl(
 
     logic [9:0] addr_cnt, next_addr_cnt;
 
-    always_ff @(posedge clk, nrst) begin
+    always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             state <= VALID;
             addr_cnt <= '0;
@@ -62,8 +62,8 @@ module startup_ctrl(
     always_comb begin
         casez(state)
             VALID: begin
-                next_addr_cnt = (addr_cnt == 10'd1047) ? addr_cnt : addr_cnt + 10'd1;
-                next_state = (addr_cnt == 10'd1047 && mig_calib_complete) ? BOOT : VALID;
+                next_addr_cnt = (addr_cnt == 10'd1023) ? addr_cnt : addr_cnt + 10'd1;
+                next_state = (addr_cnt == 10'd1023 && mig_calib_complete) ? BOOT : VALID;
 
                 boot_start = LOW;
 
@@ -76,7 +76,7 @@ module startup_ctrl(
             end
 
             BOOT: begin
-                next_addr_cnt = 10'd0;
+                next_addr_cnt = 11'd0;
                 next_state = (pkt_finish) ? PAUSE : BOOT;
 
                 boot_start = HIGH;
