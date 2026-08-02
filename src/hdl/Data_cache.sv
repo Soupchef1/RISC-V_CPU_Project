@@ -87,6 +87,7 @@ module Data_cache(
     logic [16:0] tag_out;
     logic dirty;
     logic valid;
+    logic is_MMIO;
 
     //cache miss logic
     assign tag_out = tagline_out[16:0];
@@ -114,10 +115,11 @@ module Data_cache(
     assign addra = addr;
 
 
-    assign ddr_rd_miss = rd_miss;
-    assign ddr_wr_miss = wr_miss & !is_video_data;
+    assign ddr_rd_miss = rd_miss & !is_MMIO; //read miss not real if mmio
+    assign ddr_wr_miss = wr_miss & !is_video_data & !is_MMIO; //send write miss to ddr only if there is a write miss & data is regular
     assign ddr_dirty = dirty & valid;
     assign is_video_data = (MA_addr[27:23] ==  5'b11111) & (MA_read_en | MA_write_en);
+    assign is_MMIO = (MA_addr = 32'h1000_0000);
 
     always_comb begin
         case(state) 
@@ -149,7 +151,7 @@ module Data_cache(
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
                 wea = regular_wea;
-                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
+                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111) & (EX_addr[31:28] == 4'b0000)); //make suere not to write video or mmio data to cache
                 addr = EX_addr[14:6];
             end
 
@@ -259,7 +261,7 @@ module Data_cache(
                 end
             end
             IDLE: begin
-                if (rd_miss | wr_miss | is_video_data) begin
+                if (ddr_rd_miss | ddr_wr_miss | is_video_data) begin
                     next_state = PAUSE;
                     stall_out = HIGH;
                 end

@@ -54,31 +54,42 @@ module MEM_TOP(
     //startup
     input logic [31:0] start_addr,
     input logic start_done
+
+    output logic buffer_change;
+
     );
+
+    localparam logic HIGH = 1'b1;
+    localparam logic LOW = 1'b0;
 
     logic [31:0] MA_addr;  //same as ALU_outex
     logic [31:0] CACHE_data_out;
     logic [31:0] sign_extend_data;
     logic [31:0] MA_data_in;
+    logic buffer_change_reg;
 
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             MA_addr <= '0;
             mem_rd <= '0;
             MA_data_in <= '0;
+            buffer_change_reg <= '0;
         end else if (flush) begin
             MA_addr <= '0;
             mem_rd <= '0;
             MA_data_in <= '0;
+            buffer_change_reg <= '0;
         end else if (stall) begin
             MA_addr <= MA_addr;
             mem_rd <= mem_rd;
             MA_data_in <= MA_data_in;
+            buffer_change_reg <= buffer_change_reg;
         end
         else begin
             MA_addr <= EX_addr;
             mem_rd <= EX_rd;
             MA_data_in <= EX_data;
+            buffer_change_reg <= (EX_addr == 0x1000_0000 && EX_wr_en) ? HIGH : LOW;
         end
     end
 
@@ -127,5 +138,7 @@ module MEM_TOP(
         MUX_data_out = (MA_rd_en) ? sign_extend_data : MA_addr;
 
     end
+
+    assign buffer_change = buffer_change_reg;
     
 endmodule
