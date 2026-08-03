@@ -51,14 +51,14 @@ module vdma_controller(
 
     // main FSM -> AXI
     logic write_start;
-    logic[31:0] write_address;
+    logic[8:0] write_address;
     logic[31:0] write_data;
 
     // AXI -> main FSM
     logic write_busy;
     logic write_done;
     logic write_error;
-    logic[31:0] current_addr;
+    logic[8:0] current_addr;
     logic[31:0] current_data;
 
     typedef enum logic[1:0] { 
@@ -73,8 +73,8 @@ module vdma_controller(
     typedef struct packed {
         logic[31:0] control_value;
         logic[31:0] park_ptr;
-        logic[31:0] start_addr1;
-        logic[31:0] start_addr2;
+        logic[8:0] start_addr1;
+        logic[8:0] start_addr2;
         logic[31:0] delay_stride;
         logic[31:0] frame_width;
         logic[31:0] frame_height;
@@ -100,13 +100,13 @@ module vdma_controller(
     localparam logic[31:0] DEF_DELAY_STRIDE     = 32'd40960;
     localparam logic[31:0] VDMA_ON              = 32'b1;
 
-    localparam logic[31:0] CONTROL_VALUE_ADDR   = 32'h0000_0000;
-    localparam logic[31:0] PARK_PTR_ADDR        = 32'h0000_0028;
-    localparam logic[31:0] START_ADDR1_ADDR     = 32'h0000_005C;
-    localparam logic[31:0] START_ADDR2_ADDR     = 32'h0000_0060;
-    localparam logic[31:0] DELAY_STRIDE_ADDR    = 32'h0000_0058;
-    localparam logic[31:0] FRAME_WIDTH_ADDR     = 32'h0000_0054;
-    localparam logic[31:0] FRAME_HEIGHT_ADDR    = 32'h0000_0050;
+    localparam logic[8:0] CONTROL_VALUE_ADDR   = 9'h00;
+    localparam logic[8:0] PARK_PTR_ADDR        = 9'h28;
+    localparam logic[8:0] START_ADDR1_ADDR     = 9'h5C;
+    localparam logic[8:0] START_ADDR2_ADDR     = 9'h60;
+    localparam logic[8:0] DELAY_STRIDE_ADDR    = 9'h58;
+    localparam logic[8:0] FRAME_WIDTH_ADDR     = 9'h54;
+    localparam logic[8:0] FRAME_HEIGHT_ADDR    = 9'h50;
 
     localparam vdma_config_t DEFAULT_CONFIG = '{
         control_value : VDMA_ON,

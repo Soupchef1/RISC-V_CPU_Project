@@ -23,7 +23,7 @@ import ctrl_signal_pkg::*;
 
 module CPU_top(
 
-        input clk, nrst,
+        input logic clk, nrst,
 
         //to Mem controller
         output logic [31:0] ins_addr,
@@ -42,10 +42,10 @@ module CPU_top(
         input logic data_read_done,
 
         // from bootloader
-        input start_valid, start_write_en,
-        input start_done,
-        input [31:0] start_addr,
-        input [31:0] start_data,
+        input logic start_valid, start_write_en,
+        input logic start_done,
+        input logic [31:0] start_addr,
+        input logic [31:0] start_data,
 
         //to vdma
         output logic buffer_change
