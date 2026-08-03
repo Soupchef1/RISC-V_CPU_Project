@@ -9,13 +9,11 @@ package axi_lite_pkg;
     typedef struct packed { //Master -> slave
 
         // write address
-        logic[31:0] awaddr;
+        logic[8:0] awaddr;
         logic awvalid;
-        logic awprot[2:0];
 
         // write data
         logic[31:0] wdata;
-        logic[3:0] wstrb;
         logic wvalid;
 
         // write response

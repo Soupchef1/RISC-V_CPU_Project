@@ -20,13 +20,14 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "vivado_interfaces.svh"
+import axi_lite_pkg::*;
 
 module top(
     input logic CLK100MHZ,
     input logic ck_rst,
 
     //LEDs
-    output logic [3:0] led;
+    output logic [3:0] led,
 
     //uart
     input logic uart_rxd_out,
@@ -36,24 +37,24 @@ module top(
     output logic [2:0] hdmi_out_p, //order MSB to LSB: RED, GREEN, BLUE.
     output logic [2:0] hdmi_out_n,
     output logic hdmi_out_clk_p,
-    output logic hdmi_out_clk_n
+    output logic hdmi_out_clk_n,
     
     //ddr3 memory
-    inout wire [15:0] ddr3_sdram_dq,
-    inout wire [1:0] ddr3_sdram_dqs_p,
-    inout wire [1:0] ddr3_sdram_dqs_n,
-    output wire [13:0] ddr3_sdram_addr,
-    output wire [2:0] ddr3_sdram_ba,
-    output wire ddr3_sdram_ras_n,
-    output wire ddr3_sdram_cas_n,
-    output wire ddr3_sdram_we_n,
-    output wire ddr3_sdram_reset_n,
-    output wire [0:0] ddr3_sdram_ck_p,
-    output wire [0:0] ddr3_sdram_ck_n,
-    output wire [0:0] ddr3_sdram_cke,
-    output wire [0:0] ddr3_sdram_cs_n,
-    output wire [1:0] ddr3_sdram_dm,
-    output wire [0:0] ddr3_sdram_odt
+    inout logic [15:0] ddr3_sdram_dq,
+    inout logic [1:0] ddr3_sdram_dqs_p,
+    inout logic [1:0] ddr3_sdram_dqs_n,
+    output logic [13:0] ddr3_sdram_addr,
+    output logic [2:0] ddr3_sdram_ba,
+    output logic ddr3_sdram_ras_n,
+    output logic ddr3_sdram_cas_n,
+    output logic ddr3_sdram_we_n,
+    output logic ddr3_sdram_reset_n,
+    output logic [0:0] ddr3_sdram_ck_p,
+    output logic [0:0] ddr3_sdram_ck_n,
+    output logic [0:0] ddr3_sdram_cke,
+    output logic [0:0] ddr3_sdram_cs_n,
+    output logic [1:0] ddr3_sdram_dm,
+    output logic [0:0] ddr3_sdram_odt
     );
 
     localparam logic HIGH = 1'b1;
@@ -79,6 +80,77 @@ module top(
 
     logic pkt_failed;
 
+    //cache axi signals
+    logic [31:0] cache_awaddr;
+    logic [7:0] cache_awlen;   //should be 3, cuz its ts + 1 for actual size
+    logic [2:0] cache_awsize;  //128 bits 
+    logic [1:0] cache_awburst; 
+    logic cache_awlock;
+    logic [3:0] cache_awcache;
+    logic [2:0] cache_awprot;
+    logic [3:0] cache_awqos;
+    logic cache_awvalid;
+
+    logic [127:0] cache_wdata;
+    logic [15:0] cache_wstrb;
+    logic cache_wlast;
+    logic cache_wvalid;
+
+    logic cache_bready;
+
+    logic [31:0] cache_araddr;
+    logic [7:0] cache_arlen;
+    logic [2:0] cache_arsize;
+    logic [1:0] cache_arburst;
+    logic cache_arlock;
+    logic [3:0] cache_arcache;
+    logic [2:0] cache_arprot;
+    logic [3:0] cache_arqos;
+    logic cache_arvalid;
+
+    logic cache_rready;
+
+
+    //cpu intermediate
+    logic clk, nrst;
+    
+    //to Mem controller
+    logic [31:0] ins_addr;
+    logic ins_rd_miss;
+    logic [511:0] ins_data_out; //coming in to cache
+    logic [31:0] data_addr;
+    logic [511:0] data_data_in; //data coming  from cache
+    logic [511:0] data_data_out; //correct data going into cache
+    logic data_rd_miss;
+    logic data_wr_miss;
+    logic data_dirty;
+    logic video_data;
+    logic ins_read_done;
+    logic data_read_done;
+    logic finish;
+    
+    // from bootloader
+    logic start_valid, start_write_en, start_done;
+    logic [31:0] start_addr;
+    logic [31:0] start_data;
+    
+    //to vdma controller
+    logic buffer_change;
+
+    //VDMA signals
+    axi_write_in_t axi_write_in;
+    axi_write_out_t axi_write_out;
+
+    //hdmi video signals
+    logic vid_io_out_0_active_video; // output wire vid_io_out_0_active_video
+    logic [31:0] vid_io_out_0_data; // output wire [31:0] vid_io_out_0_data
+    logic vid_io_out_0_field; // output wire vid_io_out_0_field
+    logic vid_io_out_0_hblank; // output wire vid_io_out_0_hblank
+    logic vid_io_out_0_hsync; // output wire vid_io_out_0_hsync
+    logic vid_io_out_0_vblank; // output wire vid_io_out_0_vblank
+    logic vid_io_out_0_vsync; // output wire vid_io_out_0_vsync
+
+
     assign sys_clk_i = CLK100MHZ;
     assign reset = ck_rst;
     assign mig_ready = init_calib_complete_0 & mmcm_locked_0;
@@ -87,7 +159,10 @@ module top(
     assign clk = clk_100M;
     assign nrst = ck_rst;
 
+    assign led[0] = boot_start;
     assign led[1] = pkt_failed;
+    assign led[2] = ins_rd_miss | data_rd_miss | data_wr_miss;
+    assign led[3] = HIGH;
 
     memory_sv your_instance_name (
         .S00_AXI_0(S00_AXI_0.slave), // vivado_aximm_v1_0.slave S00_AXI_0
@@ -127,214 +202,138 @@ module top(
 
     bootloader boot(
         .uart_rx(uart_rxd_out),
-        .axi_ctrl_bvalid(S00_AXI_0.BVALID)
+        .axi_ctrl_bvalid(S00_AXI_0.BVALID),
+        .*
     );
 
-    module axi_ctrl(
-        //ogs
-        input logic clk, nrst,
-
-        //startup signals
-        input logic boot_start, start_done,
-        input logic [31:0] start_data, start_addr,
-        input logic write_en,
-
-        //mem controller axi signals
-        input logic [31:0] cache_awaddr,
-        input logic [7:0] cache_awlen,   //should be 3, cuz its ts + 1 for actual size
-        input logic [2:0] cache_awsize,  //128 bits 
-        input logic [1:0] cache_awburst, 
-        input logic cache_awlock,
-        input logic [3:0] cache_awcache,
-        input logic [2:0] cache_awprot,
-        input logic [3:0] cache_awqos,
-        input logic cache_awvalid,
-
-        input logic [127:0] cache_wdata,
-        input logic [15:0] cache_wstrb,
-        input logic cache_wlast,
-        input logic cache_wvalid,
-
-        input logic cache_bready,
-
-        input logic [31:0] cache_araddr,
-        input logic [7:0] cache_arlen,
-        input logic [2:0] cache_arsize,
-        input logic [1:0] cache_arburst,
-        input logic cache_arlock,
-        input logic [3:0] cache_arcache,
-        input logic [2:0] cache_arprot,
-        input logic [3:0] cache_arqos,
-        input logic cache_arvalid,
-
-        input logic cache_rready,
-
-        //axi connections to dram
-        output logic [31:0] awaddr,
-        output logic [7:0] awlen,   //should be 3, cuz its ts + 1 for actual size
-        output logic [2:0] awsize,  //128 bits 
-        output logic [1:0] awburst, 
-        output logic awlock,
-        output logic [3:0] awcache,
-        output logic [2:0] awprot,
-        output logic [3:0] awqos,
-        output logic awvalid,
-        input logic awready,
-
-        output logic [127:0] wdata,
-        output logic [15:0] wstrb,
-        output logic wlast,
-        output logic wvalid,
-        input logic wready,
-
-        input logic [1:0] bresp,
-        input logic bvalid,
-        output logic bready,
-
-        output logic [31:0] araddr,
-        output logic [7:0] arlen,
-        output logic [2:0] arsize,
-        output logic [1:0] arburst,
-        output logic arlock,
-        output logic [3:0] arcache,
-        output logic [2:0] arprot,
-        output logic [3:0] arqos,
-        output logic arvalid,
-        input logic arready,
+    axi_ctrl nuisance (
+        .write_en(start_write_en),
         
-        input logic [127:0] rdata,
-        input logic [1:0] rresp,
-        input logic rlast,
-        input logic rvalid,
-        output logic rready
+        .awaddr(S00_AXI_0.AWADDR),
+        .awlen(S00_AXI_0.AWLEN),
+        .awsize(S00_AXI_0.AWSIZE),
+        .awburst(S00_AXI_0.AWBURST),
+        .awlock(S00_AXI_0.AWLOCK),
+        .awcache(S00_AXI_0.AWCACHE),
+        .awprot(S00_AXI_0.AWPROT),
+        .awqos(S00_AXI_0.AWQOS),
+        .awvalid(S00_AXI_0.AWVALID),
+        .awready(S00_AXI_0.AWREADY),
+
+        .wdata(S00_AXI_0.WDATA),
+        .wstrb(S00_AXI_0.WSTRB),
+        .wlast(S00_AXI_0.WLAST),
+        .wvalid(S00_AXI_0.WVALID),
+        .wready(S00_AXI_0.WREADY),
+
+        .bresp(S00_AXI_0.BRESP),
+        .bvalid(S00_AXI_0.BVALID),
+        .bready(S00_AXI_0.BREADY),
+
+        .araddr(S00_AXI_0.ARADDR),
+        .arlen(S00_AXI_0.ARLEN),
+        .arsize(S00_AXI_0.ARSIZE),
+        .arburst(S00_AXI_0.ARBURST),
+        .arlock(S00_AXI_0.ARLOCK),
+        .arcache(S00_AXI_0.ARCACHE),
+        .arprot(S00_AXI_0.ARPROT),
+        .arqos(S00_AXI_0.ARQOS),
+        .arvalid(S00_AXI_0.ARVALID),
+        .arready(S00_AXI_0.ARREADY),
+
+        .rdata(S00_AXI_0.RDATA),
+        .rresp(S00_AXI_0.RRESP),
+        .rlast(S00_AXI_0.RLAST),
+        .rvalid(S00_AXI_0.RVALID),
+        .rready(S00_AXI_0.RREADY),
+        .*
     );
 
-    module Mem_ctrl(
-    
-    //the ogs
-    input logic clk,
-    input logic nrst,
+    Mem_ctrl mem_control (
+        .awaddr(cache_awaddr),
+        .awlen(cache_awlen),
+        .awsize(cache_awsize),
+        .awburst(cache_awburst),
+        .awlock(cache_awlock),
+        .awcache(cache_awcache),
+        .awprot(cache_awprot),
+        .awqos(cache_awqos),
+        .awvalid(cache_awvalid),
+        .awready(S00_AXI_0.AWREADY),
+        
+        .wdata(cache_wdata),
+        .wstrb(cache_wstrb),
+        .wlast(cache_wlast),
+        .wvalid(cache_wvalid),
+        .wready(S00_AXI_0.WREADY),
 
-    //instruction
-    input logic [31:0] ins_addr,
-    output logic [511:0] ins_data_out, //[511:0] is actual data
-    input logic ins_rd_miss,
+        .bresp(S00_AXI_0.BRESP),
+        .bvalid(S00_AXI_0.BVALID),
+        .bready(cache_bready),
 
-    //data
-    input logic [31:0] data_addr,
-    input logic [511:0] data_data_in, //data coming in from cache
-    output logic [511:0] data_data_out, //correct data going into cache
-    input logic data_rd_miss,
-    input logic data_wr_miss,
-    input logic data_dirty,
-    input logic video_data,
+        .araddr(cache_araddr),
+        .arlen(cache_arlen),
+        .arsize(cache_arsize),
+        .arburst(cache_arburst),
+        .arlock(cache_arlock),
+        .arcache(cache_arcache),
+        .arprot(cache_arprot),
+        .arqos(cache_arqos),
+        .arvalid(cache_arvalid),
+        .arready(S00_AXI_0.ARREADY),
 
-    //misc.
-    output logic finish,
-    output logic ins_read_done,
-    output logic data_read_done,    
-    
-    //axi shi
-    output logic [31:0] awaddr,
-    output logic [7:0] awlen,   //should be 3, cuz its ts + 1 for actual size
-    output logic [2:0] awsize,  //128 bits 
-    output logic [1:0] awburst, 
-    output logic awlock,
-    output logic [3:0] awcache,
-    output logic [2:0] awprot,
-    output logic [3:0] awqos,
-    output logic awvalid,
-    input logic awready,
-
-    output logic [127:0] wdata,
-    output logic [15:0] wstrb,
-    output logic wlast,
-    output logic wvalid,
-    input logic wready,
-
-    input logic [1:0] bresp,
-    input logic bvalid,
-    output logic bready,
-
-    output logic [31:0] araddr,
-    output logic [7:0] arlen,
-    output logic [2:0] arsize,
-    output logic [1:0] arburst,
-    output logic arlock,
-    output logic [3:0] arcache,
-    output logic [2:0] arprot,
-    output logic [3:0] arqos,
-    output logic arvalid,
-    input logic arready,
-    
-    input logic [127:0] rdata,
-    input logic [1:0] rresp,
-    input logic rlast,
-    input logic rvalid,
-    output logic rready    
-    
+        .rdata(S00_AXI_0.RDATA),
+        .rresp(S00_AXI_0.RRESP),
+        .rvalid(S00_AXI_0.RVALID),
+        .rready(cache_rready),
+        .*
     );
 
-    module vdma_controller(
-    // AXI-Lite
-    input axi_write_in_t axi_write_in,
-    output axi_write_out_t axi_write_out,
-
-    // General
-    input logic clk,
-    input logic nrst,
-    input logic buffer_change,
-    input logic startup_done
+    vdma_controller trips_baby(
+        .startup_done(start_done),
+        .*
     );
 
-    module HDMI(
-    input logic pixel_clk,
-    input logic serial_clk,
-    input logic nrst,
+    //connecting VDMA axi lite signals
+    always_comb begin
+        //outputs to VDMA
+        S_AXI_LITE_0.AWADDR = axi_write_out.awaddr;
+        S_AXI_LITE_0.AWVALID = axi_write_out.awvalid;
+        S_AXI_LITE_0.WDATA = axi_write_out.wdata;
+        S_AXI_LITE_0.WVALID = axi_write_out.wvalid;
+        S_AXI_LITE_0.BREADY = axi_write_out.bready;
 
-    input logic vid_active,
-    input logic [31:0] vid_data,
-    input logic hsync,
-    input logic vsync,
-    input logic vid_field_id,
-    input logic vid_hblank,
-    input logic vid_vblank,
+        //inputs from VDMA
+        axi_write_in.awready = S_AXI_LITE_0.AWREADY;
+        axi_write_in.wready = S_AXI_LITE_0.WREADY;
+        axi_write_in.bresp = bresp_t'(S_AXI_LITE_0.BRESP);
+        axi_write_in.bvalid = S_AXI_LITE_0.BVAILD;
 
-    output logic [2:0] hdmi_out_p, //order MSB to LSB: RED, GREEN, BLUE.
-    output logic [2:0] hdmi_out_n,
-    output logic hdmi_out_clk_p,
-    output logic hdmi_out_clk_n
+        //unused r and ar channgel
+        S_AXI_LITE_0.AWADDR = '0;
+        S_AXI_LITE_0.AWVALID = HIGH;
+        S_AXI_LITE_O.RREADY = HIGH;
 
+    end
+
+
+        
+    HDMI trip_frames (
+        .pixel_clk(clk_pixel),
+        .serial_clk(clk_serial),
+        .nrst(nrst),
+        .vid_active(vid_io_out_0_active_video),
+        .vid_data(vid_io_out_0_data),
+        .hsync(vid_io_out_0_hsync),
+        .vsync(vid_io_out_0_vsync),
+        .vid_field_id(vid_io_out_0_field),
+        .vid_hblank(vid_io_out_0_hblank),
+        .vid_vblank(vid_io_out_0_vblank),
+        .*
     );
 
-    module CPU_top(
-
-            input clk, nrst,
-
-            //to Mem controller
-            output logic [31:0] ins_addr,
-            output logic ins_rd_miss,
-            input logic [511:0] ins_data_out, //coming in to cache
-
-            output logic [31:0] data_addr,
-            output logic [511:0] data_data_in, //data coming  from cache
-            input logic [511:0] data_data_out, //correct data going into cache
-            output logic data_rd_miss,
-            output logic data_wr_miss,
-            output logic data_dirty,
-            output logic video_data,
-
-            input logic ins_read_done,
-            input logic data_read_done,
-
-            // from bootloader
-            input start_valid, start_write_en,
-            input start_done,
-            input [31:0] start_addr,
-            input [31:0] start_data,
-
-            //to vdma
-            output logic buffer_change
-
-        );
+    CPU_top  GOON_PU (
+        .*
+    );
+    
 endmodule
