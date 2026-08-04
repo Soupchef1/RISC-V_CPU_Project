@@ -49,6 +49,18 @@ module startup_ctrl(
 
     logic [9:0] addr_cnt, next_addr_cnt;
 
+    (* ASYNC_REG = "TRUE" *) logic calib_sync1, calib_sync2;
+
+    always_ff @(posedge clk, negedge nrst) begin
+        if (!nrst) begin
+            calib_sync1 <= 1'b0;
+            calib_sync2 <= 1'b0;
+        end else begin
+            calib_sync1 <= mig_calib_complete;  // raw MIG signal, async source
+            calib_sync2 <= calib_sync1;
+        end
+    end
+
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             state <= VALID;
@@ -63,7 +75,7 @@ module startup_ctrl(
         casez(state)
             VALID: begin
                 next_addr_cnt = (addr_cnt == 10'd1023) ? addr_cnt : addr_cnt + 10'd1;
-                next_state = (addr_cnt == 10'd1023 && mig_calib_complete) ? BOOT : VALID;
+                next_state = (addr_cnt == 10'd1023 && calib_sync2) ? BOOT : VALID;
 
                 boot_start = LOW;
 

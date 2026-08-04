@@ -57,9 +57,9 @@ module Data_cache(
     localparam logic LOW = 1'b0;
 
     logic ena, enb;
-    logic [66:0] wea;
+    logic [66:0] wea, web;
     logic [8:0] addra, addrb;
-    logic [535:0] dina, doutb, douta;
+    logic [535:0] dina, doutb, douta, dinb;
 
     logic [23:0] tagline_in; //tag being written to BRAM
     logic [23:0] tagline_out; //tag being read from BRAM
@@ -113,6 +113,9 @@ module Data_cache(
     assign dina = {tagline_in, data_in};
     assign addrb = addr;
     assign addra = addr;
+    
+    assign dinb = '0;
+    assign web = '0;
 
 
     assign ddr_rd_miss = rd_miss & !is_MMIO; //read miss not real if mmio
@@ -168,7 +171,9 @@ module Data_cache(
         .enb(enb), // input wire enb
         .addrb(addrb), // input wire [8:0] addrb
         .doutb(doutb), // output wire [535:0] doutb
-        .douta(douta)
+        .douta(douta),
+        .dinb(dinb),
+        .web(web)
     );
 
     always_comb begin
