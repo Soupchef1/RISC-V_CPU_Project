@@ -82,7 +82,7 @@ module Branch_mem(
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             state <= STARTUP;
-        end
+        end else
         
         if(startup_done) begin
           state <= IDLE;

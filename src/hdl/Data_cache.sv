@@ -119,7 +119,7 @@ module Data_cache(
     assign ddr_wr_miss = wr_miss & !is_video_data & !is_MMIO; //send write miss to ddr only if there is a write miss & data is regular
     assign ddr_dirty = dirty & valid;
     assign is_video_data = (MA_addr[27:23] ==  5'b11111) & (MA_read_en | MA_write_en);
-    assign is_MMIO = (MA_addr = 32'h1000_0000);
+    assign is_MMIO = (MA_addr == 32'h1000_0000);
 
     always_comb begin
         case(state) 

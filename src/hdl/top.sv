@@ -112,7 +112,6 @@ module top(
 
 
     //cpu intermediate
-    logic clk, nrst;
     
     //to Mem controller
     logic [31:0] ins_addr;
@@ -129,10 +128,6 @@ module top(
     logic data_read_done;
     logic finish;
     
-    // from bootloader
-    logic start_valid, start_write_en, start_done;
-    logic [31:0] start_addr;
-    logic [31:0] start_data;
     
     //to vdma controller
     logic buffer_change;
@@ -284,6 +279,7 @@ module top(
 
         .rdata(S00_AXI_0.RDATA),
         .rresp(S00_AXI_0.RRESP),
+        .rlast(S00_AXI_0.RLAST),
         .rvalid(S00_AXI_0.RVALID),
         .rready(cache_rready),
         .*
@@ -307,12 +303,12 @@ module top(
         axi_write_in.awready = S_AXI_LITE_0.AWREADY;
         axi_write_in.wready = S_AXI_LITE_0.WREADY;
         axi_write_in.bresp = bresp_t'(S_AXI_LITE_0.BRESP);
-        axi_write_in.bvalid = S_AXI_LITE_0.BVAILD;
+        axi_write_in.bvalid = S_AXI_LITE_0.BVALID;
 
         //unused r and ar channgel
         S_AXI_LITE_0.AWADDR = '0;
         S_AXI_LITE_0.AWVALID = HIGH;
-        S_AXI_LITE_O.RREADY = HIGH;
+        S_AXI_LITE_0.RREADY = HIGH;
 
     end
 

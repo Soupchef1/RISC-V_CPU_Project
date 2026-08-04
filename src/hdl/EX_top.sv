@@ -73,7 +73,7 @@ module EX_top (
             rs1_data_int <= '0;
             rs2_data_int <= '0;
             imm_int <=      '0;
-            rd <=           '0;
+            rd_int <=       '0;
         end
 
         else begin
@@ -86,7 +86,7 @@ module EX_top (
                     rs1_data_int <= rs1_data_int;
                     rs2_data_int <= rs2_data_int;
                     imm_int <= imm_int;
-                    rd <= rd;
+                    rd_int <= rd;
                 end
 
                 2'b00: begin //normal operations

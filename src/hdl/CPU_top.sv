@@ -95,7 +95,7 @@ module CPU_top(
         .flush(flush),
         .stall(stall),
         .PC_next(PC_next),
-        .intsr(IF_instr),
+        .instr(IF_instr),
         .PC_out(IF_PC), //to decode pipeline reg
 
         //branch mem signals
@@ -110,6 +110,8 @@ module CPU_top(
         .start_data(start_data),
         .start_addr(start_addr),
         .start_done(start_done),
+        .start_valid(start_valid),
+        .start_write_en(start_write_en),
         .ddr_rd_done(ins_read_done),
         .ddr_data_in(ins_data_out),
         .ddr_rd_miss(ins_rd_miss),
@@ -225,7 +227,7 @@ module CPU_top(
         .opcode(opcode),
         .func3(func3),
         .func7(func7),
-        .predicted_jump(IF_predicted_jump),
+        .predicted_jump_fetch(IF_predicted_jump),
         .pc_switch(pc_switch),
         .stall_inst(ins_cache_stall),
         .stall_data_cache(data_cache_stall),

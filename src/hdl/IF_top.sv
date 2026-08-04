@@ -38,7 +38,7 @@ module IF_top(
         input logic [31:0] ID_addr, //PC from decode stage
         input logic [31:0] start_data,
         input logic [31:0] start_addr,
-        input logic start_done,
+        input logic start_done, start_valid, start_write_en,
         input logic ddr_rd_done,
         input logic [511:0] ddr_data_in,
         output logic ddr_rd_miss,
@@ -48,8 +48,6 @@ module IF_top(
 
     logic [1:0] bht;
     logic [31:0] branch_addr;
-
-    assign instr = catch_this.instr;
     
     program_counter gaming_pc(
         .PC_in(PC_out),
@@ -60,6 +58,7 @@ module IF_top(
     Branch_mem tree_trunk(
         .pc_in(PC_out),
         .pc_d(PC_Ex),
+        .startup_done(start_done),
         .*
     );
 

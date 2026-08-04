@@ -269,7 +269,7 @@ module axi_ctrl(
                         next_reg_used = HIGH;
                     end
                 end else begin
-                    next_write_reg = '0;
+                    next_addr_reg = '0;
                     next_data_reg = '0;
                     next_reg_used = LOW;
                 end

@@ -1,4 +1,4 @@
-imescale 1ns / 1ps
+`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -195,7 +195,7 @@ module vdma_controller(
                         end
                         else begin
                             controller_state <= IDLE;
-                            vdma_config.park_ptr[0] <= ~vdma_config.park_ptr[0]; //Toggle LSB
+                            vdma_config.park_ptr <= {31'b0, ~vdma_config.park_ptr[0]}; //Toggle LSB
                         end
                     end
                 end
