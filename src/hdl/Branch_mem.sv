@@ -40,7 +40,7 @@ module Branch_mem(
     localparam logic HIGH   = 1'b1;
     localparam logic LOW    = 1'b0;
 
-    typedef enum logic[1:0] { 
+    typedef enum logic { 
         STARTUP,
         IDLE
      } state_t;

@@ -371,6 +371,7 @@ module vdma_controller(
         axi_write_out.awvalid = LOW;
         axi_write_out.wdata = '0;
         axi_write_out.wvalid = LOW;
+        axi_write_out.bready  = LOW;
 
         case(axi_state) 
 

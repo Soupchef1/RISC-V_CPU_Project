@@ -68,7 +68,7 @@ module TMDS_encoder (
 
         ones_cnt_t = '0;
         for (int i = 0; i < 8; i++) begin
-            ones_cnt_t += q_m[i];
+            ones_cnt_t += q_m[i] ? 1'sb1 : 1'sb0;
         end
         zero_cnt_t = 5'sd8 - ones_cnt_t;
 

@@ -403,7 +403,7 @@ module Mem_ctrl(
                 read_done = HIGH;
                 next_read_data_reg = read_data_reg;
 
-                araddr = araddr;
+                araddr = '0;
                 arvalid = LOW;
                 rready = LOW;
             end
@@ -430,7 +430,7 @@ module Mem_ctrl(
                 end
                 read_done = LOW;
 
-                araddr = araddr;
+                araddr = '0;
                 arvalid = LOW;
                 rready = HIGH;
             end
@@ -441,7 +441,7 @@ module Mem_ctrl(
                 next_read_cnt = read_cnt;
                 next_read_data_reg = read_data_reg;
 
-                araddr = araddr;
+                araddr = '0;
                 arvalid = LOW;
                 rready = LOW;
             end
@@ -469,12 +469,12 @@ module Mem_ctrl(
                 write_done = HIGH;
                 next_write_cnt = write_cnt;
 
-                awaddr = awaddr;
+                awaddr = '0;
                 wvalid = LOW;
                 awvalid = LOW;
                 wlast = LOW;
                 bready = LOW;
-                wdata = wdata; 
+                wdata = '0; 
             end
 
             W_SEND_ADDR: begin
@@ -487,7 +487,7 @@ module Mem_ctrl(
                 awvalid = HIGH;
                 wlast = LOW;
                 bready = LOW;
-                wdata = wdata;
+                wdata = '0;
             end
 
             WRITE: begin
@@ -500,7 +500,7 @@ module Mem_ctrl(
                 end
                 write_done = LOW;
 
-                awaddr = awaddr;
+                awaddr = '0;
                 wvalid = HIGH;
                 awvalid = LOW;
                 wlast = (write_cnt == 3) ? HIGH : LOW;
@@ -513,12 +513,12 @@ module Mem_ctrl(
                 write_done = LOW;
                 next_write_cnt = write_cnt;
 
-                awaddr = awaddr;
+                awaddr = '0;
                 wvalid = LOW;
                 awvalid = LOW;
                 wlast = LOW;
                 bready = HIGH;
-                wdata = wdata;
+                wdata = '0;
             end
 
             default: begin
@@ -526,12 +526,12 @@ module Mem_ctrl(
                 write_done = LOW;
                 next_write_cnt = write_cnt;
 
-                awaddr = awaddr;
+                awaddr = '0;
                 wvalid = LOW;
                 awvalid = LOW;
                 wlast = LOW;
                 bready = LOW;
-                wdata = wdata;
+                wdata = '0;
             end
         endcase
     end

@@ -65,6 +65,7 @@ module main_controller(
 
     always_ff @(posedge clk or negedge nrst) begin
         if(!nrst) begin
+            decode_ctrl.predicted_jump <= LOW;
             ex_ctrl <= '0; //TODO make sure all zeroes is default
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
@@ -72,35 +73,17 @@ module main_controller(
 
         else if(stall_inst || stall_data_cache) begin
             // do not pipeline controller registers
-            ex_ctrl <= ex_ctrl;
+            decode_ctrl.predicted_jump <= decode_ctrl.predicted_jump;
+            ex_ctrl <= (flush) ? '0 : ex_ctrl;
             mem_ctrl <= mem_ctrl;
             write_back_ctrl <= write_back_ctrl;
         end
 
         else begin
         // pipelining control sigals
-            // fetch -> decode
-            if(flush) begin
-                decode_ctrl <= '0; //dummy instruction
-            end
-
-            else begin
             decode_ctrl.predicted_jump <= predicted_jump_fetch;
-            end
-
-            // decode -> execute
-            if(flush) begin
-                ex_ctrl <= '0; //dummy instruction
-            end
-
-            else begin
-            ex_ctrl <= decode_ctrl;
-            end
-
-            // execute -> mem
+            ex_ctrl <= (flush) ? '0 : decode_ctrl;
             mem_ctrl <= ex_ctrl;
-
-            // mem -> write back
             write_back_ctrl <= mem_ctrl.write_back;
         end
     end

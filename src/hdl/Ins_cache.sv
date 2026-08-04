@@ -123,6 +123,17 @@ module Ins_cache(
 
                 instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
             end
+            
+            default: begin
+                ena = LOW;
+                enb = LOW;
+                wea = '0;
+                addra = '0;
+                addrb = '0;
+                data_in = '0;
+                tagline_in = '0;
+                instr = '0;
+            end
         endcase
 
         //cache miss logic
@@ -146,6 +157,10 @@ module Ins_cache(
             PAUSE: begin
                 next_state = (ddr_rd_done) ? IDLE : PAUSE;
                 stall_out = HIGH;
+            end
+            default: begin
+                next_state = state;
+                stall_out = LOW;
             end
         endcase
     end
