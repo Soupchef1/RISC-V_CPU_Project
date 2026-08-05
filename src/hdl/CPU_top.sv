@@ -116,7 +116,10 @@ module CPU_top(
         .ddr_data_in(ins_data_out),
         .ddr_rd_miss(ins_rd_miss),
         .ddr_addr(ins_addr),
-        .stall_out(ins_cache_stall)
+        .stall_out(ins_cache_stall),
+
+        //start button
+        .start_button(start_button)
     );
 
 

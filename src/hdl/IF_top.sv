@@ -43,7 +43,10 @@ module IF_top(
         input logic [511:0] ddr_data_in,
         output logic ddr_rd_miss,
         output logic [31:0] ddr_addr,
-        output logic stall_out
+        output logic stall_out,
+
+        //start button
+        input logic start_button
     );
 
     logic [1:0] bht;

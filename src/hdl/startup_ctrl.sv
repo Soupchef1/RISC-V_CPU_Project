@@ -52,13 +52,8 @@ module startup_ctrl(
     (* ASYNC_REG = "TRUE" *) logic calib_sync1, calib_sync2;
 
     always_ff @(posedge clk, negedge nrst) begin
-        if (!nrst) begin
-            calib_sync1 <= 1'b0;
-            calib_sync2 <= 1'b0;
-        end else begin
-            calib_sync1 <= mig_calib_complete;  // raw MIG signal, async source
-            calib_sync2 <= calib_sync1;
-        end
+        calib_sync1 <= mig_calib_complete;  // raw MIG signal, async source
+        calib_sync2 <= calib_sync1;
     end
 
     always_ff @(posedge clk, negedge nrst) begin

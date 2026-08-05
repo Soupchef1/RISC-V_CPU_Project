@@ -26,6 +26,9 @@ module top(
     input logic CLK100MHZ,
     input logic ck_rst,
 
+    //buttons
+    input logic start_button,
+
     //LEDs
     output logic [3:0] led,
 

@@ -70,11 +70,23 @@ module main_controller(
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
         end
+        else if (flush) begin
+            ex_ctrl <= '0;
+            if(stall_inst || stall_data_cache) begin
+                decode_ctrl.predicted_jump <= decode_ctrl.predicted_jump;
+                mem_ctrl <= mem_ctrl;
+                write_back_ctrl <= write_back_ctrl;
+            end else begin
+                decode_ctrl.predicted_jump <= predicted_jump_fetch;
+                mem_ctrl <= ex_ctrl;
+                write_back_ctrl <= mem_ctrl.write_back;
+            end
+        end
 
         else if(stall_inst || stall_data_cache) begin
             // do not pipeline controller registers
             decode_ctrl.predicted_jump <= decode_ctrl.predicted_jump;
-            ex_ctrl <= (flush) ? '0 : ex_ctrl;
+            ex_ctrl <= ex_ctrl;
             mem_ctrl <= mem_ctrl;
             write_back_ctrl <= write_back_ctrl;
         end
@@ -82,7 +94,7 @@ module main_controller(
         else begin
         // pipelining control sigals
             decode_ctrl.predicted_jump <= predicted_jump_fetch;
-            ex_ctrl <= (flush) ? '0 : decode_ctrl;
+            ex_ctrl <= decode_ctrl;
             mem_ctrl <= ex_ctrl;
             write_back_ctrl <= mem_ctrl.write_back;
         end
