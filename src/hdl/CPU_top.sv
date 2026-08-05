@@ -153,14 +153,6 @@ module CPU_top(
       
     );
 
-    forwardingUnit jett (
-        .rs1_decode(rs1_addr),
-        .rs2_decode(rs2_addr),
-        .rd_ex(EX_rd),
-        .rd_mem(MA_rd),
-        .FUmux(FU_mux)
-    );
-
     EX_top sponge (
         .clk(clk),
         .nrst(nrst),
@@ -176,9 +168,14 @@ module CPU_top(
         .target(target),
         .pc_next(PC_next),
         .pc_switch(pc_switch),
-        .FUmux(FUmux),
-        .ALU_outex(MA_data_out),
-        .ALU_outmem(WB_data_out),
+        .rs1_addr(rs1_addr),
+        .rs2_addr(rs2_addr),
+        .MA_rd(MA_rd),
+        .WB_rd(WB_rd),
+        .MA_data(MA_data_out),
+        .WB_data(WB_data_out),
+        .MA_write_back(MA_ctrl_signals.write_back),
+        .WB_write_back(WB_en),
         .PC_D(EX_PC),
         .rs2_data_o(EX_rs2_data),
         .flush_en(flush),

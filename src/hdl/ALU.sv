@@ -49,13 +49,6 @@ module ALU(
     output logic pc_switch
 
 );
-
-    logic [31:0] op_a;
-    logic [31:0] op_b;
-    logic [31:0] result;
-    logic [31:0] op_c;
-    logic [31:0] op_d;
-    logic [31:0] b_result;
     localparam logic LOW = 1'b0;
     localparam logic HIGH = 1'b1;
     localparam int INPUT_A_SEL = 1;
@@ -64,6 +57,13 @@ module ALU(
     localparam int BRANCH_EN = 3;
     localparam int STORE_JUMP = 4;
     localparam logic [31:0] WORD_LENGTH = 32'd4;
+
+    logic [31:0] op_a;
+    logic [31:0] op_b;
+    logic [31:0] result;
+    logic [31:0] op_c;
+    logic [31:0] op_d;
+    logic [31:0] b_result;
 
     assign op_a = (MUX_en[INPUT_A_SEL] == LOW)? rs1_data : pc;
     assign op_b = (MUX_en[INPUT_B_SEL] == LOW)? rs2_data : imm;
@@ -90,13 +90,26 @@ module ALU(
             IS_GREATER_OR_EQUAL_SIGNED:          result = ($signed(op_a) >= $signed(op_b))? 32'd1 : 32'd0;
             IS_GREATER_OR_EQUAL_UNSIGNED:        result = (op_a >= op_b)? 32'd1 : 32'd0;
             default:                             result = 32'b0;
-        endcase
-        
+        endcase        
     end
     
-    assign ALU_out = (MUX_en[STORE_JUMP] == LOW)? result : (pc + WORD_LENGTH);
-    assign pc_next = (MUX_en[STORE_JUMP] | (MUX_en[BRANCH_EN] == HIGH) & (result[0] == HIGH))? b_result : (pc + WORD_LENGTH);
+    //parallel branch condition operation
+    logic branch_op;
+    always_comb begin
+        case (ALU_op)
+            IS_EQUAL: branch_op = (rs1_data == rs2_data);
+            IS_NOT_EQUAL: branch_op = (rs1_data != rs2_data);
+            IS_LESS_THAN_SIGNED: branch_op = ($signed(rs1_data) < $signed(rs2_data));
+            IS_LESS_THAN_UNSIGNED: branch_op = (rs1_data < rs2_data);
+            IS_GREATER_OR_EQUAL_SIGNED: branch_op = ($signed(rs1_data) >= $signed(rs2_data));
+            IS_GREATER_OR_EQUAL_UNSIGNED: branch_op = (rs1_data >= rs2_data);
+            default: branch_op = 1'b0;
+        endcase
+    end
+
+    assign ALU_out = (MUX_en[STORE_JUMP] == LOW) ? result : (pc + WORD_LENGTH);
+    assign pc_next = (pc_switch) ? b_result : (pc + WORD_LENGTH);
     assign target = b_result;
-    assign pc_switch = (MUX_en[STORE_JUMP] | (MUX_en[BRANCH_EN] == HIGH) & (result[0] == HIGH))? HIGH : LOW;
+    assign pc_switch = (MUX_en[STORE_JUMP] | (MUX_en[BRANCH_EN] & branch_op))? HIGH : LOW;
 
 endmodule

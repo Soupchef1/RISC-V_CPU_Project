@@ -36,9 +36,9 @@ module EX_top (
     output logic rd_out,
 
     //ports for data forwarding
-    input logic [3:0] FUmux,         //c
-    input logic [31:0] ALU_outex,    //c
-    input logic [31:0] ALU_outmem,   //c
+    input logic [4:0] rs1_addr, rs2_addr, MA_rd, WB_rd,
+    input logic [31:0] MA_data, WB_data,
+    input logic MA_write_back, WB_write_back,
 
     //stage outputs
     output logic [31:0] PC_D,
@@ -61,8 +61,8 @@ module EX_top (
     logic [1:0] pipe_cont;
     logic [31:0] rs1_ALU;
     logic [31:0] rs2_ALU;
+    logic [4:0] rs1_addr_reg, rs2_addr_reg;
 
-    assign pipe_cont = {flush_en, stall_en};
     assign rs2_data_o = rs2_ALU;
     assign rd_out = rd_int;
 
@@ -76,99 +76,28 @@ module EX_top (
             rs2_data_int <= '0;
             imm_int <=      '0;
             rd_int <=       '0;
+            rs1_addr_reg <= '0;
+            rs2_addr_reg <= '0;
+        end else if (flush_en) begin
+            pc_int <=           '0;
+            rs1_data_int <=     '0;
+            rs2_data_int <=     '0;
+            imm_int <=          '0;
+            rd_int <=           '0;
+            rs1_addr_reg <= '0;
+            rs2_addr_reg <= '0;
+        end else if (!stall_en) begin
+            pc_int       <= pc;
+            rs1_data_int <= rs1_data;
+            rs2_data_int <= rs2_data;
+            imm_int      <= imm;
+            rd_int       <= rd_in;
+            rs1_addr_reg <= rs1_addr;
+            rs2_addr_reg <= rs2_addr;
         end
-
-        else begin
-
-            case (pipe_cont)     //this could be all wrong
-                
-                default: begin 
-                    //do nothing --> full stall
-                    pc_int <= pc_int;
-                    rs1_data_int <= rs1_data_int;
-                    rs2_data_int <= rs2_data_int;
-                    imm_int <= imm_int;
-                    rd_int <= rd_in;
-                end
-
-                2'b00: begin //normal operations
-                    pc_int <= pc;
-                    rs1_data_int <= rs1_data;
-                    rs2_data_int <= rs2_data;
-                    imm_int <= imm;
-                    rd_int <= rd_in;
-                end
-
-                2'b11: begin //stall and flush
-                    pc_int <=           '0;
-                    rs1_data_int <=     '0;
-                    rs2_data_int <=     '0;
-                    imm_int <=          '0;
-                    rd_int <=           '0;
-                end
-
-                2'b10: begin //normal flush
-                    pc_int <=       '0;
-                    rs1_data_int <= '0;
-                    rs2_data_int <= '0;
-                    imm_int <=      '0;
-                    rd_int <=       '0;
-                end
-
-            endcase
-        end
-    end
-
-
-    always_comb begin
-
-        PC_D = pc_int;
-
-        case (FUmux) 
-
-            default: begin
-                rs1_ALU = rs1_data_int;
-                rs2_ALU = rs2_data_int;
-            end
-            4'd1: begin
-                rs1_ALU = rs1_data_int;
-                rs2_ALU = ALU_outex;
-            end
-            4'd2: begin
-                rs1_ALU = rs1_data_int;
-                rs2_ALU = ALU_outmem;
-            end
-            4'd3: begin
-                rs1_ALU = ALU_outex;
-                rs2_ALU = rs2_data_int;
-            end
-            4'd4: begin
-                rs1_ALU = ALU_outex;
-                rs2_ALU = ALU_outex;
-            end
-            4'd5: begin
-                rs1_ALU = ALU_outex;
-                rs2_ALU = ALU_outmem;
-            end
-            4'd6: begin
-                rs1_ALU = ALU_outmem;
-                rs2_ALU = rs2_data_int;
-            end
-            4'd7: begin
-                rs1_ALU = ALU_outmem;
-                rs2_ALU = ALU_outex;
-            end
-            4'd8: begin
-                rs1_ALU = ALU_outmem;
-                rs2_ALU = ALU_outmem;
-            end
-
-        endcase
-
     end
 
     ALU ALU_exCore (
-
         .pc(pc_int),
         .rs1_data(rs1_ALU),
         .rs2_data(rs2_ALU),
@@ -179,7 +108,16 @@ module EX_top (
         .target(target),
         .pc_next(pc_next),
         .pc_switch(pc_switch)
+    );
 
+    forwardingUnit forward (
+        .rs1_addr(rs1_addr_reg),
+        .rs2_addr(rs2_addr_reg),
+        .rs1_data(rs1_data_int),
+        .rs2_data(rs2_data_int),
+        .rs1(rs1_ALU),
+        .rs2(rs2_ALU),
+        .*
     );
 
 endmodule

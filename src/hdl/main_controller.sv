@@ -44,7 +44,7 @@ module main_controller(
 
     // pipelined control signals
     output ctrl_signal_t decode_ctrl,
-    (* max_fanout = 32 *) output ctrl_signal_t ex_ctrl,
+    (* max_fanout = 16 *) output ctrl_signal_t ex_ctrl,
     output ctrl_signal_t mem_ctrl,
     output logic write_back_ctrl //only need write back signal
     );
@@ -75,7 +75,7 @@ module main_controller(
             ex_ctrl <= '0; //TODO make sure all zeroes is default
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
-        end else else begin
+        end else begin
             //flush only needs to clear ex_ctrl
             if (flush) begin
                 ex_ctrl <= '0;
