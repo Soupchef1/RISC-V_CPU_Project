@@ -40,9 +40,11 @@ module main_controller(
     output logic flush,
     output logic stall_out,
 
+    input logic start_done,
+
     // pipelined control signals
     output ctrl_signal_t decode_ctrl,
-    output ctrl_signal_t ex_ctrl,
+    (* max_fanout = 32 *) output ctrl_signal_t ex_ctrl,
     output ctrl_signal_t mem_ctrl,
     output logic write_back_ctrl //only need write back signal
     );
@@ -63,45 +65,34 @@ module main_controller(
         .mem_zero_extend(decode_ctrl.mem_zero_extend)
     );
 
+    logic stall;
+
+    assign stall = stall_inst || stall_data_cache;
+
     always_ff @(posedge clk or negedge nrst) begin
         if(!nrst) begin
             decode_ctrl.predicted_jump <= LOW;
             ex_ctrl <= '0; //TODO make sure all zeroes is default
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
-        end
-        else if (flush) begin
-            ex_ctrl <= '0;
-            if(stall_inst || stall_data_cache) begin
-                decode_ctrl.predicted_jump <= decode_ctrl.predicted_jump;
-                mem_ctrl <= mem_ctrl;
-                write_back_ctrl <= write_back_ctrl;
-            end else begin
+        end else else begin
+            //flush only needs to clear ex_ctrl
+            if (flush) begin
+                ex_ctrl <= '0;
+            end else if (!stall) begin
+                ex_ctrl <= decode_ctrl;
+            end
+            
+            if (!stall) begin
                 decode_ctrl.predicted_jump <= predicted_jump_fetch;
                 mem_ctrl <= ex_ctrl;
                 write_back_ctrl <= mem_ctrl.write_back;
             end
-        end
-
-        else if(stall_inst || stall_data_cache) begin
-            // do not pipeline controller registers
-            decode_ctrl.predicted_jump <= decode_ctrl.predicted_jump;
-            ex_ctrl <= ex_ctrl;
-            mem_ctrl <= mem_ctrl;
-            write_back_ctrl <= write_back_ctrl;
-        end
-
-        else begin
-        // pipelining control sigals
-            decode_ctrl.predicted_jump <= predicted_jump_fetch;
-            ex_ctrl <= decode_ctrl;
-            mem_ctrl <= ex_ctrl;
-            write_back_ctrl <= mem_ctrl.write_back;
-        end
+        end //registers automatically retain value, no need to specify
     end
 
     always_comb begin
-        flush = pc_switch ^ decode_ctrl.predicted_jump;
+        flush = (start_done) ? pc_switch ^ decode_ctrl.predicted_jump : HIGH;
         stall_out = stall_inst || stall_data_cache;
     end
 

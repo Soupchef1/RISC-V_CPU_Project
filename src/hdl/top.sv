@@ -76,7 +76,7 @@ module top(
 
     logic clk_100M, clk_pixel, clk_serial;
 
-    logic start_done, start_valid, start_write_en;
+    logic start_done, start_valid, start_write_en, start_finish;
     logic [31:0] start_addr, start_data;
 
     logic boot_start;
@@ -159,8 +159,8 @@ module top(
 
     assign led[0] = boot_start;
     assign led[1] = pkt_failed;
-    assign led[2] = ins_rd_miss | data_rd_miss | data_wr_miss;
-    assign led[3] = HIGH;
+    assign led[2] = start_finish;
+    assign led[3] = ins_rd_miss | data_rd_miss | data_wr_miss;
 
     memory_sv your_instance_name (
         .S00_AXI_0(S00_AXI_0.slave), // vivado_aximm_v1_0.slave S00_AXI_0
@@ -200,7 +200,6 @@ module top(
 
     bootloader boot(
         .uart_rx(uart_rxd_out),
-        .axi_ctrl_bvalid(S00_AXI_0.BVALID),
         .*
     );
 

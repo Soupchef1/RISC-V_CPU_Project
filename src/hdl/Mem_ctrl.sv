@@ -341,7 +341,7 @@ module Mem_ctrl(
 
             FINISH: begin
                 next_mem_state = IDLE;
-                read_start= LOW;
+                write_start= LOW;
                 read_start = LOW;
 
                 write_data_reg = '0;
@@ -420,13 +420,14 @@ module Mem_ctrl(
             end
 
             READ: begin
+                next_read_data_reg = read_data_reg;
+                next_read_cnt = read_cnt;
+                next_read_state = READ;
+
                 if(rvalid == HIGH) begin
                     next_read_data_reg[read_cnt * 128 +: 128] = rdata;
                     next_read_cnt = read_cnt + 2'd1;
                     next_read_state = (read_cnt == 2'd3) ? R_IDLE : READ;
-                end else begin
-                    next_read_cnt = read_cnt;
-                    next_read_state = READ;
                 end
                 read_done = LOW;
 

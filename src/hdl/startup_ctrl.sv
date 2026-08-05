@@ -30,9 +30,9 @@ module startup_ctrl(
         output logic boot_start,
 
         output logic [31:0] data, addr,
-        output logic start_done, start_valid, start_write_en,
+        output logic start_done, start_valid, start_write_en, start_finish,
 
-        input logic axi_ctrl_bvalid
+        input logic start_button
     );
 
     localparam logic HIGH = 1'b1;
@@ -51,7 +51,7 @@ module startup_ctrl(
 
     (* ASYNC_REG = "TRUE" *) logic calib_sync1, calib_sync2;
 
-    always_ff @(posedge clk, negedge nrst) begin
+    always_ff @(posedge clk) begin
         calib_sync1 <= mig_calib_complete;  // raw MIG signal, async source
         calib_sync2 <= calib_sync1;
     end
@@ -75,6 +75,7 @@ module startup_ctrl(
                 boot_start = LOW;
 
                 start_done = LOW;
+                start_finish = LOW;
                 start_valid = LOW;
                 start_write_en = LOW;
 
@@ -89,6 +90,7 @@ module startup_ctrl(
                 boot_start = HIGH;
 
                 start_done = LOW;
+                start_finish = LOW;
                 start_valid = HIGH;
                 start_write_en = pkt_ready;
 
@@ -98,11 +100,12 @@ module startup_ctrl(
 
             PAUSE: begin
                 next_addr_cnt = '0;
-                next_state = (axi_ctrl_bvalid) ? PAUSE : IDLE;
+                next_state = (start_button) ? PAUSE : IDLE;
 
                 boot_start = LOW;
 
                 start_done = LOW;
+                start_finish = HIGH;
                 start_valid = LOW;
                 start_write_en = LOW;
 
@@ -117,6 +120,7 @@ module startup_ctrl(
                 boot_start = LOW;
 
                 start_done = HIGH;
+                start_finish = HIGH;
                 start_valid = LOW;
                 start_write_en = LOW;
 

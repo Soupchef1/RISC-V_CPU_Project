@@ -25,14 +25,15 @@ module EX_top (
     input logic [31:0] pc,           //s
     input logic [31:0] rs1_data,     //s
     input logic [31:0] rs2_data,     //s
-    input logic [4:0] rd,
+    input logic [4:0] rd_in,
     input logic [31:0] imm,          //s
     input logic [4:0] MUX_en,        //c
     input logic [3:0] ALU_op,        //c
-    output logic [31:0] ALU_out,    
+    output logic [31:0] ALU_out,   
     output logic [31:0] target,
     output logic [31:0] pc_next,
     output logic pc_switch,
+    output logic rd_out,
 
     //ports for data forwarding
     input logic [3:0] FUmux,         //c
@@ -63,9 +64,10 @@ module EX_top (
 
     assign pipe_cont = {flush_en, stall_en};
     assign rs2_data_o = rs2_ALU;
+    assign rd_out = rd_int;
 
     //pipeline based signals
-    always_ff @(posedge clk or negedge nrst) begin
+    always_ff @(posedge clk, negedge nrst) begin
 
         if (!nrst) begin
             //idk what goes here
@@ -86,7 +88,7 @@ module EX_top (
                     rs1_data_int <= rs1_data_int;
                     rs2_data_int <= rs2_data_int;
                     imm_int <= imm_int;
-                    rd_int <= rd;
+                    rd_int <= rd_in;
                 end
 
                 2'b00: begin //normal operations
@@ -94,7 +96,7 @@ module EX_top (
                     rs1_data_int <= rs1_data;
                     rs2_data_int <= rs2_data;
                     imm_int <= imm;
-                    rd_int <= rd;
+                    rd_int <= rd_in;
                 end
 
                 2'b11: begin //stall and flush

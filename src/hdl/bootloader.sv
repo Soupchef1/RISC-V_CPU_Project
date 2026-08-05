@@ -23,12 +23,11 @@
 module bootloader(
         input logic clk, nrst,
 
-        input logic uart_rx, mig_ready,
-        output logic start_done, start_valid, start_write_en,
+        input logic uart_rx, mig_ready, start_button,
+        output logic start_done, start_valid, start_write_en, start_finish,
         output logic [31:0] start_addr, start_data,
 
         //signals to axi_ctrl
-        input logic axi_ctrl_bvalid,
         output logic boot_start,
 
         output logic pkt_failed

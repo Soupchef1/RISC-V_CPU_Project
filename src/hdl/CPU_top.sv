@@ -161,12 +161,14 @@ module CPU_top(
         .FUmux(FU_mux)
     );
 
-     EX_top sponge (
+    EX_top sponge (
         .clk(clk),
         .nrst(nrst),
         .pc(ID_PC),
         .rs1_data(ID_rs1_data),
         .rs2_data(ID_rs2_data),
+        .rd_in(ID_rd),
+        .rd_out(EX_rd),
         .imm(ID_imm),
         .MUX_en(EX_ctrl_signals.MUX_en),
         .ALU_op(EX_ctrl_signals.ALU_op),
@@ -221,7 +223,7 @@ module CPU_top(
         .rd(MA_rd),
         .stall(stall),
         .ALU_outmem(WB_data_out),
-        .rd_mem(WV_rd)
+        .rd_mem(WB_rd)
     );
 
     main_controller puffs(
@@ -236,6 +238,7 @@ module CPU_top(
         .stall_data_cache(data_cache_stall),
         .flush(flush),
         .stall_out(stall),
+        .start_done(start_done),
         .decode_ctrl(ID_ctrl_signals),
         .ex_ctrl(EX_ctrl_signals),
         .mem_ctrl(MA_ctrl_signals),
