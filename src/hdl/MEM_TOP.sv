@@ -31,7 +31,8 @@ module MEM_TOP(
     input logic mem_zero_extend,
     
     //controller signals
-    input logic EX_rd_en, EX_wr_en, MA_rd_en, MA_wr_en,
+    input logic flush, stall, FU_stall,
+    input logic EX_rd_en, EX_wr_en, MA_rd_en, MA_wr_en, 
     output logic stall_out,
 
     //mem controller signals
@@ -43,9 +44,6 @@ module MEM_TOP(
     output logic [31:0] ddr_addr,
     output logic ddr_dirty,
     output logic is_video_data,
-
-    //controller
-    input logic flush, stall,
 
     //to write back
     output logic [31:0] MUX_data_out,
@@ -84,6 +82,11 @@ module MEM_TOP(
             mem_rd <= mem_rd;
             MA_data_in <= MA_data_in;
             buffer_change_reg <= buffer_change_reg;
+        end else if (FU_stall) begin
+            MA_addr <= '0;
+            mem_rd <= '0;
+            MA_data_in <= '0;
+            buffer_change_reg <= '0;
         end
         else begin
             MA_addr <= EX_addr;

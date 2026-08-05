@@ -39,6 +39,7 @@ module EX_top (
     input logic [4:0] rs1_addr, rs2_addr, MA_rd, WB_rd,
     input logic [31:0] MA_data, WB_data,
     input logic MA_write_back, WB_write_back,
+    output logic FU_stall,
 
     //stage outputs
     output logic [31:0] PC_D,
@@ -86,7 +87,7 @@ module EX_top (
             rd_int <=           '0;
             rs1_addr_reg <= '0;
             rs2_addr_reg <= '0;
-        end else if (!stall_en) begin
+        end else if (!(stall_en | FU_stall)) begin
             pc_int       <= pc;
             rs1_data_int <= rs1_data;
             rs2_data_int <= rs2_data;

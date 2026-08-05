@@ -54,7 +54,7 @@ module CPU_top(
 
 
     //internal signals
-    logic flush, stall;
+    logic flush, stall, FU_stall;
     logic data_cache_stall, ins_cache_stall;
     
     //Instruction Fetch
@@ -93,7 +93,7 @@ module CPU_top(
         .clk(clk),
         .nrst(nrst),
         .flush(flush),
-        .stall(stall),
+        .stall(stall | FU_stall),
         .PC_next(PC_next),
         .instr(IF_instr),
         .PC_out(IF_PC), //to decode pipeline reg
@@ -144,7 +144,7 @@ module CPU_top(
 
         //controller signals
         .flush_en(flush),
-        .stall_en(stall),
+        .stall_en(stall | FU_stall),
         .func3(func3),
         .func7(func7),
         .opcode(opcode),
@@ -179,7 +179,8 @@ module CPU_top(
         .PC_D(EX_PC),
         .rs2_data_o(EX_rs2_data),
         .flush_en(flush),
-        .stall_en(stall)
+        .stall_en(stall),
+        .FU_stall(FU_stall)
     );
 
     MEM_TOP star (
@@ -206,6 +207,7 @@ module CPU_top(
         .is_video_data(video_data),
         .flush(flush),
         .stall(stall),
+        .FU_stall(FU_stall),
         .MUX_data_out(MA_data_out),
         .mem_rd(MA_rd),
         .start_addr(start_addr),

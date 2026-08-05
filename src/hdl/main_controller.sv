@@ -36,6 +36,7 @@ module main_controller(
     input logic pc_switch,
     input logic stall_inst,
     input logic stall_data_cache,
+    input logic FU_stall,
 
     output logic flush,
     output logic stall_out,
@@ -65,9 +66,9 @@ module main_controller(
         .mem_zero_extend(decode_ctrl.mem_zero_extend)
     );
 
-    logic stall;
+    logic cache_stall;
 
-    assign stall = stall_inst || stall_data_cache;
+    assign cache_stall = stall_inst || stall_data_cache;
 
     always_ff @(posedge clk or negedge nrst) begin
         if(!nrst) begin
@@ -75,17 +76,25 @@ module main_controller(
             ex_ctrl <= '0; //TODO make sure all zeroes is default
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
-        end else begin
-            //flush only needs to clear ex_ctrl
+        end else if(flush) begin
+            //flush needs to clear ex and decode
+            //cache_stall stalls all
+            //FU_stall stalls ex, decode, fetch; flushes mem
             if (flush) begin
                 ex_ctrl <= '0;
-            end else if (!stall) begin
+                decode_ctrl.predicted_jump <= LOW;
+            end else if (!cache_stall & !FU_stall) begin
                 ex_ctrl <= decode_ctrl;
+                decode_ctrl.predicted_jump <= predicted_jump_fetch;
             end
             
-            if (!stall) begin
-                decode_ctrl.predicted_jump <= predicted_jump_fetch;
+            if(flush | (!cache_stall & FU_stall)) begin
+                mem_ctrl <= '0;
+            end else if (!cache_stall) begin
                 mem_ctrl <= ex_ctrl;
+            end
+
+            if (!cache_stall) begin
                 write_back_ctrl <= mem_ctrl.write_back;
             end
         end //registers automatically retain value, no need to specify
