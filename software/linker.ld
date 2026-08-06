@@ -2,7 +2,7 @@ MEMORY
 {
   INSTRUCTION (rx)  : ORIGIN = 0x00000000, LENGTH = 64M
   STACK       (rw)  : ORIGIN = 0x04000000, LENGTH = 4M
-  HEAP        (rw)  : ORIGIN = 0x04400000, LENGTH = 188M
+  HEAP        (rw)  : ORIGIN = 0x04400000, LENGTH = 180M
   VIDEO_FB2   (rw)  : ORIGIN = 0x0F800000, LENGTH = 4M
   VIDEO_FB1   (rw)  : ORIGIN = 0x0FC00000, LENGTH = 4M
 }
@@ -18,13 +18,19 @@ SECTIONS
     . = ALIGN(4);
   } > INSTRUCTION
 
-  .data :
+.data :
   {
     . = ALIGN(4);
+    __data_start = .;            /* Mark start of data in RAM */
     __global_pointer$ = . + 0x800;
     *(.data .data.*)
     *(.sdata .sdata.*)
-  } > STACK
+    . = ALIGN(4);
+    __data_end = .;              /* Mark end of data in RAM */
+  } > STACK AT> INSTRUCTION      /* Pack into ROM, run from RAM */
+
+  /* Mark the LMA (Load Memory Address) in ROM */
+  __data_load_start = LOADADDR(.data);
 
   .bss :
   {

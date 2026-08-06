@@ -147,7 +147,7 @@ module uart_receiver(
                 next_clk_cnt = '0;
                 next_bit_cnt = '0;
                 next_data = data;
-                valid = LOW;
+                next_valid = LOW;
             end
         endcase
     end
