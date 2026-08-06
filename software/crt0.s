@@ -23,7 +23,7 @@ bss_clear_loop:
 
 jump_to_main:
     /* Call user execution space */
-    jal b_main
+    jal main
 
     /* Core trap loop (Replaces 'wfi' to stay strictly within RV32I) */
 core_halt:
