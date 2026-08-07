@@ -2,6 +2,8 @@
 .global _start
 .type _start, @function
 
+.align 2
+
 _start:
     /* Set up global optimization pointer */
     .option push
@@ -44,3 +46,5 @@ jump_to_main:
     /* Core trap loop (Replaces 'wfi' to stay strictly within RV32I) */
 core_halt:
     j core_halt
+
+.size _start, . - _start
