@@ -45,7 +45,6 @@ module mem_ctrl_tb(
     logic video_data;
 
     //misc.
-    logic finish;
     logic ins_read_done;
     logic data_read_done;    //axi shi
     logic [31:0] awaddr;

@@ -30,7 +30,7 @@ module IF_top_tb(
     logic clk, nrst, flush, stall;
     logic [31:0] PC_next, instr, PC_out, PC_Ex, target, start_data, start_addr, ID_addr, ddr_addr;
     logic [4:0] MUX_en;
-    logic predicted_jump, pc_switch, start_done, ddr_rd_done, ddr_rd_miss, stall_out;
+    logic predicted_jump, pc_switch, start_done, ddr_rd_done, ddr_rd_miss, stall_out, start_valid, start_write_en;
     logic [511:0] ddr_data_in;
 
     IF_top DUT(.*);
@@ -106,6 +106,8 @@ module IF_top_tb(
         start_done = LOW;
         ddr_rd_done = LOW;
         ddr_data_in = '0;
+        start_valid = HIGH;
+        start_write_en = HIGH;
 
         @(posedge clk);
 
