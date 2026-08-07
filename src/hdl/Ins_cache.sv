@@ -66,7 +66,7 @@ module Ins_cache(
 
     logic rd_miss;
     
-    assign ddr_rd_miss = (state != STARTUP) && (rd_miss | !tagline_out[18]);
+    assign ddr_rd_miss = (state == IDLE) && (rd_miss | !tagline_out[18]);
 
     assign dina = {tagline_in, data_in};
     assign data_out = doutb[511:0];
@@ -164,7 +164,7 @@ module Ins_cache(
                 stall_out = (rd_miss) ? HIGH : LOW;
             end
             MISS: begin
-                next_state = (ddr_rd_done) ? IDLE : MISS;
+                next_state = (ddr_rd_done) ? RETURN : MISS;  //switchde form idle to RETURN
                 stall_out = HIGH;
             end
             RETURN: begin

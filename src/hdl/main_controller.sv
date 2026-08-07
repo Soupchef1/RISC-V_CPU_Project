@@ -76,7 +76,8 @@ module main_controller(
             ex_ctrl <= '0; //TODO make sure all zeroes is default
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
-        end else if(flush) begin
+        end 
+        else  begin   //deleted if (flush) line here
             //flush needs to clear ex and decode
             //cache_stall stalls all
             //FU_stall stalls ex, decode, fetch; flushes mem

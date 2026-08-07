@@ -211,7 +211,7 @@ module Mem_ctrl(
 
                 write_data_reg = '0;
                 write_addr_reg = '0;
-                read_addr_reg = '0;
+                read_addr_reg = (next_mem_state == CLEAN_INS_RD) ? ins_addr : '0;     //was 0 before ryan changed
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
@@ -308,7 +308,7 @@ module Mem_ctrl(
 
                 write_data_reg = '0;
                 write_addr_reg = '0;
-                read_addr_reg = '0;
+                read_addr_reg = ins_addr; //was '0 before ryan changed
                 
                 data_read_done = LOW;
                 ins_read_done = (read_done);

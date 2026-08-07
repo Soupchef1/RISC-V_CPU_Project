@@ -96,7 +96,7 @@ module Data_cache(
     assign valid = tagline_out[18]; //valid bit
 
     //cache miss logic
-    assign cache_miss = (state != STARTUP) && ((tag_out != MA_addr[31:15]) | !valid);
+    assign cache_miss = (state == IDLE) && ((tag_out != MA_addr[31:15]) | !valid);
     assign rd_miss = cache_miss & MA_read_en;
     assign wr_miss = cache_miss & MA_write_en;
 
@@ -297,7 +297,7 @@ module Data_cache(
 
             MISS: begin
                 if(ddr_rd_done) begin
-                    next_state = IDLE;                  
+                    next_state = RETURN;     // from idle to return             
                 end
                 else begin
                     next_state = MISS;
