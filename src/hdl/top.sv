@@ -33,8 +33,8 @@ module top(
     output logic [3:0] led,
 
     //uart
-    input logic uart_rxd_out,
-    output logic uart_txd_in,
+    input logic uart_txd_in,
+    output logic uart_rxd_out,
 
     //HDMI
     output logic [2:0] hdmi_out_p, //order MSB to LSB: RED, GREEN, BLUE.
@@ -199,7 +199,7 @@ module top(
     );
 
     bootloader boot(
-        .uart_rx(uart_rxd_out),
+        .uart_rx(uart_txd_in),
         .*
     );
 
