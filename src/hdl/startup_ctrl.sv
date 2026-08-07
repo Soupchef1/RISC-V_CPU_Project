@@ -102,7 +102,7 @@ module startup_ctrl(
                 next_addr_cnt = '0;
                 next_state = (start_button) ? PAUSE : IDLE;
 
-                boot_start = LOW;
+                boot_start = HIGH;
 
                 start_done = LOW;
                 start_finish = HIGH;
