@@ -58,14 +58,15 @@ module Ins_cache(
     typedef enum logic [1:0]{
         STARTUP, 
         IDLE,
-        PAUSE
+        MISS,
+        RETURN
     } state_t;
 
     state_t state, next_state;
 
     logic rd_miss;
     
-    assign ddr_rd_miss = rd_miss | !tagline_out[18];
+    assign ddr_rd_miss = (state != STARTUP) && (rd_miss | !tagline_out[18]);
 
     assign dina = {tagline_in, data_in};
     assign data_out = doutb[511:0];
@@ -111,13 +112,20 @@ module Ins_cache(
                 instr = data_out[ID_addr[5:2] * 32 +: 32];
             end 
 
-            PAUSE: begin
+            MISS: begin
                 ena = (ddr_rd_done) ? HIGH : LOW;
                 wea = '1;
                 addra = ID_addr[14:6];
                 data_in = ddr_data_in;
                 tagline_in = {5'b0, 1'b1, 1'b0, ID_addr[31:15]}; //set dirty LOW (unused) and valid HIGH
 
+                enb = HIGH;
+                addrb = ID_addr[14:6];
+
+                instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
+            end
+
+            RETURN: begin
                 enb = HIGH;
                 addrb = ID_addr[14:6];
 
@@ -151,12 +159,16 @@ module Ins_cache(
                 next_state = (start_done) ? IDLE : STARTUP;
             end
             IDLE: begin
-                next_state = (rd_miss) ? PAUSE : IDLE;
+                next_state = (rd_miss) ? MISS : IDLE;
                 stall_out = (rd_miss) ? HIGH : LOW;
             end
-            PAUSE: begin
-                next_state = (ddr_rd_done) ? IDLE : PAUSE;
+            MISS: begin
+                next_state = (ddr_rd_done) ? IDLE : MISS;
                 stall_out = HIGH;
+            end
+            RETURN: begin
+                next_state = IDLE;
+                stall_out = LOW;
             end
             default: begin
                 next_state = state;

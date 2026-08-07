@@ -77,7 +77,8 @@ module Data_cache(
     typedef enum logic [1:0] { 
         STARTUP,
         IDLE,
-        PAUSE
+        MISS,
+        RETURN
     } state_t;
 
     state_t state, next_state;
@@ -95,7 +96,7 @@ module Data_cache(
     assign valid = tagline_out[18]; //valid bit
 
     //cache miss logic
-    assign cache_miss = (tag_out != MA_addr[31:15]) | !valid;
+    assign cache_miss = (state != STARTUP) && ((tag_out != MA_addr[31:15]) | !valid);
     assign rd_miss = cache_miss & MA_read_en;
     assign wr_miss = cache_miss & MA_write_en;
 
@@ -132,6 +133,8 @@ module Data_cache(
                 addr = start_addr[14:6];
                 data_in = '0;
                 tagline_in = '0;
+
+                MA_data_out = '0;
             end
 
             IDLE: begin
@@ -140,14 +143,28 @@ module Data_cache(
                 wea = regular_wea;
                 ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
                 addr = EX_addr[14:6];
+
+                MA_data_out = data_out[MA_addr[5:2] * 32 +: 32];
             end
 
-            PAUSE: begin
+            MISS: begin
                 data_in = ddr_data_in_fixed;
                 tagline_in = ddr_tagline;
                 wea = ddr_wea;
                 ena = ddr_rd_done;
                 addr = MA_addr[14:6];
+
+                MA_data_out = ddr_data_in[MA_addr[5:2] * 32 +: 32];
+            end
+
+            RETURN: begin
+                data_in = regular_data_in;
+                tagline_in = regular_tagline_in;
+                wea = regular_wea;
+                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
+                addr = EX_addr[14:6];
+
+                MA_data_out = ddr_data_in[MA_addr[5:2] * 32 +: 32];
             end
 
             default: begin
@@ -156,6 +173,8 @@ module Data_cache(
                 wea = regular_wea;
                 ena = (EX_write_en & (EX_addr[27:23] != 5'b11111) & (EX_addr[31:28] == 4'b0000)); //make suere not to write video or mmio data to cache
                 addr = EX_addr[14:6];
+
+                MA_data_out = data_out[MA_addr[5:2] * 32 +: 32];
             end
 
         endcase
@@ -179,7 +198,7 @@ module Data_cache(
     always_comb begin
 
         //reading combinational logic
-        MA_data_out = (state == PAUSE) ? ddr_data_in[MA_addr[5:2] * 32 +: 32] : data_out[MA_addr[5:2] * 32 +: 32];  //picks out right word
+        // moved this line to other always comb outputs block// MA_data_out = (state == MISS) ? ddr_data_in[MA_addr[5:2] * 32 +: 32] : data_out[MA_addr[5:2] * 32 +: 32];  //picks out right word
 
         //writing combinational logic no misses
         regular_tagline_in = {5'b0, 1'b1, 1'b1, EX_addr[31:15]};
@@ -267,7 +286,7 @@ module Data_cache(
             end
             IDLE: begin
                 if (ddr_rd_miss | ddr_wr_miss | is_video_data) begin
-                    next_state = PAUSE;
+                    next_state = MISS;
                     stall_out = HIGH;
                 end
                 else begin
@@ -276,14 +295,19 @@ module Data_cache(
                 end
             end
 
-            PAUSE: begin
+            MISS: begin
                 if(ddr_rd_done) begin
                     next_state = IDLE;                  
                 end
                 else begin
-                    next_state = PAUSE;
+                    next_state = MISS;
                 end
                 stall_out = HIGH;
+            end
+
+            RETURN: begin
+                next_state = IDLE;
+                stall_out = LOW;
             end
 
             default: begin

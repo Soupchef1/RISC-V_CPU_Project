@@ -43,7 +43,6 @@ module Mem_ctrl(
     input logic video_data,
 
     //misc.
-    output logic finish,
     output logic ins_read_done,
     output logic data_read_done,    
     
@@ -98,8 +97,7 @@ module Mem_ctrl(
         DATA_RD_DIRT_INS_RD,
         DATA_RD_DIRT,
         CLEAN_INS_RD,
-        DATA_RD,
-        FINISH
+        DATA_RD
     } mem_state_t;
 
     typedef enum logic [1:0] {
@@ -171,7 +169,10 @@ module Mem_ctrl(
     end
 
     //memory state machine comb logic
-    always_comb begin        
+    always_comb begin    
+        data_data_out = read_data_reg;
+        ins_data_out = read_data_reg;
+
         casez(mem_state)
             IDLE: begin
                 if ((video_data | (data_wr_miss & data_dirty)) & !ins_rd_miss) begin
@@ -211,18 +212,17 @@ module Mem_ctrl(
                 write_data_reg = '0;
                 write_addr_reg = '0;
                 read_addr_reg = '0;
-                finish = LOW;
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
 
-                data_data_out = '0;
-                ins_data_out = '0;
+                // data_data_out = '0;
+                // ins_data_out = '0;
             end
             
             DATA_WR: begin
                 if(write_done) begin
-                    next_mem_state = (video_data) ? FINISH : DATA_RD;
+                    next_mem_state = (video_data) ? IDLE : DATA_RD;
                     write_start = LOW;
                     read_start = (video_data) ? LOW : HIGH;
                 end else begin
@@ -234,18 +234,17 @@ module Mem_ctrl(
                 write_data_reg = data_data_in;
                 write_addr_reg = data_addr;
                 read_addr_reg = '0;
-                finish = LOW;
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
 
-                data_data_out = '0;
-                ins_data_out = '0;
+                // data_data_out = '0;
+                // ins_data_out = '0;
             end
 
             DATA_WR_INS_RD: begin
                 if(write_done & read_done) begin
-                    next_mem_state = (video_data) ? FINISH : DATA_RD;
+                    next_mem_state = (video_data) ? IDLE : DATA_RD;
                     write_start = LOW;
                     read_start = (video_data) ? LOW : HIGH;
                 end else begin
@@ -257,13 +256,12 @@ module Mem_ctrl(
                 write_data_reg = data_data_in;
                 write_addr_reg = data_addr;
                 read_addr_reg = ins_addr;
-                finish = LOW;
                 
                 data_read_done = LOW;
                 ins_read_done = (read_done);
 
-                data_data_out = '0;
-                ins_data_out = read_data_reg;
+                // data_data_out = '0;
+                // ins_data_out = read_data_reg;
             end
 
             DATA_RD_DIRT: begin
@@ -274,13 +272,12 @@ module Mem_ctrl(
                 write_data_reg = data_data_in;
                 write_addr_reg = data_addr;
                 read_addr_reg = '0;
-                finish = LOW;
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
 
-                data_data_out = '0;
-                ins_data_out = '0;
+                // data_data_out = '0;
+                // ins_data_out = '0;
             end
 
             DATA_RD_DIRT_INS_RD: begin
@@ -291,18 +288,17 @@ module Mem_ctrl(
                 write_data_reg = data_data_in;
                 write_addr_reg = data_addr;
                 read_addr_reg = ins_addr;
-                finish = LOW;
 
                 data_read_done = LOW;
                 ins_read_done = (read_done);
 
-                data_data_out = '0;
-                ins_data_out = read_data_reg;
+                // data_data_out = '0;
+                // ins_data_out = read_data_reg;
             end
 
             CLEAN_INS_RD: begin
                 if(read_done) begin
-                    next_mem_state = (data_rd_miss) ? DATA_RD : FINISH;
+                    next_mem_state = (data_rd_miss) ? DATA_RD : IDLE;
                     read_start = (data_rd_miss) ? HIGH : LOW;
                 end else begin
                     next_mem_state = CLEAN_INS_RD;
@@ -313,48 +309,29 @@ module Mem_ctrl(
                 write_data_reg = '0;
                 write_addr_reg = '0;
                 read_addr_reg = '0;
-                finish = LOW;
                 
                 data_read_done = LOW;
                 ins_read_done = (read_done);
 
-                data_data_out = '0;
-                ins_data_out = read_data_reg;
+                // data_data_out = '0;
+                // ins_data_out = read_data_reg;
             end
 
             DATA_RD: begin
-                next_mem_state = (read_done) ? FINISH : DATA_RD;
+                next_mem_state = (read_done) ? IDLE : DATA_RD;
                 write_start = LOW;
                 read_start = LOW;
 
                 write_data_reg = '0;
                 write_addr_reg = '0;
                 read_addr_reg = data_addr;
-                finish = LOW;
 
                 data_read_done = (read_done);
                 ins_read_done = LOW;
 
-                data_data_out = read_data_reg;
-                ins_data_out = '0;
+                // data_data_out = read_data_reg;
+                // ins_data_out = '0;
             end
-
-            FINISH: begin
-                next_mem_state = IDLE;
-                write_start= LOW;
-                read_start = LOW;
-
-                write_data_reg = '0;
-                write_addr_reg = '0;
-                read_addr_reg = '0;
-                finish = HIGH;
-                
-                data_read_done = LOW;
-                ins_read_done = LOW;
-
-                data_data_out = '0;
-                ins_data_out = '0;
-            end 
 
             default: begin
                 next_mem_state = IDLE;
@@ -364,13 +341,12 @@ module Mem_ctrl(
                 write_data_reg = '0;
                 write_addr_reg = '0;
                 read_addr_reg = '0;
-                finish = LOW;
                 
                 data_read_done = LOW;
                 ins_read_done = LOW;
 
-                data_data_out = '0;
-                ins_data_out = '0;
+                // data_data_out = '0;
+                // ins_data_out = '0;
             end           
         endcase
     end
