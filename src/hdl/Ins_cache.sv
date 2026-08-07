@@ -109,6 +109,7 @@ module Ins_cache(
             IDLE: begin
                 enb = HIGH;
                 addrb = PC_in[14:6];
+                
                 instr = data_out[ID_addr[5:2] * 32 +: 32];
             end 
 
@@ -127,7 +128,7 @@ module Ins_cache(
 
             RETURN: begin
                 enb = HIGH;
-                addrb = ID_addr[14:6];
+                addrb = PC_in[14:6];
 
                 instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
             end
