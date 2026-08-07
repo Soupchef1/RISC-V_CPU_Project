@@ -100,7 +100,7 @@ module startup_ctrl(
 
             PAUSE: begin
                 next_addr_cnt = '0;
-                next_state = (start_button) ? PAUSE : IDLE;
+                next_state = (start_button) ? IDLE : PAUSE;
 
                 boot_start = HIGH;
 
