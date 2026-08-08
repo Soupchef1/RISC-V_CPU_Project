@@ -74,7 +74,7 @@ module Data_cache(
     logic [66:0] regular_wea;
 
     // cache miss signals
-    typedef enum logic [1:0] { 
+    typedef enum logic [2:0] { 
         STARTUP,
         IDLE,
         MISS,

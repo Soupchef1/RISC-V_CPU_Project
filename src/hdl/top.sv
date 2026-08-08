@@ -308,8 +308,8 @@ module top(
         axi_write_in.bvalid = S_AXI_LITE_0.BVALID;
 
         //unused r and ar channgel
-        S_AXI_LITE_0.AWADDR = '0;
-        S_AXI_LITE_0.AWVALID = HIGH;
+        S_AXI_LITE_0.ARADDR = '0;
+        S_AXI_LITE_0.ARVALID = HIGH;
         S_AXI_LITE_0.RREADY = HIGH;
 
     end

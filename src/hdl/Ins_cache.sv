@@ -55,7 +55,7 @@ module Ins_cache(
     logic [23:0] tagline_in, tagline_out;
 
     // cache miss signals
-    typedef enum logic [1:0]{
+    typedef enum logic [2:0]{
         STARTUP, 
         IDLE,
         MISS,
