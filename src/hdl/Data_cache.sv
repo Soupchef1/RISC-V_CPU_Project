@@ -297,7 +297,7 @@ module Data_cache(
 
             MISS: begin
                 if(ddr_rd_done) begin
-                    next_state = IDLE;                  
+                    next_state = RETURN;                  
                 end
                 else begin
                     next_state = MISS;

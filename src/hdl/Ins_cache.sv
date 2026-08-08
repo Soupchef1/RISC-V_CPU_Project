@@ -164,7 +164,7 @@ module Ins_cache(
                 stall_out = (rd_miss) ? HIGH : LOW;
             end
             MISS: begin
-                next_state = (ddr_rd_done) ? IDLE : MISS;
+                next_state = (ddr_rd_done) ? RETURN : MISS;
                 stall_out = HIGH;
             end
             RETURN: begin
