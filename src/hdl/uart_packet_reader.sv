@@ -77,7 +77,9 @@ module uart_packet_reader(
     end
 
     always_comb begin
-        next_addr = addr;
+        next_addr[25:2] = addr;
+        next_addr[31:26] = '0;
+        next_addr[1:0] = '0;
         next_data = data;
         next_pkt_ready = LOW;
         next_calculated_checksum = calculated_checksum;
