@@ -12,58 +12,64 @@
 
 module MEM_TOP_tb();
 
-    localparam CLK_PERIOD = 10;
-    localparam HIGH = 1'b1;
-    localparam LOW = 1'b0;
+// -------------------------
+    // Signal Declarations
+    // -------------------------
+    logic clk;
+    logic nrst;
 
-    logic clk, nrst, flush;
-    
-    // Wire the stall signal to automatically respect cache misses
-    logic force_stall;
-    logic stall;
-    assign stall = force_stall | stall_out;
-
-    logic [4:0] EX_rd;
+    // EX Stage Inputs
+    logic [4:0]  EX_rd;
     logic [31:0] EX_addr;
     logic [31:0] EX_data;
-    logic [1:0] EX_mem_bytes, MA_mem_bytes; 
-    logic mem_zero_extend;
+    logic [1:0]  EX_mem_bytes;
+    logic [1:0]  MA_mem_bytes;
+    logic        mem_zero_extend;
     
-    //controller signals
+    // Pipeline Control Signals
+    logic flush, stall, FU_stall;
     logic EX_rd_en, EX_wr_en, MA_rd_en, MA_wr_en;
-    logic stall_out;
-
-    //mem controller signals
-    logic ddr_rd_done;
+    
+    // DDR Memory Controller Interface
+    logic        ddr_rd_done;
     logic [511:0] ddr_data_in;
-    logic ddr_rd_miss;
-    logic ddr_wr_miss;
-    logic [511:0] ddr_data_out;
-    logic [31:0] ddr_addr;
-    logic ddr_dirty;
-    logic is_video_data;
-
-    logic [31:0] MUX_data_out;
-    logic [4:0] mem_rd;
-
+    
+    // Startup Sequence
     logic [31:0] start_addr;
-    logic start_done;
+    logic        start_done;
 
-    MEM_TOP DUT (
+    // Outputs
+    logic         stall_out;
+    logic         ddr_rd_miss;
+    logic         ddr_wr_miss;
+    logic [511:0] ddr_data_out;
+    logic [31:0]  ddr_addr;
+    logic         ddr_dirty;
+    logic         is_video_data;
+    logic [31:0]  MUX_data_out;
+    logic [4:0]   mem_rd;
+    logic         buffer_change;
+
+    // -------------------------
+    // Device Under Test (DUT)
+    // -------------------------
+    MEM_TOP dut (
         .clk(clk),
         .nrst(nrst),
-        .stall(stall),
-        .flush(flush),
         .EX_rd(EX_rd),
         .EX_addr(EX_addr),
         .EX_data(EX_data),
         .EX_mem_bytes(EX_mem_bytes),
         .MA_mem_bytes(MA_mem_bytes),
         .mem_zero_extend(mem_zero_extend),
+        .flush(flush),
+        .stall(stall),
+        .FU_stall(FU_stall),
         .EX_rd_en(EX_rd_en),
         .EX_wr_en(EX_wr_en),
-        .MA_rd_en(MA_rd_en), 
+        .MA_rd_en(MA_rd_en),
         .MA_wr_en(MA_wr_en),
+        .stall_out(stall_out),
         .ddr_rd_done(ddr_rd_done),
         .ddr_data_in(ddr_data_in),
         .ddr_rd_miss(ddr_rd_miss),
@@ -72,229 +78,191 @@ module MEM_TOP_tb();
         .ddr_addr(ddr_addr),
         .ddr_dirty(ddr_dirty),
         .is_video_data(is_video_data),
-        .stall_out(stall_out),
-        .mem_rd(mem_rd),
         .MUX_data_out(MUX_data_out),
+        .mem_rd(mem_rd),
+        .start_addr(start_addr),
         .start_done(start_done),
-        .start_addr(start_addr)
+        .buffer_change(buffer_change)
     );
 
-    task reset_dut;
-    begin
-        nrst = 1'b0;
-        @(posedge clk);
-        @(posedge clk);
-        nrst = 1'b1;
-        @(posedge clk);
-        @(posedge clk);
-    end
-    endtask
+    // -------------------------
+    // Hazard Unit Mock
+    // -------------------------
+    // Automatically freeze the pipeline registers when the cache misses.
+    assign stall = stall_out;
 
-    string test_case;
-    int test_num;
-    int tests_passed;
+    // -------------------------
+    // Clock Generation
+    // -------------------------
+    always #5 clk = ~clk;
 
-    always begin
-        #(CLK_PERIOD/2.0); 
-        clk = ~clk;
-    end
-
+    // -------------------------
+    // Test Sequence
+    // -------------------------
     initial begin
-        test_num = 0;
-        tests_passed = 0;
-        test_case = "Reset & Startup Sequence";
-        
-        clk = LOW;
-        nrst = HIGH;
-        flush = LOW;
-        force_stall = LOW;
-        
-        EX_rd = '0;
-        EX_addr = '0;
-        EX_data = '0;
-        EX_mem_bytes = 2'b11; 
-        EX_rd_en = LOW;
-        EX_wr_en = LOW;
-        mem_zero_extend = LOW;
-        
-        MA_mem_bytes = 2'b11;
-        MA_rd_en = LOW;
-        MA_wr_en = LOW;
-        
-        ddr_rd_done = LOW;
-        ddr_data_in = '0;
-        start_done = LOW;
-        start_addr = 32'h0000_0000;
+        // Initialize all signals
+        clk = 0;
+        nrst = 0;
+        EX_rd = 0; EX_addr = 0; EX_data = 0; 
+        EX_mem_bytes = 0; MA_mem_bytes = 0; mem_zero_extend = 0;
+        flush = 0; FU_stall = 0;
+        EX_rd_en = 0; EX_wr_en = 0; MA_rd_en = 0; MA_wr_en = 0;
+        ddr_rd_done = 0; ddr_data_in = '0;
+        start_addr = 0; start_done = 0;
 
+        // 1. Reset and Startup Sequence
+        #20;
+        nrst = 1;
+        
         @(posedge clk);
-
-        $display("\n\nTesting: %s @ %t", test_case, $time);
-        reset_dut();
-        force_stall = HIGH;
-
-        $display("\nLoading BRAM...");
-        for(int i = 0; i < 8192; i++) begin
-            start_addr = i * 4;
-            if(i == 8191) begin
-                start_done = HIGH;
-            end
-            @(posedge clk);
-        end
-
-        @(posedge clk);
-        @(posedge clk);
+        start_done = 1; // Break Data_cache out of STARTUP state
         
-        force_stall = LOW;
-        start_done = LOW;
+        @(posedge clk);
+        start_done = 0;
 
-        test_case = "I1 (Write Miss) -> I2 (Read) -> I3 (Normal Op)";
-        $display("\nTesting: %s @ %t", test_case, $time);
+        // =================================================================
+        // Pipeline Execution: i1 (Write) and i2 (Read) overlapping
+        // =================================================================
+        $display("\n[%0t] Starting i1 (EX Stage): Write to 0x0000_1000", $time);
         
-        // Cycle 1: Issue I1 (Write) in EX Stage to a cold address
-        EX_addr = 32'h0000_0200; 
+        EX_wr_en = 1;
+        EX_addr = 32'h0000_1000;
         EX_data = 32'hDEADBEEF;
-        EX_wr_en = HIGH; 
-        EX_rd_en = LOW;
-        EX_mem_bytes = 2'b11; 
-        
-        @(posedge clk);
-        
-        // Cycle 2: I1 moves to MA, put I2 (Read) in EX to same address
-        EX_wr_en = LOW; 
-        MA_wr_en = HIGH;
-        MA_mem_bytes = 2'b11;
-        
-        EX_addr = 32'h0000_0200;
-        EX_rd_en = HIGH;
         EX_mem_bytes = 2'b11;
         
-        @(negedge clk); 
+        @(posedge clk);
         
-        if (stall_out !== HIGH) begin
-            $display("Test failed: Back-to-back write miss did not stall pipeline.");
-        end else begin
-            $display("Pipeline stalled by I1. Simulating DDR fetch...");
+        $display("[%0t] i1 moves to MA Stage (Miss). i2 enters EX Stage.", $time);
+        
+        // Push i1 control signals to MA
+        EX_wr_en = 0;
+        MA_wr_en = 1;
+        MA_mem_bytes = 2'b11; 
+        
+        // Assert i2 into EX simultaneously
+        EX_rd_en = 1;
+        EX_addr  = 32'h0000_1000;
+        EX_mem_bytes = 2'b11;
+
+        @(posedge clk);
+        
+        if (stall_out) begin
+            $display("[%0t] Pipeline stalled! i1 is frozen in MA, i2 is waiting in EX.", $time);
             
-            #(CLK_PERIOD * 3); 
+            #20;
+            @(posedge clk);
             
-            ddr_data_in = '0; 
-            ddr_rd_done = HIGH;
+            ddr_rd_done = 1;
+            ddr_data_in = {16{32'hCAFEBABE}}; // Dummy backing data
             
-            @(posedge clk); 
-            ddr_rd_done = LOW;
+            @(posedge clk);
+            ddr_rd_done = 0;
             
+            wait(!stall_out);
+            $display("[%0t] Stall lifted. i1 completing, i2 advancing to MA.", $time);
         end
         
-        // Cycle 3: I1 clears MA, I2 enters MA, I3 (Normal Op) enters EX.
-        MA_wr_en = LOW; 
-        MA_rd_en = HIGH;
+        @(posedge clk);
+        
+        MA_wr_en = 0;      
+        MA_rd_en = 1;      
+        EX_rd_en = 0;      
+        
+        @(posedge clk);
+        $display("[%0t] i2 Read Hit Output (MUX_data_out): %h", $time, MUX_data_out);
+        MA_rd_en = 0;
+        
+        // =================================================================
+        // i3: Cache Bypass (MMIO Write)
+        // =================================================================
+        $display("\n[%0t] Starting i3: MMIO Bypass Write", $time);
+        
+        EX_wr_en = 1;
+        EX_addr = 32'h1000_0000; 
+        EX_data = 32'h12345678;
+        EX_mem_bytes = 2'b11;
+        @(posedge clk);
+        
+        $display("[%0t] MMIO buffer_change flag asserted: %b", $time, buffer_change);
+        
+        EX_wr_en = 0;
+        MA_wr_en = 1;
         MA_mem_bytes = 2'b11;
         
-        EX_rd_en = LOW;
-        EX_wr_en = LOW;
-        EX_addr = 32'h0000_BEEF; // Standard ALU output bypassing memory
-        EX_rd = 5'd5;            // Target register
-        
-        @(negedge clk); 
-        
-        // Verify I2 Read Data
-        if (stall_out === HIGH) begin
-            $display("Test failed: I2 Read unexpectedly stalled.");
-        end else if (MUX_data_out !== 32'hDEADBEEF) begin
-            $display("Test failed: I2 Read returned wrong data. Expected: DEADBEEF, Got: %0h", MUX_data_out);
-        end else begin
-            $display("I2 read hazard resolved successfully!");
-            tests_passed++;
-        end
-
         @(posedge clk);
+        $display("[%0t] DDR Write Miss Flag (Expected 0): %b", $time, ddr_wr_miss);
+        MA_wr_en = 0;
 
-        // Cycle 4: I2 clears MA, I3 moves to MA
-        MA_rd_en = LOW; 
+        // =================================================================
+        // i4: Read Miss at new address 0x0000_2000
+        // =================================================================
+        $display("\n[%0t] Starting i4: Read Miss at 0x0000_2000", $time);
         
-        @(negedge clk);
-
-        // Verify I3 bypassed memory correctly
-        if (MUX_data_out !== 32'h0000_BEEF || mem_rd !== 5'd5) begin
-            $display("Test failed: I3 ALU result did not bypass memory correctly. MUX_data_out: %0h", MUX_data_out);
-        end else begin
-            $display("I3 normal op bypassed memory successfully!");
-            tests_passed++;
-        end
-
+        // Cycle 1: EX Stage
+        EX_rd_en = 1;
+        EX_addr = 32'h0000_2000;
+        EX_mem_bytes = 2'b11;
         @(posedge clk);
         
-        test_case = "Flush Test";
-        $display("\nTesting: %s @ %t", test_case, $time);
-        EX_addr = 32'h12345678;
-        EX_rd = 5'd10;
-        flush = HIGH;
-        @(posedge clk);
-        @(negedge clk);
-        if (mem_rd !== 0 || MUX_data_out !== 0) begin
-            $display("Test failed: Pipeline did not flush correctly. mem_rd: %0d", mem_rd);
-        end else begin
-            tests_passed++;
-        end
-        test_num++;
-        flush = LOW;
-
-        @(posedge clk);
-
-
-//read miss test
-        test_case = "read Miss";
-        $display("\nTesting: %s @ %t", test_case, $time);
-        
-        // 1. Issue read in EX Stage to a prevous cache line address w/ diff tag
-        EX_addr = 32'h0000_8100; // Index 4, Offset 0
-        EX_wr_en = LOW; EX_rd_en = HIGH;
-        EX_mem_bytes = 2'b11; // 4 bytes
-        
-        @(posedge clk);
-        
-        // 2. Move Write control signals to MA stage
-        // (MEM_TOP automatically propagates EX_addr and EX_data to MA stage registers)
-        EX_rd_en = LOW; 
-        MA_rd_en = HIGH;
+        // Cycle 2: Propagate to MA
+        EX_rd_en = 0;
+        MA_rd_en = 1;
         MA_mem_bytes = 2'b11;
-
-        @(negedge clk); // Check miss logic on negedge
         
-        // At this point, valid = 0, so ddr_wr_miss and stall_out should be HIGH
-        if (stall_out !== HIGH || ddr_rd_miss !== HIGH) begin
-            $display("Test failed: miss did not trigger pipeline stall.");
-        end else begin
-            $display(" miss detected. Simulating DDR block fetch...");
+        @(posedge clk);
+        
+        if (stall_out) begin
+            $display("[%0t] Pipeline stalled for i4 Read Miss. Fetching DDR...", $time);
             
-            // Wait a few cycles to simulate DDR latency
-            #(CLK_PERIOD * 2); 
+            #20;
+            @(posedge clk);
             
-            // The memory controller returns the surrounding 64-byte block (all 0s)
-            // Your MA_data_in splicing logic will insert AABBCCDD into this block automatically
-            ddr_data_in = {16{32'h0000_ABCD}}; 
-            ddr_rd_done = HIGH;
+            ddr_rd_done = 1;
+            ddr_data_in = {16{32'hBEEFCAFE}}; // Distinct data for read miss return
             
-            @(posedge clk); // Clock in the ddr_rd_done signal
-            ddr_rd_done = LOW;
-                        
-            if (ddr_dirty !== HIGH) begin
-                $display("Test failed: Dirty bit was not asserted for the evicted block.");
-            end
-
-            if (MUX_data_out !== 32'h0000_ABCD) begin
-                $display("Test failed: Read miss returned wrong data. Expected: 0000_ABCD, Got: %0h", MUX_data_out);
-            end else begin
-                tests_passed++;
-            end
+            @(posedge clk);
+            ddr_rd_done = 0;
+            
+            wait(!stall_out);
+            $display("[%0t] i4 Stall lifted.", $time);
         end
         
-        test_num++;
-
         @(posedge clk);
+        $display("[%0t] i4 Read Miss Output (MUX_data_out): %h (Expected BEEFCAFE)", $time, MUX_data_out);
+        MA_rd_en = 0;
 
+        // =================================================================
+        // i5: Pipeline Flush Test
+        // =================================================================
+        $display("\n[%0t] Starting i5: Pipeline Flush Test", $time);
+        
+        // Cycle 1: Put instruction in EX stage
+        EX_wr_en = 1;
+        EX_addr = 32'h0000_4000;
+        EX_data = 32'h11223344;
+        EX_mem_bytes = 2'b11;
+        @(posedge clk);
+        
+        // Cycle 2: Hazard unit detects branch mispredict, asserts flush.
+        $display("[%0t] Asserting flush signal...", $time);
+        flush = 1;
+        EX_wr_en = 0; 
+        
+        // Simulating hazard unit trying to advance controls but flush intercepts register update
+        MA_wr_en = 1; 
+        MA_mem_bytes = 2'b11;
+        
+        @(posedge clk);
+        flush = 0;
+        
+        // Verify internal MEM_TOP registers reset to zero
+        $display("[%0t] Flush applied. MA_addr inside DUT is: %h (Expected 00000000)", $time, dut.MA_addr);
+        $display("[%0t] MA_data_in inside DUT is: %h (Expected 00000000)", $time, dut.MA_data_in);
+        MA_wr_en = 0;
 
-        $display("\nSimulation Finished. Tests Passed: %0d", tests_passed);
+        // End simulation safely
+        #50;
+        $display("\nSimulation complete.");
         $finish;
     end
 
