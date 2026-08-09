@@ -326,7 +326,7 @@ module Data_cache(
         else begin
             state <= next_state;
             if(state == IDLE) begin
-                ddr_data_out <= data_out;    
+                ddr_data_out <= (is_video_data) ? MA_addr : data_out;    
             end 
             else begin
                 ddr_data_out <= ddr_data_out;
