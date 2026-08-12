@@ -30,9 +30,9 @@ def create_packet(address: int, data: int) -> bytes:
 
 def main():
     # Configuration
-    port = 'COM3'
+    port = 'COM5'
     baudrate = 2000000  # Matches Verilog receiver configuration[cite: 2]
-    bin_file_path = 'main.bin' # Replace with your actual .bin file name
+    bin_file_path = 'main_test.bin' # Replace with your actual .bin file name
     
     # Starting base address in memory (e.g., 0x000000)
     base_address = 0x000000  
@@ -69,19 +69,29 @@ def main():
             # Convert 4 bytes to a 32-bit integer (little-endian or big-endian based on your system)
             # int.from_bytes(..., 'little') is standard for most binary toolchains (like RISC-V/ARM)
             data_val = int.from_bytes(chunk, byteorder='little')
+
+            print(f"instr {current_address * 4}: {data_val:08X}")
             
             # Create packet
             packet = create_packet(current_address, data_val)
             
             # Send packet over UART
+            #print(f"Sending packet: {packet.hex(' ')}")
             ser.write(packet)
             packets_sent += 1
             
             # Increment address by 4 bytes for the next 32-bit word
-            current_address += 4
+            current_address += 1
             
             # Optional: Add a very small delay if the FPGA buffer needs breathing room
             # time.sleep(0.0001)
+
+    # Send 5 packets with instruction "jal ." so that program counter repeats itself upon completion.
+    for i  in range(5):
+        packet = create_packet(current_address, 0x0000006F)
+        ser.write(packet)
+        packets_sent += 1
+        current_address += 1
 
     print(f"Total packets sent: {packets_sent}")
 

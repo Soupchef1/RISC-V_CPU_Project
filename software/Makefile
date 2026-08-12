@@ -8,7 +8,7 @@ AS = $(RV32)as
 OBJS = crt0.o main.o syscalls.o
 EXEC = main_test
 ARCH_FLAGS = -march=rv32i -mabi=ilp32
-CFLAGS = $(ARCH_FLAGS) -O0 -g -Wall -Wextra -ffreestanding -nostdlib -I.
+CFLAGS = $(ARCH_FLAGS) -O2 -g -Wall -Wextra -ffreestanding -nostdlib -mstrict-align -I.
 LDFLAGS = $(ARCH_FLAGS) -T linker.ld -nostdlib -Wl,--gc-sections -lgcc
 
 all: $(EXEC).bin $(EXEC).elf
