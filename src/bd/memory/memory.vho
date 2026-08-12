@@ -69,7 +69,7 @@ COMPONENT memory
     ddr3_sdram_dm : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
     ddr3_sdram_odt : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
     vid_io_out_0_active_video : OUT STD_LOGIC;
-    vid_io_out_0_data : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    vid_io_out_0_data : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
     vid_io_out_0_field : OUT STD_LOGIC;
     vid_io_out_0_hblank : OUT STD_LOGIC;
     vid_io_out_0_hsync : OUT STD_LOGIC;
@@ -132,7 +132,8 @@ COMPONENT memory
     clk_pixel : OUT STD_LOGIC;
     clk_serial : OUT STD_LOGIC;
     clk_locked : OUT STD_LOGIC;
-    reset : IN STD_LOGIC
+    reset : IN STD_LOGIC;
+    HIGH : IN STD_LOGIC
   );
 END COMPONENT;
 -- COMP_TAG_END ------  End cut for COMPONENT Declaration  ------
@@ -222,7 +223,8 @@ your_instance_name : memory
     clk_pixel => clk_pixel,
     clk_serial => clk_serial,
     clk_locked => clk_locked,
-    reset => reset
+    reset => reset,
+    HIGH => HIGH
   );
 -- INST_TAG_END ------  End cut for INSTANTIATION Template  ------
 

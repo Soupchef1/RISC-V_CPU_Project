@@ -60,17 +60,18 @@ module CPU_top(
     //Instruction Fetch
     logic [31:0] IF_instr, IF_PC; 
     logic IF_predicted_jump;
+    logic [31:0] pc_corrected; //represents PC_next going into program counter. Needed to pipeline flush
 
     //Instruction Decode
     logic [4:0] ID_MUX_en, ID_rd;
-    logic [31:0] ID_instr, ID_PC, ID_rs1_data, ID_rs2_data, ID_imm;
+    logic [31:0] ID_PC, ID_rs1_data, ID_rs2_data, ID_imm;
     logic [2:0] func3;
     logic [6:0] func7;
     logic [4:0] rs1_addr, rs2_addr, opcode;
     ctrl_signal_t ID_ctrl_signals;
 
     //Execute
-    logic [31:0] EX_PC, EX_ALU_out, EX_rs2_data;
+    logic [31:0] EX_PC, EX_ALU_out, EX_rs2_data, EX_addr;
     logic [4:0] EX_rd;
     logic [3:0] FUmux;
     logic pc_switch;
@@ -94,7 +95,8 @@ module CPU_top(
         .nrst(nrst),
         .flush(flush),
         .stall(stall | FU_stall),
-        .PC_next(PC_next),
+        .PC_next(pc_corrected),
+        .ID_MUX_en(ID_ctrl_signals.MUX_en),
         .instr(IF_instr),
         .PC_out(IF_PC), //to decode pipeline reg
 
@@ -116,10 +118,7 @@ module CPU_top(
         .ddr_data_in(ins_data_out),
         .ddr_rd_miss(ins_rd_miss),
         .ddr_addr(ins_addr),
-        .stall_out(ins_cache_stall),
-
-        //start button
-        .start_button(start_button)
+        .stall_out(ins_cache_stall)
     );
 
 
@@ -178,6 +177,7 @@ module CPU_top(
         .WB_write_back(WB_en),
         .PC_D(EX_PC),
         .rs2_data_o(EX_rs2_data),
+        .memory_addr(EX_addr),
         .flush_en(flush),
         .stall_en(stall),
         .FU_stall(FU_stall)
@@ -187,7 +187,8 @@ module CPU_top(
         .clk(clk),
         .nrst(nrst),
         .EX_rd(EX_rd),
-        .EX_addr(EX_ALU_out),
+        .EX_ALU_out(EX_ALU_out),
+        .EX_addr(EX_addr),
         .EX_data(EX_rs2_data),
         .EX_mem_bytes(EX_ctrl_signals.mem_bytes),
         .MA_mem_bytes(MA_ctrl_signals.mem_bytes),
@@ -235,8 +236,11 @@ module CPU_top(
         .pc_switch(pc_switch),
         .stall_inst(ins_cache_stall),
         .stall_data_cache(data_cache_stall),
+        .FU_stall(FU_stall),
+        .pc_next(PC_next),
         .flush(flush),
         .stall_out(stall),
+        .pc_corrected(pc_corrected),
         .start_done(start_done),
         .decode_ctrl(ID_ctrl_signals),
         .ex_ctrl(EX_ctrl_signals),

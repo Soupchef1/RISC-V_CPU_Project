@@ -21,6 +21,7 @@
 
 //have to deal with: BRAM data, BRAM addr, current cache tag, new data in, write en, read en
 
+//TODO: fix video data writing. Should only write 1 word.
 
 module Mem_ctrl(
     
@@ -232,7 +233,7 @@ module Mem_ctrl(
                 end
 
                 write_data_reg = data_data_in;
-                write_addr_reg = data_addr;
+                write_addr_reg = (video_data) ? {data_addr[31:2], 2'b0} : {data_addr[31:6], 6'b0};
                 read_addr_reg = '0;
 
                 data_read_done = LOW;
@@ -254,7 +255,7 @@ module Mem_ctrl(
                 end
 
                 write_data_reg = data_data_in;
-                write_addr_reg = data_addr;
+                write_addr_reg = (video_data) ? {data_addr[31:2], 2'b0} : {data_addr[31:6], 6'b0};
                 read_addr_reg = ins_addr;
                 
                 data_read_done = LOW;
@@ -270,7 +271,7 @@ module Mem_ctrl(
                 read_start = (write_done) ? HIGH : LOW;
 
                 write_data_reg = data_data_in;
-                write_addr_reg = data_addr;
+                write_addr_reg = {data_addr[31:6], 6'b0};
                 read_addr_reg = '0;
 
                 data_read_done = LOW;
@@ -286,7 +287,7 @@ module Mem_ctrl(
                 read_start = (write_done & read_done) ? HIGH : LOW;
 
                 write_data_reg = data_data_in;
-                write_addr_reg = data_addr;
+                write_addr_reg = {data_addr[31:6], 6'b0};
                 read_addr_reg = ins_addr;
 
                 data_read_done = LOW;
@@ -308,7 +309,7 @@ module Mem_ctrl(
 
                 write_data_reg = '0;
                 write_addr_reg = '0;
-                read_addr_reg = '0;
+                read_addr_reg = ins_addr;
                 
                 data_read_done = LOW;
                 ins_read_done = (read_done);

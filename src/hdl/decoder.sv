@@ -105,7 +105,7 @@ module decoder(
                 rd = '0;
                 func3 = '0;
                 func7 = '0;
-                opcode = '0;
+                opcode = '1;
                 imm = '0;
             end
         endcase

@@ -67,6 +67,7 @@ module top(
     vivado_aximm_v1_0 S00_AXI_0();
     vivado_axi4_lite_v1_0 #(.ADDR_WIDTH(16)) S_AXI_LITE_0();
     logic reset; //reset going into mig
+    logic sys_clk_i;
 
     //signals for other hdl
     logic clk, nrst;
@@ -76,7 +77,8 @@ module top(
 
     logic clk_100M, clk_pixel, clk_serial;
 
-    logic start_done, start_valid, start_write_en, start_finish;
+    logic start_done;
+    logic start_valid, start_write_en, start_finish;
     logic [31:0] start_addr, start_data;
 
     logic boot_start;
@@ -126,7 +128,7 @@ module top(
     logic data_rd_miss;
     logic data_wr_miss;
     logic data_dirty;
-    logic video_data;
+    (* mark_debug = "true" *) logic video_data;
     logic ins_read_done;
     logic data_read_done;
     logic finish;
@@ -141,18 +143,18 @@ module top(
 
     //hdmi video signals
     logic vid_io_out_0_active_video; // output wire vid_io_out_0_active_video
-    logic [31:0] vid_io_out_0_data; // output wire [31:0] vid_io_out_0_data
+    logic [23:0] vid_io_out_0_data; // output wire [23:0] vid_io_out_0_data
     logic vid_io_out_0_field; // output wire vid_io_out_0_field
     logic vid_io_out_0_hblank; // output wire vid_io_out_0_hblank
     logic vid_io_out_0_hsync; // output wire vid_io_out_0_hsync
     logic vid_io_out_0_vblank; // output wire vid_io_out_0_vblank
     logic vid_io_out_0_vsync; // output wire vid_io_out_0_vsync
 
+    logic init_calib_complete_0;
 
     assign sys_clk_i = CLK100MHZ;
     assign reset = ck_rst;
     assign mig_ready = init_calib_complete_0 & mmcm_locked_0;
-    assign GND = LOW;
 
     assign clk = clk_100M;
     assign nrst = ck_rst;
@@ -181,7 +183,7 @@ module top(
         .ddr3_sdram_dm(ddr3_sdram_dm), // output wire [1:0] ddr3_sdram_dm
         .ddr3_sdram_odt(ddr3_sdram_odt), // output wire [0:0] ddr3_sdram_odt
         .vid_io_out_0_active_video(vid_io_out_0_active_video), // output wire vid_io_out_0_active_video
-        .vid_io_out_0_data(vid_io_out_0_data), // output wire [31:0] vid_io_out_0_data
+        .vid_io_out_0_data(vid_io_out_0_data), // output wire [23:0] vid_io_out_0_data
         .vid_io_out_0_field(vid_io_out_0_field), // output wire vid_io_out_0_field
         .vid_io_out_0_hblank(vid_io_out_0_hblank), // output wire vid_io_out_0_hblank
         .vid_io_out_0_hsync(vid_io_out_0_hsync), // output wire vid_io_out_0_hsync
@@ -190,12 +192,13 @@ module top(
         .sys_clk_i(sys_clk_i), // input wire sys_clk_i
         .init_calib_complete_0(init_calib_complete_0), // output wire init_calib_complete_0
         .mmcm_locked_0(mmcm_locked_0), // output wire mmcm_locked_0
-        .GND(GND), // input wire GND
+        .GND(LOW), // input wire GND
         .clk_100M(clk_100M), // output wire clk_100M
         .clk_pixel(clk_pixel), // output wire clk_pixel
         .clk_serial(clk_serial), // output wire clk_serial
         .clk_locked(clk_locked), // output wire clk_locked
-        .reset(reset) // input wire reset
+        .reset(reset), // input wire reset
+        .HIGH(HIGH) // input wire HIGH
     );
 
     bootloader boot(
@@ -308,8 +311,8 @@ module top(
         axi_write_in.bvalid = S_AXI_LITE_0.BVALID;
 
         //unused r and ar channgel
-        S_AXI_LITE_0.AWADDR = '0;
-        S_AXI_LITE_0.AWVALID = HIGH;
+        S_AXI_LITE_0.ARADDR = '0;
+        S_AXI_LITE_0.ARVALID = LOW;
         S_AXI_LITE_0.RREADY = HIGH;
 
     end

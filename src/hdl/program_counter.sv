@@ -28,7 +28,7 @@ module program_counter(
     input logic [4:0] MUX_en,
     input logic [31:0] PC_next, //from ex stage
     input logic [31:0] branch_addr, //from branch memory
-    input logic start_button, //start button
+    input logic start_done, //start button
 
     output logic [31:0] PC_in, //to pipeline reg and branch memory
     output logic pred_j //predicted jump signal to controller
@@ -48,7 +48,7 @@ module program_counter(
         if(!nrst) begin
             pc <= '0; 
         end  
-        else if (start_button) begin
+        else if (!start_done) begin
             pc <= '0;
         end
         else if (stall) begin

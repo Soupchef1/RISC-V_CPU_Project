@@ -2,8 +2,8 @@
 //Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-//Date        : Sun Aug  2 15:38:08 2026
-//Host        : DESKTOP-M886FGP running 64-bit major release  (build 9200)
+//Date        : Tue Aug 11 01:26:18 2026
+//Host        : DESKTOP-RCMS6DA running 64-bit major release  (build 9200)
 //Command     : generate_target memory_wrapper.bd
 //Design      : memory_wrapper
 //Purpose     : IP block netlist
@@ -12,6 +12,7 @@
 
 module memory_wrapper
    (GND,
+    HIGH,
     S00_AXI_0_araddr,
     S00_AXI_0_arburst,
     S00_AXI_0_arcache,
@@ -92,6 +93,7 @@ module memory_wrapper
     vid_io_out_0_vblank,
     vid_io_out_0_vsync);
   input GND;
+  input HIGH;
   input [31:0]S00_AXI_0_araddr;
   input [1:0]S00_AXI_0_arburst;
   input [3:0]S00_AXI_0_arcache;
@@ -165,7 +167,7 @@ module memory_wrapper
   input reset;
   input sys_clk_i;
   output vid_io_out_0_active_video;
-  output [31:0]vid_io_out_0_data;
+  output [23:0]vid_io_out_0_data;
   output vid_io_out_0_field;
   output vid_io_out_0_hblank;
   output vid_io_out_0_hsync;
@@ -173,6 +175,7 @@ module memory_wrapper
   output vid_io_out_0_vsync;
 
   wire GND;
+  wire HIGH;
   wire [31:0]S00_AXI_0_araddr;
   wire [1:0]S00_AXI_0_arburst;
   wire [3:0]S00_AXI_0_arcache;
@@ -246,7 +249,7 @@ module memory_wrapper
   wire reset;
   wire sys_clk_i;
   wire vid_io_out_0_active_video;
-  wire [31:0]vid_io_out_0_data;
+  wire [23:0]vid_io_out_0_data;
   wire vid_io_out_0_field;
   wire vid_io_out_0_hblank;
   wire vid_io_out_0_hsync;
@@ -255,6 +258,7 @@ module memory_wrapper
 
   memory memory_i
        (.GND(GND),
+        .HIGH(HIGH),
         .S00_AXI_0_araddr(S00_AXI_0_araddr),
         .S00_AXI_0_arburst(S00_AXI_0_arburst),
         .S00_AXI_0_arcache(S00_AXI_0_arcache),

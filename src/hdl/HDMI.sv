@@ -26,7 +26,7 @@ module HDMI(
     input logic nrst,
 
     input logic vid_active,
-    input logic [31:0] vid_data,
+    input logic [23:0] vid_data,
     input logic hsync,
     input logic vsync,
     input logic vid_field_id,

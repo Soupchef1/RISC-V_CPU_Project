@@ -58,7 +58,7 @@ module vdma_controller(
     logic write_error;
 
     typedef enum logic[1:0] {
-
+        WARMING,
         STARTUP,
         IDLE,
         CHANGING_FRAME
@@ -92,9 +92,9 @@ module vdma_controller(
     vdma_axi_startup_index_t startup_index;
 
     // 1280x720
-    localparam logic[31:0] SCREEN_WIDTH         = 32'd40960; // 1280*WORD_LENGTH
+    localparam logic[31:0] SCREEN_WIDTH         = 32'd5120; // 1280*BYTES_PER_WORD_LENGTH
     localparam logic[31:0] SCREEN_HEIGHT        = 32'd720;
-    localparam logic[31:0] DEF_DELAY_STRIDE     = 32'd40960;
+    localparam logic[31:0] DEF_DELAY_STRIDE     = 32'd5120;
     localparam logic[31:0] VDMA_ON              = 32'b1;
     localparam logic [31:0] VBUFFER_1           = 32'h0FC0_0000;
     localparam logic [31:0] VBUFFER_2           = 32'h0F80_0000;
@@ -121,15 +121,26 @@ module vdma_controller(
 
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
-            controller_state <= STARTUP;
+            controller_state <= WARMING;
             startup_index <= SEND_CONTROL_VALUE;
             park_ptr <= LOW;
-            write_start <= HIGH;
+            write_start <= LOW;
         end
 
         else begin
             case(controller_state) 
+                WARMING: begin
+                    park_ptr <= LOW;
+
+                    if(startup_done) begin
+                        startup_index <= SEND_CONTROL_VALUE;
+                        write_start <= HIGH;
+                        controller_state <= STARTUP;
+                    end
+                end
                 STARTUP: begin
+                    park_ptr <= LOW;
+
                     case(startup_index)
                         SEND_CONTROL_VALUE: begin
                             if(write_done == HIGH) begin
@@ -188,7 +199,7 @@ module vdma_controller(
                         SEND_FRAME_HEIGHT: begin
                             write_start <= LOW;
 
-                            if(write_done == HIGH && startup_done == HIGH) begin
+                            if(write_done == HIGH) begin
                                 controller_state <= IDLE; //END OF CONFIG STARTUP
                             end
                         end
@@ -201,6 +212,7 @@ module vdma_controller(
 
                 IDLE: begin
                     if(buffer_change == HIGH) begin
+                        startup_index <= SEND_PARK_PTR;
                         controller_state <= CHANGING_FRAME;
                         write_start <= HIGH;
                         park_ptr <= ~park_ptr; //Toggle park_ptr
@@ -210,17 +222,31 @@ module vdma_controller(
                 end
 
                 CHANGING_FRAME: begin
-                    if(write_done == HIGH) begin
-                        if(write_error == HIGH) begin
-                            controller_state <= CHANGING_FRAME; //rewrite on bad write
-                            write_start <= HIGH;
+                    case(startup_index)
+                        SEND_PARK_PTR: begin
+                            if(write_done == HIGH) begin
+                                startup_index <= SEND_FRAME_HEIGHT;
+                                write_start <= HIGH;
+                            end else begin
+                                write_start <= LOW;
+                            end
                         end
-                        else begin
-                            controller_state <= IDLE;
+
+                        SEND_FRAME_HEIGHT: begin
+                            write_start <= LOW;
+
+                            if(write_done == HIGH) begin
+                                controller_state <= IDLE; //END OF CONFIG STARTUP
+                            end
                         end
-                    end else begin
-                        write_start <= LOW;
-                    end
+
+                        default: begin
+                            if(axi_state == AXI_IDLE) begin
+                                write_start <= HIGH;
+                                startup_index <= SEND_PARK_PTR;
+                            end
+                        end
+                    endcase
                 end
 
                 default: begin
@@ -234,60 +260,47 @@ module vdma_controller(
         write_address = '0;
         write_data = '0;
 
-        case(controller_state)
-            STARTUP: begin
-                case(startup_index)
-                    SEND_CONTROL_VALUE: begin
-                        write_address = CONTROL_VALUE_ADDR;
-                        write_data = DEFAULT_CONFIG.control_value;
-                    end
+        if(controller_state == STARTUP | controller_state == CHANGING_FRAME) begin
+            case(startup_index)
+                SEND_CONTROL_VALUE: begin
+                    write_address = CONTROL_VALUE_ADDR;
+                    write_data = DEFAULT_CONFIG.control_value;
+                end
 
-                    SEND_PARK_PTR: begin
-                        write_address = PARK_PTR_ADDR;
-                        write_data = DEFAULT_CONFIG.park_ptr;
-                    end
+                SEND_PARK_PTR: begin
+                    write_address = PARK_PTR_ADDR;
+                    write_data = {31'b0, park_ptr};
+                end
 
-                    SEND_START_ADDR1: begin
-                        write_address = START_ADDR1_ADDR;
-                        write_data = DEFAULT_CONFIG.start_addr1;
-                    end
+                SEND_START_ADDR1: begin
+                    write_address = START_ADDR1_ADDR;
+                    write_data = DEFAULT_CONFIG.start_addr1;
+                end
 
-                    SEND_START_ADDR2: begin
-                        write_address = START_ADDR2_ADDR;
-                        write_data = DEFAULT_CONFIG.start_addr2;
-                    end
+                SEND_START_ADDR2: begin
+                    write_address = START_ADDR2_ADDR;
+                    write_data = DEFAULT_CONFIG.start_addr2;
+                end
 
-                    SEND_DELAY_STRIDE: begin
-                        write_address = DELAY_STRIDE_ADDR;
-                        write_data = DEFAULT_CONFIG.delay_stride;
-                    end
+                SEND_DELAY_STRIDE: begin
+                    write_address = DELAY_STRIDE_ADDR;
+                    write_data = DEFAULT_CONFIG.delay_stride;
+                end
 
-                    SEND_FRAME_WIDTH: begin
-                        write_address = FRAME_WIDTH_ADDR;
-                        write_data = DEFAULT_CONFIG.frame_width;
-                    end
+                SEND_FRAME_WIDTH: begin
+                    write_address = FRAME_WIDTH_ADDR;
+                    write_data = DEFAULT_CONFIG.frame_width;
+                end
 
-                    SEND_FRAME_HEIGHT: begin
-                        write_address = FRAME_HEIGHT_ADDR;
-                        write_data = DEFAULT_CONFIG.frame_height;
-                    end
+                SEND_FRAME_HEIGHT: begin
+                    write_address = FRAME_HEIGHT_ADDR;
+                    write_data = DEFAULT_CONFIG.frame_height;
+                end
 
-                    default: begin
-                    end
-                endcase
-            end
-
-            IDLE: begin
-            end
-
-            CHANGING_FRAME: begin
-                write_address = PARK_PTR_ADDR;
-                write_data = {31'b0, park_ptr};
-            end
-
-            default: begin
-            end
-        endcase
+                default: begin
+                end
+            endcase
+        end
     end
 
     //AXI-TRANSACTION FSM---------------------------------------------------------------------
@@ -324,7 +337,6 @@ module vdma_controller(
                 if(write_start) begin
                     next_axi_state = AXI_WRITE_ADDR;
                 end
-                write_done = HIGH;
             end
 
             AXI_WRITE_ADDR: begin

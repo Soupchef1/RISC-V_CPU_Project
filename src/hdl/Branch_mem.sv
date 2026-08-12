@@ -127,30 +127,43 @@ module Branch_mem(
 
 //write logic
     always_comb begin
-        //TODO: idk what to do for reset or startup
-        if(!tag_match_ex & branch_en_ex & pc_switch) begin
-            //write with bht as 10
-            ena = HIGH;
-            target_data = {1'b0, pc_d[31:12], 1'b1, 2'b10, target};
-        end
-        else if(tag_match_ex & branch_en_ex) begin
-            //write depending on pc_switch
-            case (pc_switch)
-                HIGH: begin
+        case(state)
+            STARTUP: begin
+                ena = HIGH;
+                target_data = {22'b0, 2'b01, 32'b0}; // On startup write all bht to 01 (assume dont take with low confidence). valid bit 34 is low
+            end
+
+            IDLE: begin
+                if(!tag_match_ex & branch_en_ex & pc_switch) begin //new branch instruction w/ jump
+                    //write with bht as 10 because of take
                     ena = HIGH;
-                    target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex[33:32] == 2'b11) ? 2'b11 : branch_data_ex[33:32] + 2'b01, target};
+                    target_data = {1'b0, pc_d[31:12], 1'b1, 2'b10, target};
                 end
-                LOW: begin
+                else if(!tag_match_ex & branch_en_ex & !pc_switch) begin //new branch instruction w/out jump
+                    //write with bht as 01 because of no take
                     ena = HIGH;
-                    target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex[33:32] == 2'b00) ? 2'b00 : branch_data_ex[33:32] - 2'b01, target};
+                    target_data = {1'b0, pc_d[31:12], 1'b1, 2'b01, target};
                 end
-            endcase
-        end
-        else begin
-            //dont write
-            ena = LOW;
-            target_data = '0;
-        end
+                else if(tag_match_ex & branch_en_ex) begin //stored branch instruction
+                    //write depending on pc_switch
+                    case (pc_switch)
+                        HIGH: begin
+                            ena = HIGH;
+                            target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex[33:32] == 2'b11) ? 2'b11 : branch_data_ex[33:32] + 2'b01, target};
+                        end
+                        LOW: begin
+                            ena = HIGH;
+                            target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex[33:32] == 2'b00) ? 2'b00 : branch_data_ex[33:32] - 2'b01, target};
+                        end
+                    endcase
+                end
+                else begin
+                    //dont write
+                    ena = LOW;
+                    target_data = '0;
+                end
+            end
+        endcase
     end
 
     //write logic

@@ -45,7 +45,7 @@ logic [DATA_width-1:0] register [0:31];    //creating the actual registers
 
 always_ff @(posedge clk) begin
     if (w_en) begin
-        register[write_addr] <= (write_addr == '0)? '0 : write_data;
+        register[write_addr] <= (write_addr == '0) ? '0 : write_data;
     end
 
 end

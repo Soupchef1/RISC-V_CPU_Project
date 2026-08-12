@@ -2,17 +2,18 @@
 //Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-//Date        : Sun Aug  2 15:38:07 2026
-//Host        : DESKTOP-M886FGP running 64-bit major release  (build 9200)
+//Date        : Tue Aug 11 01:26:17 2026
+//Host        : DESKTOP-RCMS6DA running 64-bit major release  (build 9200)
 //Command     : generate_target memory.bd
 //Design      : memory
 //Purpose     : IP block netlist
 //--------------------------------------------------------------------------------
 `timescale 1 ps / 1 ps
 
-(* CORE_GENERATION_INFO = "memory,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=memory,x_ipVersion=1.00.a,x_ipLanguage=VERILOG,numBlks=9,numReposBlks=9,numNonXlnxBlks=0,numHierBlks=0,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=0,numPkgbdBlks=0,bdsource=USER,da_board_cnt=1,da_clkrst_cnt=4,synth_mode=Hierarchical}" *) (* HW_HANDOFF = "memory.hwdef" *) 
+(* CORE_GENERATION_INFO = "memory,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=memory,x_ipVersion=1.00.a,x_ipLanguage=VERILOG,numBlks=10,numReposBlks=10,numNonXlnxBlks=0,numHierBlks=0,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=0,numPkgbdBlks=0,bdsource=USER,synth_mode=None}" *) (* HW_HANDOFF = "memory.hwdef" *) 
 module memory
    (GND,
+    HIGH,
     S00_AXI_0_araddr,
     S00_AXI_0_arburst,
     S00_AXI_0_arcache,
@@ -93,6 +94,7 @@ module memory
     vid_io_out_0_vblank,
     vid_io_out_0_vsync);
   input GND;
+  input HIGH;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S00_AXI_0 ARADDR" *) (* X_INTERFACE_MODE = "Slave" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S00_AXI_0, ADDR_WIDTH 32, ARUSER_WIDTH 0, AWUSER_WIDTH 0, BUSER_WIDTH 0, CLK_DOMAIN /clk_wiz_0_clk_out1, DATA_WIDTH 32, FREQ_HZ 100006266, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 0, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 1, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 1, NUM_WRITE_THREADS 1, PHASE 0.0, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [31:0]S00_AXI_0_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S00_AXI_0 ARBURST" *) input [1:0]S00_AXI_0_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S00_AXI_0 ARCACHE" *) input [3:0]S00_AXI_0_arcache;
@@ -166,7 +168,7 @@ module memory
   (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST.RESET RST" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST.RESET, INSERT_VIP 0, POLARITY ACTIVE_LOW" *) input reset;
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.SYS_CLK_I CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.SYS_CLK_I, CLK_DOMAIN memory_sys_clk_i, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.0" *) input sys_clk_i;
   (* X_INTERFACE_INFO = "xilinx.com:interface:vid_io:1.0 vid_io_out_0 ACTIVE_VIDEO" *) (* X_INTERFACE_MODE = "Master" *) output vid_io_out_0_active_video;
-  (* X_INTERFACE_INFO = "xilinx.com:interface:vid_io:1.0 vid_io_out_0 DATA" *) output [31:0]vid_io_out_0_data;
+  (* X_INTERFACE_INFO = "xilinx.com:interface:vid_io:1.0 vid_io_out_0 DATA" *) output [23:0]vid_io_out_0_data;
   (* X_INTERFACE_INFO = "xilinx.com:interface:vid_io:1.0 vid_io_out_0 FIELD" *) output vid_io_out_0_field;
   (* X_INTERFACE_INFO = "xilinx.com:interface:vid_io:1.0 vid_io_out_0 HBLANK" *) output vid_io_out_0_hblank;
   (* X_INTERFACE_INFO = "xilinx.com:interface:vid_io:1.0 vid_io_out_0 HSYNC" *) output vid_io_out_0_hsync;
@@ -224,6 +226,7 @@ module memory
   wire S_AXI_LITE_0_wready;
   wire S_AXI_LITE_0_wvalid;
   wire [31:0]axi_vdma_0_M_AXIS_MM2S_TDATA;
+  wire [3:0]axi_vdma_0_M_AXIS_MM2S_TKEEP;
   wire axi_vdma_0_M_AXIS_MM2S_TLAST;
   wire axi_vdma_0_M_AXIS_MM2S_TREADY;
   wire [0:0]axi_vdma_0_M_AXIS_MM2S_TUSER;
@@ -241,6 +244,11 @@ module memory
   wire axi_vdma_0_M_AXI_MM2S_RREADY;
   wire [1:0]axi_vdma_0_M_AXI_MM2S_RRESP;
   wire axi_vdma_0_M_AXI_MM2S_RVALID;
+  wire [23:0]axis_subset_converter_0_M_AXIS_TDATA;
+  wire axis_subset_converter_0_M_AXIS_TLAST;
+  wire axis_subset_converter_0_M_AXIS_TREADY;
+  wire [0:0]axis_subset_converter_0_M_AXIS_TUSER;
+  wire axis_subset_converter_0_M_AXIS_TVALID;
   wire clk_100M;
   wire clk_locked;
   wire clk_pixel;
@@ -267,7 +275,6 @@ module memory
   wire mmcm_locked_0;
   wire reset;
   wire [0:0]rst_clk_pixel_peripheral_aresetn;
-  wire [0:0]rst_clk_pixel_peripheral_reset;
   wire [0:0]rst_clk_wiz_0_100M_interconnect_aresetn;
   wire [0:0]rst_clk_wiz_0_100M_peripheral_aresetn;
   wire [0:0]rst_mig_7series_0_peripheral_aresetn;
@@ -313,7 +320,7 @@ module memory
   wire v_tc_0_vtiming_out_VBLANK;
   wire v_tc_0_vtiming_out_VSYNC;
   wire vid_io_out_0_active_video;
-  wire [31:0]vid_io_out_0_data;
+  wire [23:0]vid_io_out_0_data;
   wire vid_io_out_0_field;
   wire vid_io_out_0_hblank;
   wire vid_io_out_0_hsync;
@@ -336,13 +343,13 @@ module memory
         .m_axi_mm2s_rready(axi_vdma_0_M_AXI_MM2S_RREADY),
         .m_axi_mm2s_rresp(axi_vdma_0_M_AXI_MM2S_RRESP),
         .m_axi_mm2s_rvalid(axi_vdma_0_M_AXI_MM2S_RVALID),
-        .m_axis_mm2s_aclk(clk_100M),
+        .m_axis_mm2s_aclk(clk_pixel),
         .m_axis_mm2s_tdata(axi_vdma_0_M_AXIS_MM2S_TDATA),
+        .m_axis_mm2s_tkeep(axi_vdma_0_M_AXIS_MM2S_TKEEP),
         .m_axis_mm2s_tlast(axi_vdma_0_M_AXIS_MM2S_TLAST),
         .m_axis_mm2s_tready(axi_vdma_0_M_AXIS_MM2S_TREADY),
         .m_axis_mm2s_tuser(axi_vdma_0_M_AXIS_MM2S_TUSER),
         .m_axis_mm2s_tvalid(axi_vdma_0_M_AXIS_MM2S_TVALID),
-        .mm2s_frame_ptr_in({1'b0,1'b0,1'b0,1'b0,1'b0,1'b0}),
         .s_axi_lite_aclk(clk_100M),
         .s_axi_lite_araddr(S_AXI_LITE_0_araddr),
         .s_axi_lite_arready(S_AXI_LITE_0_arready),
@@ -360,6 +367,20 @@ module memory
         .s_axi_lite_wdata(S_AXI_LITE_0_wdata),
         .s_axi_lite_wready(S_AXI_LITE_0_wready),
         .s_axi_lite_wvalid(S_AXI_LITE_0_wvalid));
+  memory_axis_subset_converter_0_0 axis_subset_converter_0
+       (.aclk(clk_pixel),
+        .aresetn(rst_clk_pixel_peripheral_aresetn),
+        .m_axis_tdata(axis_subset_converter_0_M_AXIS_TDATA),
+        .m_axis_tlast(axis_subset_converter_0_M_AXIS_TLAST),
+        .m_axis_tready(axis_subset_converter_0_M_AXIS_TREADY),
+        .m_axis_tuser(axis_subset_converter_0_M_AXIS_TUSER),
+        .m_axis_tvalid(axis_subset_converter_0_M_AXIS_TVALID),
+        .s_axis_tdata(axi_vdma_0_M_AXIS_MM2S_TDATA),
+        .s_axis_tkeep(axi_vdma_0_M_AXIS_MM2S_TKEEP),
+        .s_axis_tlast(axi_vdma_0_M_AXIS_MM2S_TLAST),
+        .s_axis_tready(axi_vdma_0_M_AXIS_MM2S_TREADY),
+        .s_axis_tuser(axi_vdma_0_M_AXIS_MM2S_TUSER),
+        .s_axis_tvalid(axi_vdma_0_M_AXIS_MM2S_TVALID));
   memory_clk_wiz_0_0 clk_wiz_0
        (.clk_in1(mig_7series_0_ui_addn_clk_0),
         .clk_out1(clk_100M),
@@ -427,13 +448,12 @@ module memory
         .ui_addn_clk_0(mig_7series_0_ui_addn_clk_0),
         .ui_clk(mig_7series_0_ui_clk),
         .ui_clk_sync_rst(mig_7series_0_ui_clk_sync_rst));
-  memory_proc_sys_reset_0_1 rst_clk_pixel
+  memory_rst_clk_pixel_0 rst_clk_pixel
        (.aux_reset_in(1'b1),
         .dcm_locked(clk_locked),
         .ext_reset_in(mig_7series_0_ui_clk_sync_rst),
         .mb_debug_sys_rst(1'b0),
         .peripheral_aresetn(rst_clk_pixel_peripheral_aresetn),
-        .peripheral_reset(rst_clk_pixel_peripheral_reset),
         .slowest_sync_clk(clk_pixel));
   memory_rst_clk_wiz_0_100M_0 rst_clk_wiz_0_100M
        (.aux_reset_in(1'b1),
@@ -443,7 +463,7 @@ module memory
         .mb_debug_sys_rst(1'b0),
         .peripheral_aresetn(rst_clk_wiz_0_100M_peripheral_aresetn),
         .slowest_sync_clk(clk_100M));
-  memory_rst_clk_wiz_0_100M_1 rst_mig_7series_0
+  memory_rst_mig_7series_0_0 rst_mig_7series_0
        (.aux_reset_in(1'b1),
         .dcm_locked(mmcm_locked_0),
         .ext_reset_in(mig_7series_0_ui_clk_sync_rst),
@@ -536,15 +556,15 @@ module memory
         .aclk1(mig_7series_0_ui_clk),
         .aresetn(rst_clk_wiz_0_100M_interconnect_aresetn));
   memory_v_axi4s_vid_out_0_0 v_axi4s_vid_out_0
-       (.aclk(clk_100M),
+       (.aclk(clk_pixel),
         .aclken(clk_locked),
-        .aresetn(rst_clk_wiz_0_100M_peripheral_aresetn),
+        .aresetn(rst_clk_pixel_peripheral_aresetn),
         .fid(GND),
-        .s_axis_video_tdata(axi_vdma_0_M_AXIS_MM2S_TDATA),
-        .s_axis_video_tlast(axi_vdma_0_M_AXIS_MM2S_TLAST),
-        .s_axis_video_tready(axi_vdma_0_M_AXIS_MM2S_TREADY),
-        .s_axis_video_tuser(axi_vdma_0_M_AXIS_MM2S_TUSER),
-        .s_axis_video_tvalid(axi_vdma_0_M_AXIS_MM2S_TVALID),
+        .s_axis_video_tdata(axis_subset_converter_0_M_AXIS_TDATA),
+        .s_axis_video_tlast(axis_subset_converter_0_M_AXIS_TLAST),
+        .s_axis_video_tready(axis_subset_converter_0_M_AXIS_TREADY),
+        .s_axis_video_tuser(axis_subset_converter_0_M_AXIS_TUSER),
+        .s_axis_video_tvalid(axis_subset_converter_0_M_AXIS_TVALID),
         .sof_state_out(v_axi4s_vid_out_0_sof_state_out),
         .vid_active_video(vid_io_out_0_active_video),
         .vid_data(vid_io_out_0_data),
@@ -552,13 +572,11 @@ module memory
         .vid_hblank(vid_io_out_0_hblank),
         .vid_hsync(vid_io_out_0_hsync),
         .vid_io_out_ce(clk_locked),
-        .vid_io_out_clk(clk_pixel),
-        .vid_io_out_reset(rst_clk_pixel_peripheral_reset),
         .vid_vblank(vid_io_out_0_vblank),
         .vid_vsync(vid_io_out_0_vsync),
         .vtg_active_video(v_tc_0_vtiming_out_ACTIVE_VIDEO),
         .vtg_ce(v_axi4s_vid_out_0_vtg_ce),
-        .vtg_field_id(1'b0),
+        .vtg_field_id(GND),
         .vtg_hblank(v_tc_0_vtiming_out_HBLANK),
         .vtg_hsync(v_tc_0_vtiming_out_HSYNC),
         .vtg_vblank(v_tc_0_vtiming_out_VBLANK),
@@ -566,8 +584,8 @@ module memory
   memory_v_tc_0_0 v_tc_0
        (.active_video_out(v_tc_0_vtiming_out_ACTIVE_VIDEO),
         .clk(clk_pixel),
-        .clken(v_axi4s_vid_out_0_vtg_ce),
-        .gen_clken(clk_locked),
+        .clken(clk_locked),
+        .gen_clken(v_axi4s_vid_out_0_vtg_ce),
         .hblank_out(v_tc_0_vtiming_out_HBLANK),
         .hsync_out(v_tc_0_vtiming_out_HSYNC),
         .resetn(rst_clk_pixel_peripheral_aresetn),

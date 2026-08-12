@@ -56,10 +56,10 @@ module Data_cache(
     localparam logic HIGH = 1'b1;
     localparam logic LOW = 1'b0;
 
-    logic ena, enb;
-    logic [66:0] wea, web;
-    logic [8:0] addra, addrb;
-    logic [535:0] dina, doutb, douta, dinb;
+    logic ena;
+    logic [66:0] wea;
+    logic [8:0] addra;
+    logic [535:0] dina, douta;
 
     logic [23:0] tagline_in; //tag being written to BRAM
     logic [23:0] tagline_out; //tag being read from BRAM
@@ -104,21 +104,16 @@ module Data_cache(
     logic [66:0] ddr_wea;
     logic [511:0] ddr_data_in_fixed;
 
-    assign enb = HIGH;
-    // assign data_out = doutb[511:0];
-    // assign tagline_out = doutb[535:512];
+    assign ena = HIGH;
+    // assign data_out = douta[511:0];
+    // assign tagline_out = douta[535:512];
 
-    assign data_out    = MA_write_en ? douta[511:0]   : doutb[511:0];
-    assign tagline_out = MA_write_en ? douta[535:512] : doutb[535:512];
+    assign data_out    = MA_write_en ? douta[511:0]   : douta[511:0];
+    assign tagline_out = MA_write_en ? douta[535:512] : douta[535:512];
 
     assign dina = {tagline_in, data_in};
-    assign addrb = addr;
     assign addra = addr;
     
-    assign dinb = '0;
-    assign web = '0;
-
-
     assign ddr_rd_miss = rd_miss & !is_MMIO; //read miss not real if mmio
     assign ddr_wr_miss = wr_miss & !is_video_data & !is_MMIO; //send write miss to ddr only if there is a write miss & data is regular
     assign ddr_dirty = dirty & valid;
@@ -128,7 +123,6 @@ module Data_cache(
     always_comb begin
         case(state) 
             STARTUP: begin
-                ena = HIGH;
                 wea = '1;
                 addr = start_addr[14:6];
                 data_in = '0;
@@ -141,7 +135,6 @@ module Data_cache(
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
                 wea = regular_wea;
-                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
                 addr = EX_addr[14:6];
 
                 MA_data_out = data_out[MA_addr[5:2] * 32 +: 32];
@@ -150,8 +143,7 @@ module Data_cache(
             MISS: begin
                 data_in = ddr_data_in_fixed;
                 tagline_in = ddr_tagline;
-                wea = ddr_wea;
-                ena = ddr_rd_done;
+                wea = (ddr_rd_done) ? ddr_wea : '0;
                 addr = MA_addr[14:6];
 
                 MA_data_out = ddr_data_in[MA_addr[5:2] * 32 +: 32];
@@ -161,7 +153,6 @@ module Data_cache(
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
                 wea = regular_wea;
-                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111));
                 addr = EX_addr[14:6];
 
                 MA_data_out = ddr_data_in[MA_addr[5:2] * 32 +: 32];
@@ -171,7 +162,6 @@ module Data_cache(
                 data_in = regular_data_in;
                 tagline_in = regular_tagline_in;
                 wea = regular_wea;
-                ena = (EX_write_en & (EX_addr[27:23] != 5'b11111) & (EX_addr[31:28] == 4'b0000)); //make suere not to write video or mmio data to cache
                 addr = EX_addr[14:6];
 
                 MA_data_out = data_out[MA_addr[5:2] * 32 +: 32];
@@ -180,19 +170,13 @@ module Data_cache(
         endcase
     end
 
-    blk_mem_gen_2 freak_bob (
-        .clka(clk), // input wire clka
+    blk_mem_gen_2_sv freak_bob (
+        .clka(clka), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
         .addra(addra), // input wire [8:0] addra
         .dina(dina), // input wire [535:0] dina
-        .clkb(clk), // input wire clkb
-        .enb(enb), // input wire enb
-        .addrb(addrb), // input wire [8:0] addrb
-        .doutb(doutb), // output wire [535:0] doutb
-        .douta(douta),
-        .dinb(dinb),
-        .web(web)
+        .douta(douta) // output wire [535:0] douta
     );
 
     always_comb begin
@@ -209,9 +193,9 @@ module Data_cache(
         ddr_data_in_fixed = ddr_data_in;
         ddr_tagline = {5'b0, 1'b1, MA_write_en, MA_addr[31:15]};
         ddr_wea = '1;
-        ddr_addr = MA_addr;
+        ddr_addr = {MA_addr[31:6], 6'b0}; //TODO: need to align with 512, aka concatenate MA_addr {MA_addr[31:6], 6'b0}. Actually, make this change in mem_ctrl so video data can be written properly
 
-        if(EX_write_en) begin
+        if(EX_write_en & (EX_addr[27:23] != 5'b11111)) begin //TODO: make sure it doesn't write on video data
             case(EX_mem_bytes)
                 2'b00: begin 
                     regular_wea = '0;
@@ -297,7 +281,7 @@ module Data_cache(
 
             MISS: begin
                 if(ddr_rd_done) begin
-                    next_state = IDLE;                  
+                    next_state = RETURN;                  
                 end
                 else begin
                     next_state = MISS;
@@ -326,7 +310,7 @@ module Data_cache(
         else begin
             state <= next_state;
             if(state == IDLE) begin
-                ddr_data_out <= data_out;    
+                ddr_data_out <= (is_video_data) ? {16{MA_data_in}} : data_out; //register the value to be sent to mem_ctrl 
             end 
             else begin
                 ddr_data_out <= ddr_data_out;

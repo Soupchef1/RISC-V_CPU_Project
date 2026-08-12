@@ -37,9 +37,11 @@ module main_controller(
     input logic stall_inst,
     input logic stall_data_cache,
     input logic FU_stall,
+    input logic [31:0] pc_next,
 
     output logic flush,
     output logic stall_out,
+    output logic [31:0] pc_corrected,
 
     input logic start_done,
 
@@ -68,7 +70,8 @@ module main_controller(
 
     logic cache_stall;
 
-    assign cache_stall = stall_inst || stall_data_cache;
+    logic [31:0] pc_next_reg;
+    logic flush_reg, flush_next;
 
     always_ff @(posedge clk or negedge nrst) begin
         if(!nrst) begin
@@ -76,7 +79,9 @@ module main_controller(
             ex_ctrl <= '0; //TODO make sure all zeroes is default
             mem_ctrl <= '0;
             write_back_ctrl <= LOW;
-        end else if(flush) begin
+
+            flush_reg <= LOW;
+        end else begin
             //flush needs to clear ex and decode
             //cache_stall stalls all
             //FU_stall stalls ex, decode, fetch; flushes mem
@@ -90,19 +95,31 @@ module main_controller(
             
             if(flush | (!cache_stall & FU_stall)) begin
                 mem_ctrl <= '0;
-            end else if (!cache_stall) begin
+            end else if(!cache_stall) begin
                 mem_ctrl <= ex_ctrl;
             end
 
             if (!cache_stall) begin
                 write_back_ctrl <= mem_ctrl.write_back;
             end
+
+            if(!cache_stall & !FU_stall) begin
+                flush_reg <= flush_next;
+                pc_next_reg <= pc_next;
+            end else begin
+                flush_reg <= LOW;
+            end
         end //registers automatically retain value, no need to specify
     end
 
     always_comb begin
-        flush = (start_done) ? pc_switch ^ decode_ctrl.predicted_jump : HIGH;
+        flush_next = (start_done) ? pc_switch ^ decode_ctrl.predicted_jump : HIGH;
+        flush = flush_reg;
+        pc_corrected = pc_next_reg;
+
         stall_out = stall_inst || stall_data_cache;
+        cache_stall = stall_inst || stall_data_cache;
+
     end
 
 

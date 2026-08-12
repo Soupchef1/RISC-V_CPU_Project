@@ -24,6 +24,7 @@ module IF_top(
         //pipeline control signals
         input logic clk, nrst, flush, stall,
         input logic [31:0] PC_next,
+        input logic [4:0] ID_MUX_en,
         output logic [31:0] instr,
         output logic [31:0] PC_out, //to decode pipeline reg
 
@@ -43,10 +44,7 @@ module IF_top(
         input logic [511:0] ddr_data_in,
         output logic ddr_rd_miss,
         output logic [31:0] ddr_addr,
-        output logic stall_out,
-
-        //start button
-        input logic start_button
+        output logic stall_out
     );
 
     logic [1:0] bht;
@@ -62,6 +60,7 @@ module IF_top(
         .pc_in(PC_out),
         .pc_d(PC_Ex),
         .startup_done(start_done),
+        .MUX_en(ID_MUX_en),
         .*
     );
 

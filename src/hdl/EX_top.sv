@@ -33,7 +33,7 @@ module EX_top (
     output logic [31:0] target,
     output logic [31:0] pc_next,
     output logic pc_switch,
-    output logic rd_out,
+    output logic [4:0] rd_out,
 
     //ports for data forwarding
     input logic [4:0] rs1_addr, rs2_addr, MA_rd, WB_rd,
@@ -44,6 +44,7 @@ module EX_top (
     //stage outputs
     output logic [31:0] PC_D,
     output logic [31:0] rs2_data_o,
+    output logic [31:0] memory_addr,
 
     //stage inputs
     input logic flush_en,            //c
@@ -59,13 +60,14 @@ module EX_top (
     logic [31:0] rs2_data_int;     //s
     logic [4:0] rd_int;
     logic [31:0] imm_int;          //s
-    logic [1:0] pipe_cont;
     logic [31:0] rs1_ALU;
     logic [31:0] rs2_ALU;
     logic [4:0] rs1_addr_reg, rs2_addr_reg;
 
     assign rs2_data_o = rs2_ALU;
     assign rd_out = rd_int;
+    assign PC_D = pc_int;
+    assign memory_addr = rs1_ALU + imm_int;
 
     //pipeline based signals
     always_ff @(posedge clk, negedge nrst) begin

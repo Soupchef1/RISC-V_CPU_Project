@@ -214,8 +214,8 @@
             },
             "V4": {
                 "VT": "AC",
-                "BA": "0x80000000",
-                "HA": "0x8FFFFFFF",
+                "BA": "0x00000000",
+                "HA": "0x0FFFFFFF",
                 "BP": "C_BASEADDR",
                 "HP": "C_HIGHADDR",
                 "MA": "S00_AXI_0",
@@ -233,8 +233,8 @@
             },
             "V5": {
                 "VT": "AC",
-                "BA": "0x80000000",
-                "HA": "0x8FFFFFFF",
+                "BA": "0x00000000",
+                "HA": "0x0FFFFFFF",
                 "BP": "C_BASEADDR",
                 "HP": "C_HIGHADDR",
                 "MA": "Data_MM2S",

@@ -94,7 +94,7 @@ module memory_sv (
   (* X_INTERFACE_IGNORE = "true" *)
   output wire vid_io_out_0_active_video,
   (* X_INTERFACE_IGNORE = "true" *)
-  output wire [31:0] vid_io_out_0_data,
+  output wire [23:0] vid_io_out_0_data,
   (* X_INTERFACE_IGNORE = "true" *)
   output wire vid_io_out_0_field,
   (* X_INTERFACE_IGNORE = "true" *)
@@ -122,7 +122,9 @@ module memory_sv (
   (* X_INTERFACE_IGNORE = "true" *)
   output wire clk_locked,
   (* X_INTERFACE_IGNORE = "true" *)
-  input wire reset
+  input wire reset,
+  (* X_INTERFACE_IGNORE = "true" *)
+  input wire HIGH
 );
 
   // interface wire assignments
@@ -211,7 +213,8 @@ module memory_sv (
     .clk_pixel(clk_pixel),
     .clk_serial(clk_serial),
     .clk_locked(clk_locked),
-    .reset(reset)
+    .reset(reset),
+    .HIGH(HIGH)
   );
 
 endmodule

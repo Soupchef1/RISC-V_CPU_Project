@@ -87,10 +87,10 @@ module forwardingUnit(
         output logic FU_stall
     );
 
-        assign FU_stall = ((rs2_addr == MA_rd) || (rs1_addr == MA_rd)) & MA_write_back;
+    assign FU_stall = (MA_rd != 5'b0) & ((rs2_addr == MA_rd) || (rs1_addr == MA_rd)) & MA_write_back;
 
     always_comb begin
-        if ((rs1_addr == WB_rd) & WB_write_back) begin
+        if ((WB_rd != 5'b0) & (rs1_addr == WB_rd) & WB_write_back) begin
             rs1 = WB_data;
         end else begin
             rs1 = rs1_data;
@@ -98,7 +98,7 @@ module forwardingUnit(
     end
 
     always_comb begin
-        if ((rs2_addr == WB_rd) & WB_write_back) begin
+        if ((WB_rd != 5'b0) & (rs2_addr == WB_rd) & WB_write_back) begin
             rs2 = WB_data;
         end else begin
             rs2 = rs2_data;

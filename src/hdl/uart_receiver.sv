@@ -20,14 +20,16 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module uart_receiver(
+module uart_receiver #(
+        parameter int BAUDRATE = 2000000
+    )(
         input logic clk, nrst,
         input logic rx,
         output logic rx_valid,
         output logic [7:0] rx_data
     );
 
-    localparam logic [5:0] CLKS_PER_BIT = 6'd49; // 100 MHz clock / 2,000,000 baud rate - 1
+    localparam logic [5:0] CLKS_PER_BIT = 6'(100000000 / BAUDRATE - 1); // 100 MHz clock / 2,000,000 baud rate - 1
     localparam logic HIGH = 1'b1;
     localparam logic LOW = 1'b0;
 
@@ -108,7 +110,7 @@ module uart_receiver(
             DATA: begin
                 if(clk_cnt == CLKS_PER_BIT) begin
                     next_clk_cnt = '0;
-                    next_data = {rx_sync, data[7:1]}; //make new data msb and bit shift rest right
+                    next_data = {rx_sync, data[7:1]}; //make new data msb and bit shift rest right. Reads LSB first
                     
                     if(bit_cnt == 3'd7) begin
                         next_state = STOP;

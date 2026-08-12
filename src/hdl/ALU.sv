@@ -36,7 +36,6 @@ typedef enum logic[3:0]{
 } alu_op_t;
 
 module ALU(
-
     input logic [31:0] pc,
     input logic [31:0] rs1_data,
     input logic [31:0] rs2_data,
@@ -47,7 +46,6 @@ module ALU(
     output logic [31:0] target,
     output logic [31:0] pc_next,
     output logic pc_switch
-
 );
     localparam logic LOW = 1'b0;
     localparam logic HIGH = 1'b1;
@@ -64,15 +62,15 @@ module ALU(
     logic [31:0] op_c;
     logic [31:0] op_d;
     logic [31:0] b_result;
-
-    assign op_a = (MUX_en[INPUT_A_SEL] == LOW)? rs1_data : pc;
-    assign op_b = (MUX_en[INPUT_B_SEL] == LOW)? rs2_data : imm;
-    assign op_c = (MUX_en[BRANCH_ADDER] == LOW)? pc : rs1_data;
-    assign op_d = imm;
+    logic [31:0] pc_increment;
         
     always_comb begin
-    
+        op_a = (MUX_en[INPUT_A_SEL] == LOW)? rs1_data : pc;
+        op_b = (MUX_en[INPUT_B_SEL] == LOW)? rs2_data : imm;
+        op_c = (MUX_en[BRANCH_ADDER] == LOW)? pc : rs1_data;
+        op_d = imm;
         b_result = op_c + op_d;
+        pc_increment = pc + WORD_LENGTH;
         
         case (ALU_op)
             ADD:                                 result = op_a + op_b;
@@ -90,26 +88,26 @@ module ALU(
             IS_GREATER_OR_EQUAL_SIGNED:          result = ($signed(op_a) >= $signed(op_b))? 32'd1 : 32'd0;
             IS_GREATER_OR_EQUAL_UNSIGNED:        result = (op_a >= op_b)? 32'd1 : 32'd0;
             default:                             result = 32'b0;
-        endcase        
+        endcase
+
+        ALU_out = (MUX_en[STORE_JUMP] == LOW) ? result : (pc_increment);
+        pc_next = (pc_switch) ? b_result : (pc_increment);
+        target = b_result;
+        pc_switch = (MUX_en[STORE_JUMP] | (MUX_en[BRANCH_EN] & result[0]))? HIGH : LOW;
     end
     
-    //parallel branch condition operation
-    logic branch_op;
-    always_comb begin
-        case (ALU_op)
-            IS_EQUAL: branch_op = (rs1_data == rs2_data);
-            IS_NOT_EQUAL: branch_op = (rs1_data != rs2_data);
-            IS_LESS_THAN_SIGNED: branch_op = ($signed(rs1_data) < $signed(rs2_data));
-            IS_LESS_THAN_UNSIGNED: branch_op = (rs1_data < rs2_data);
-            IS_GREATER_OR_EQUAL_SIGNED: branch_op = ($signed(rs1_data) >= $signed(rs2_data));
-            IS_GREATER_OR_EQUAL_UNSIGNED: branch_op = (rs1_data >= rs2_data);
-            default: branch_op = 1'b0;
-        endcase
-    end
-
-    assign ALU_out = (MUX_en[STORE_JUMP] == LOW) ? result : (pc + WORD_LENGTH);
-    assign pc_next = (pc_switch) ? b_result : (pc + WORD_LENGTH);
-    assign target = b_result;
-    assign pc_switch = (MUX_en[STORE_JUMP] | (MUX_en[BRANCH_EN] & branch_op))? HIGH : LOW;
-
+    // //parallel branch condition operation
+    // logic branch_op;
+    // always_comb begin
+    //     case (ALU_op)
+    //         IS_EQUAL: branch_op = (rs1_data == rs2_data);
+    //         IS_NOT_EQUAL: branch_op = (rs1_data != rs2_data);
+    //         IS_LESS_THAN_SIGNED: branch_op = ($signed(rs1_data) < $signed(rs2_data));
+    //         IS_LESS_THAN_UNSIGNED: branch_op = (rs1_data < rs2_data);
+    //         IS_GREATER_OR_EQUAL_SIGNED: branch_op = ($signed(rs1_data) >= $signed(rs2_data));
+    //         IS_GREATER_OR_EQUAL_UNSIGNED: branch_op = (rs1_data >= rs2_data);
+    //         default: branch_op = 1'b0;
+    //     endcase
+    // end
+    // removed to see if it would fix smth??? prob not???
 endmodule

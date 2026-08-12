@@ -70,7 +70,7 @@ memory your_instance_name (
   .ddr3_sdram_dm(ddr3_sdram_dm), // output wire [1:0] ddr3_sdram_dm
   .ddr3_sdram_odt(ddr3_sdram_odt), // output wire [0:0] ddr3_sdram_odt
   .vid_io_out_0_active_video(vid_io_out_0_active_video), // output wire vid_io_out_0_active_video
-  .vid_io_out_0_data(vid_io_out_0_data), // output wire [31:0] vid_io_out_0_data
+  .vid_io_out_0_data(vid_io_out_0_data), // output wire [23:0] vid_io_out_0_data
   .vid_io_out_0_field(vid_io_out_0_field), // output wire vid_io_out_0_field
   .vid_io_out_0_hblank(vid_io_out_0_hblank), // output wire vid_io_out_0_hblank
   .vid_io_out_0_hsync(vid_io_out_0_hsync), // output wire vid_io_out_0_hsync
@@ -133,7 +133,8 @@ memory your_instance_name (
   .clk_pixel(clk_pixel), // output wire clk_pixel
   .clk_serial(clk_serial), // output wire clk_serial
   .clk_locked(clk_locked), // output wire clk_locked
-  .reset(reset) // input wire reset
+  .reset(reset), // input wire reset
+  .HIGH(HIGH) // input wire HIGH
 );
 // INST_TAG_END ------  End cut for INSTANTIATION Template  ------
 

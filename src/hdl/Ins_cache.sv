@@ -72,7 +72,7 @@ module Ins_cache(
     assign data_out = doutb[511:0];
     assign tagline_out = doutb[535:512];
 
-    blk_mem_gen_0 Ben_hella_gay (
+    blk_mem_gen_0_sv Ben_hella_gay (
         .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
@@ -104,12 +104,16 @@ module Ins_cache(
                 addra = start_addr[14:6];
                 data_in = {16{start_data}};
                 tagline_in = {5'b0, start_valid, 1'b0, 17'd0}; //set dirty LOW (unused) and valid HIGH
+
+                //always read first instruction so that when state changes to IDLE, no cache miss
+                enb = HIGH;
+                addrb = '0;
             end
             
             IDLE: begin
                 enb = HIGH;
                 addrb = PC_in[14:6];
-                
+
                 instr = data_out[ID_addr[5:2] * 32 +: 32];
             end 
 
@@ -146,7 +150,7 @@ module Ins_cache(
         endcase
 
         //cache miss logic
-        ddr_addr = ID_addr;
+        ddr_addr = {ID_addr[31:6], 6'b0}; //TODO: need to align with 512, aka concatenate ID_addr
         rd_miss = tagline_out[16:0] != ID_addr[31:15];
     end
 
@@ -160,11 +164,11 @@ module Ins_cache(
                 next_state = (start_done) ? IDLE : STARTUP;
             end
             IDLE: begin
-                next_state = (rd_miss) ? MISS : IDLE;
-                stall_out = (rd_miss) ? HIGH : LOW;
+                next_state = (ddr_rd_miss) ? MISS : IDLE;
+                stall_out = (ddr_rd_miss) ? HIGH : LOW;
             end
             MISS: begin
-                next_state = (ddr_rd_done) ? IDLE : MISS;
+                next_state = (ddr_rd_done) ? RETURN : MISS;
                 stall_out = HIGH;
             end
             RETURN: begin

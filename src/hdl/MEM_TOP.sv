@@ -25,7 +25,7 @@ module MEM_TOP(
     input logic clk, nrst,
 
     input logic [4:0] EX_rd,
-    input logic [31:0] EX_addr,
+    input logic [31:0] EX_addr, EX_ALU_out,
     input logic [31:0] EX_data,
     input logic [1:0] EX_mem_bytes, MA_mem_bytes, //#bytes to write: 00 for 0 bytes, 01 for 1 byte, 10 for 2 bytes, 11 for 4 bytes;
     input logic mem_zero_extend,
@@ -89,7 +89,7 @@ module MEM_TOP(
             buffer_change_reg <= '0;
         end
         else begin
-            MA_addr <= EX_addr;
+            MA_addr <= EX_ALU_out;
             mem_rd <= EX_rd;
             MA_data_in <= EX_data;
             buffer_change_reg <= (EX_addr == 32'h1000_0000 && EX_wr_en) ? HIGH : LOW;

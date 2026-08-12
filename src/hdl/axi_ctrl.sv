@@ -19,6 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+//TODO: align start addr values with 128 and edit wstrb
 
 module axi_ctrl(
         //ogs
@@ -110,10 +111,6 @@ module axi_ctrl(
 
     axi_state_t state, next_state;
 
-    logic [31:0] addr_reg, next_addr_reg; //stores 1 packet of data to be written in case axi gets backed up (not likely to occur)
-    logic [31:0] data_reg, next_data_reg; 
-    logic reg_used, next_reg_used;
-
     typedef enum logic [1:0] { 
         IDLE,
         SEND_ADDR,
@@ -129,18 +126,12 @@ module axi_ctrl(
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             state <= PAUSE;
-            addr_reg <= '0;
-            data_reg <= '0;
-            reg_used <= LOW;
 
             write_state <= IDLE;
             write_addr_reg <= '0;
             write_data_reg <= '0;
         end else begin
             state <= next_state;
-            addr_reg <= next_addr_reg;
-            data_reg <= next_data_reg;
-            reg_used <= next_reg_used;
 
             write_state <= next_write_state;
             write_addr_reg <= next_write_addr_reg;
@@ -156,10 +147,6 @@ module axi_ctrl(
                 next_write_state = IDLE;
                 next_write_addr_reg = '0;
                 next_write_data_reg = '0;
-
-                next_addr_reg = '0;
-                next_data_reg = '0;
-                next_reg_used = LOW;
 
                 //axi
                 awaddr = '0;
@@ -199,11 +186,7 @@ module axi_ctrl(
                 //axi write state machine
                 casez(write_state)
                     IDLE: begin
-                        if (reg_used) begin
-                            next_write_state = SEND_ADDR;
-                            next_write_addr_reg = addr_reg;
-                            next_write_data_reg = data_reg;
-                        end else if(write_en) begin
+                        if(write_en) begin
                             next_write_state = SEND_ADDR;
                             next_write_addr_reg = start_addr;
                             next_write_data_reg = start_data;
@@ -257,23 +240,6 @@ module axi_ctrl(
                     end
                 endcase
 
-                //backup register logic
-                if(write_state != IDLE) begin
-                    if(write_en) begin
-                        next_addr_reg = start_addr;
-                        next_data_reg = start_data;
-                        next_reg_used = HIGH;
-                    end else begin
-                        next_addr_reg = addr_reg;
-                        next_data_reg = data_reg;
-                        next_reg_used = HIGH;
-                    end
-                end else begin
-                    next_addr_reg = '0;
-                    next_data_reg = '0;
-                    next_reg_used = LOW;
-                end
-
                 //stagnant axi values in startup
                 awlen = 8'b0000;
                 awsize = 3'b010;
@@ -306,10 +272,6 @@ module axi_ctrl(
                 next_write_state = IDLE;
                 next_write_addr_reg = '0;
                 next_write_data_reg = '0;
-
-                next_addr_reg = '0;
-                next_data_reg = '0;
-                next_reg_used = LOW;
 
                 //axi
                 awaddr = cache_awaddr;
@@ -348,10 +310,6 @@ module axi_ctrl(
                 next_write_state = IDLE;
                 next_write_addr_reg = '0;
                 next_write_data_reg = '0;
-
-                next_addr_reg = '0;
-                next_data_reg = '0;
-                next_reg_used = LOW;
 
                 //axi
                 awaddr = '0;
