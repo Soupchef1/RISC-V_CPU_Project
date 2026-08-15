@@ -181,7 +181,31 @@ module axi_ctrl(
 
             STARTUP: begin
                 next_state = (start_done) ? REGULAR : STARTUP;
-                //values that need to change: awaddr, awvalid, wdata[31:0], wvalid, bready
+                //values that need to change: awaddr, awvalid, wdata[31:0], wstrb, wvalid, bready
+
+                //stagnant axi values in startup
+                awlen = 8'b0000;
+                awsize = 3'b100;
+                awburst = 2'b01;
+                awlock = LOW;
+                awcache = 4'b0011;
+                awprot = 3'b000;
+                awqos = 4'b0000;
+                
+                wstrb = 16'h0000; //only writing bottom 32 bits
+                wlast = HIGH; //keep wlast high because only ever sending 1 beat of data
+
+                araddr = '0;
+                arlen = 8'b0000;
+                arsize = 3'b010;
+                arburst = 2'b01;
+                arlock = LOW;
+                arcache = 4'b0011;
+                arprot = 3'b000;
+                arqos = 4'b0000;
+                arvalid = LOW;
+
+                rready = LOW;
 
                 //axi write state machine
                 casez(write_state)
@@ -198,7 +222,7 @@ module axi_ctrl(
 
                         awaddr = '0;
                         awvalid = LOW;
-                        wdata[31:0] = '0;
+                        wdata = '0;
                         wvalid = LOW;
                         bready = LOW;
                     end
@@ -208,9 +232,9 @@ module axi_ctrl(
                         next_write_addr_reg = write_addr_reg;
                         next_write_data_reg = write_data_reg;
                         
-                        awaddr = write_addr_reg;
+                        awaddr = {write_addr_reg[31:4], 4'b0};
                         awvalid = HIGH;
-                        wdata[31:0] = '0;
+                        wdata = '0;
                         wvalid = LOW;
                         bready = LOW;
                     end
@@ -222,7 +246,8 @@ module axi_ctrl(
                         
                         awaddr = '0;
                         awvalid = LOW;
-                        wdata[31:0] = write_data_reg;
+                        wdata = {4{write_data_reg}};
+                        wstrb[write_addr_reg[3:2] * 4 +: 4] = 4'b1111;
                         wvalid = HIGH;
                         bready = LOW;
                     end
@@ -234,36 +259,11 @@ module axi_ctrl(
                         
                         awaddr = '0;
                         awvalid = LOW;
-                        wdata[31:0] = '0;
+                        wdata = '0;
                         wvalid = LOW;
                         bready = HIGH;
                     end
                 endcase
-
-                //stagnant axi values in startup
-                awlen = 8'b0000;
-                awsize = 3'b010;
-                awburst = 2'b01;
-                awlock = LOW;
-                awcache = 4'b0011;
-                awprot = 3'b000;
-                awqos = 4'b0000;
-                
-                wdata[127:32] = '0;
-                wstrb = 16'h000F; //only writing bottom 32 bits
-                wlast = HIGH; //keep wlast high because only ever sending 1 beat of data
-
-                araddr = '0;
-                arlen = 8'b0000;
-                arsize = 3'b010;
-                arburst = 2'b01;
-                arlock = LOW;
-                arcache = 4'b0011;
-                arprot = 3'b000;
-                arqos = 4'b0000;
-                arvalid = LOW;
-
-                rready = LOW;
             end
 
             REGULAR: begin

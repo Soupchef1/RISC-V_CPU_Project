@@ -36,7 +36,7 @@ module MEM_TOP(
     output logic stall_out,
 
     //mem controller signals
-    input logic ddr_rd_done,
+    input logic ddr_rd_done, ddr_wr_done,
     input logic [511:0] ddr_data_in,
     output logic ddr_rd_miss,
     output logic ddr_wr_miss,
@@ -111,13 +111,16 @@ module MEM_TOP(
         .MA_data_in(MA_data_in),
         .MA_mem_bytes(MA_mem_bytes),
         .ddr_rd_done(ddr_rd_done),
+        .ddr_wr_done(ddr_wr_done),
         .ddr_data_in(ddr_data_in),
         .ddr_rd_miss(ddr_rd_miss),
         .ddr_wr_miss(ddr_wr_miss),
         .ddr_data_out(ddr_data_out),
         .ddr_addr(ddr_addr),
         .ddr_dirty(ddr_dirty),
-        .is_video_data(is_video_data),
+        .ddr_is_video_data(is_video_data),
+        .stall(stall),
+        .flush(flush),
         .stall_out(stall_out),
         .start_addr(start_addr),
         .start_done(start_done)

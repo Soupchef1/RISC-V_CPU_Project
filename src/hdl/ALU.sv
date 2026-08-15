@@ -69,8 +69,8 @@ module ALU(
         op_b = (MUX_en[INPUT_B_SEL] == LOW)? rs2_data : imm;
         op_c = (MUX_en[BRANCH_ADDER] == LOW)? pc : rs1_data;
         op_d = imm;
-        b_result = op_c + op_d;
-        pc_increment = pc + WORD_LENGTH;
+        b_result = {16'b0, op_c[15:0] + op_d[15:0]};
+        pc_increment = {16'b0, pc[15:0] + WORD_LENGTH[15:0]};
         
         case (ALU_op)
             ADD:                                 result = op_a + op_b;
@@ -91,9 +91,9 @@ module ALU(
         endcase
 
         ALU_out = (MUX_en[STORE_JUMP] == LOW) ? result : (pc_increment);
-        pc_next = (pc_switch) ? b_result : (pc_increment);
         target = b_result;
         pc_switch = (MUX_en[STORE_JUMP] | (MUX_en[BRANCH_EN] & result[0]))? HIGH : LOW;
+        pc_next = (pc_switch) ? b_result : (pc_increment);
     end
     
     // //parallel branch condition operation

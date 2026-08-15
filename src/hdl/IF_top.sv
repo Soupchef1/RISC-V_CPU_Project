@@ -66,6 +66,7 @@ module IF_top(
 
     Ins_cache catch_this(
         .PC_in(PC_out),
+        .instr_out(instr),
         .*
     );
 

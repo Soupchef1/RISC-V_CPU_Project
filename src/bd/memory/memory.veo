@@ -86,8 +86,8 @@ memory your_instance_name (
   .S00_AXI_0_awqos(S00_AXI_0_awqos), // input wire [3:0] S00_AXI_0_awqos
   .S00_AXI_0_awvalid(S00_AXI_0_awvalid), // input wire S00_AXI_0_awvalid
   .S00_AXI_0_awready(S00_AXI_0_awready), // output wire S00_AXI_0_awready
-  .S00_AXI_0_wdata(S00_AXI_0_wdata), // input wire [31:0] S00_AXI_0_wdata
-  .S00_AXI_0_wstrb(S00_AXI_0_wstrb), // input wire [3:0] S00_AXI_0_wstrb
+  .S00_AXI_0_wdata(S00_AXI_0_wdata), // input wire [127:0] S00_AXI_0_wdata
+  .S00_AXI_0_wstrb(S00_AXI_0_wstrb), // input wire [15:0] S00_AXI_0_wstrb
   .S00_AXI_0_wlast(S00_AXI_0_wlast), // input wire S00_AXI_0_wlast
   .S00_AXI_0_wvalid(S00_AXI_0_wvalid), // input wire S00_AXI_0_wvalid
   .S00_AXI_0_wready(S00_AXI_0_wready), // output wire S00_AXI_0_wready
@@ -104,11 +104,13 @@ memory your_instance_name (
   .S00_AXI_0_arqos(S00_AXI_0_arqos), // input wire [3:0] S00_AXI_0_arqos
   .S00_AXI_0_arvalid(S00_AXI_0_arvalid), // input wire S00_AXI_0_arvalid
   .S00_AXI_0_arready(S00_AXI_0_arready), // output wire S00_AXI_0_arready
-  .S00_AXI_0_rdata(S00_AXI_0_rdata), // output wire [31:0] S00_AXI_0_rdata
+  .S00_AXI_0_rdata(S00_AXI_0_rdata), // output wire [127:0] S00_AXI_0_rdata
   .S00_AXI_0_rresp(S00_AXI_0_rresp), // output wire [1:0] S00_AXI_0_rresp
   .S00_AXI_0_rlast(S00_AXI_0_rlast), // output wire S00_AXI_0_rlast
   .S00_AXI_0_rvalid(S00_AXI_0_rvalid), // output wire S00_AXI_0_rvalid
   .S00_AXI_0_rready(S00_AXI_0_rready), // input wire S00_AXI_0_rready
+  .S00_AXI_0_arregion(S00_AXI_0_arregion), // input wire [3:0] S00_AXI_0_arregion
+  .S00_AXI_0_awregion(S00_AXI_0_awregion), // input wire [3:0] S00_AXI_0_awregion
   .S_AXI_LITE_0_araddr(S_AXI_LITE_0_araddr), // input wire [8:0] S_AXI_LITE_0_araddr
   .S_AXI_LITE_0_arready(S_AXI_LITE_0_arready), // output wire S_AXI_LITE_0_arready
   .S_AXI_LITE_0_arvalid(S_AXI_LITE_0_arvalid), // input wire S_AXI_LITE_0_arvalid
@@ -133,8 +135,9 @@ memory your_instance_name (
   .clk_pixel(clk_pixel), // output wire clk_pixel
   .clk_serial(clk_serial), // output wire clk_serial
   .clk_locked(clk_locked), // output wire clk_locked
-  .reset(reset), // input wire reset
-  .HIGH(HIGH) // input wire HIGH
+  .mig_reset(mig_reset), // input wire mig_reset
+  .HIGH(HIGH), // input wire HIGH
+  .aresetn(aresetn) // input wire aresetn
 );
 // INST_TAG_END ------  End cut for INSTANTIATION Template  ------
 

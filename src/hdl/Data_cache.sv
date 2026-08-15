@@ -31,20 +31,22 @@ module Data_cache(
     input logic EX_write_en,
 
     input logic [31:0] MA_addr,
-    input logic [31:0] MA_data_in, //new signal
+    input logic [31:0] MA_data_in,
     input logic MA_read_en, MA_write_en,
-    input logic [1:0] MA_mem_bytes, //new signal
+    input logic [1:0] MA_mem_bytes,
     output logic [31:0] MA_data_out,
 
-    input logic ddr_rd_done,
+    input logic ddr_rd_done, ddr_wr_done,
     input logic [511:0] ddr_data_in,
     output logic ddr_rd_miss,
     output logic ddr_wr_miss,
     output logic [511:0] ddr_data_out,
     output logic [31:0] ddr_addr,
     output logic ddr_dirty,
-    output logic is_video_data,
+    output logic ddr_is_video_data,
 
+    input logic stall,
+    input logic flush,
     output logic stall_out,
 
     //startup signals
@@ -64,8 +66,7 @@ module Data_cache(
     logic [23:0] tagline_in; //tag being written to BRAM
     logic [23:0] tagline_out; //tag being read from BRAM
     logic [511:0] data_in; //data written to BRAM
-    logic [511:0] data_out; //data read from BRAM
-    logic write_en, read_en;
+    logic [511:0] data_out; //data read from BRAMs
     logic [8:0] addr;
 
     // regular operation signals
@@ -74,10 +75,11 @@ module Data_cache(
     logic [66:0] regular_wea;
 
     // cache miss signals
-    typedef enum logic [1:0] { 
+    typedef enum logic [2:0] { 
         STARTUP,
         IDLE,
         MISS,
+        VIDEO,
         RETURN
     } state_t;
 
@@ -96,20 +98,24 @@ module Data_cache(
     assign valid = tagline_out[18]; //valid bit
 
     //cache miss logic
-    assign cache_miss = (state != STARTUP) && ((tag_out != MA_addr[31:15]) | !valid);
+    assign cache_miss = (state == IDLE) && ((tag_out != MA_addr[31:15]) | !valid);
     assign rd_miss = cache_miss & MA_read_en;
     assign wr_miss = cache_miss & MA_write_en;
 
+    //ddr signals
     logic [23:0] ddr_tagline;
     logic [66:0] ddr_wea;
     logic [511:0] ddr_data_in_fixed;
 
-    assign ena = HIGH;
-    // assign data_out = douta[511:0];
-    // assign tagline_out = douta[535:512];
+    //return state register
+    logic [31:0] return_data_reg, next_return_data_reg;
 
-    assign data_out    = MA_write_en ? douta[511:0]   : douta[511:0];
-    assign tagline_out = MA_write_en ? douta[535:512] : douta[535:512];
+    assign ena = HIGH;
+    assign data_out = douta[511:0];
+    assign tagline_out = douta[535:512];
+
+    // assign data_out    = MA_write_en ? douta[511:0]   : douta[511:0];
+    // assign tagline_out = MA_write_en ? douta[535:512] : douta[535:512];
 
     assign dina = {tagline_in, data_in};
     assign addra = addr;
@@ -117,7 +123,8 @@ module Data_cache(
     assign ddr_rd_miss = rd_miss & !is_MMIO; //read miss not real if mmio
     assign ddr_wr_miss = wr_miss & !is_video_data & !is_MMIO; //send write miss to ddr only if there is a write miss & data is regular
     assign ddr_dirty = dirty & valid;
-    assign is_video_data = (MA_addr[27:23] ==  5'b11111) & (MA_read_en | MA_write_en);
+    assign ddr_is_video_data = (state == IDLE | state == VIDEO) & is_video_data;
+    assign is_video_data = (MA_addr[31:23] ==  9'b000011111) & (MA_read_en | MA_write_en);
     assign is_MMIO = (MA_addr == 32'h1000_0000);
 
     always_comb begin
@@ -146,7 +153,16 @@ module Data_cache(
                 wea = (ddr_rd_done) ? ddr_wea : '0;
                 addr = MA_addr[14:6];
 
-                MA_data_out = ddr_data_in[MA_addr[5:2] * 32 +: 32];
+                MA_data_out = ddr_data_in_fixed[MA_addr[5:2] * 32 +: 32];
+            end
+
+            VIDEO: begin
+                data_in = regular_data_in;
+                tagline_in = regular_tagline_in;
+                wea = '0;
+                addr = EX_addr[14:6];
+
+                MA_data_out = return_data_reg;
             end
 
             RETURN: begin
@@ -155,7 +171,7 @@ module Data_cache(
                 wea = regular_wea;
                 addr = EX_addr[14:6];
 
-                MA_data_out = ddr_data_in[MA_addr[5:2] * 32 +: 32];
+                MA_data_out = return_data_reg;
             end
 
             default: begin
@@ -171,7 +187,7 @@ module Data_cache(
     end
 
     blk_mem_gen_2_sv freak_bob (
-        .clka(clka), // input wire clka
+        .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
         .addra(addra), // input wire [8:0] addra
@@ -193,9 +209,9 @@ module Data_cache(
         ddr_data_in_fixed = ddr_data_in;
         ddr_tagline = {5'b0, 1'b1, MA_write_en, MA_addr[31:15]};
         ddr_wea = '1;
-        ddr_addr = {MA_addr[31:6], 6'b0}; //TODO: need to align with 512, aka concatenate MA_addr {MA_addr[31:6], 6'b0}. Actually, make this change in mem_ctrl so video data can be written properly
+        ddr_addr = MA_addr; //TODO: need to align with 512, aka concatenate MA_addr {MA_addr[31:6], 6'b0}. Actually, make this change in mem_ctrl so video data can be written properly
 
-        if(EX_write_en & (EX_addr[27:23] != 5'b11111)) begin //TODO: make sure it doesn't write on video data
+        if(EX_write_en & (EX_addr[27:23] != 5'b11111) & !flush) begin //TODO: make sure it doesn't write on video data or flush
             case(EX_mem_bytes)
                 2'b00: begin 
                     regular_wea = '0;
@@ -251,7 +267,6 @@ module Data_cache(
 
             endcase
         end
-        
     end
     
 
@@ -267,16 +282,25 @@ module Data_cache(
                     next_state = STARTUP;
                     stall_out = HIGH;
                 end
+
+                next_return_data_reg = return_data_reg;
             end
             IDLE: begin
-                if (ddr_rd_miss | ddr_wr_miss | is_video_data) begin
+                if (ddr_rd_miss | ddr_wr_miss) begin
                     next_state = MISS;
                     stall_out = HIGH;
-                end
-                else begin
+                end else if (is_video_data) begin
+                    next_state = VIDEO;
+                    stall_out = HIGH;    
+                end else if (stall) begin
+                    next_state = RETURN;
+                    stall_out = LOW;
+                end else begin
                     next_state = IDLE;
                     stall_out = LOW;
                 end
+
+                next_return_data_reg = MA_data_out;
             end
 
             MISS: begin
@@ -286,17 +310,33 @@ module Data_cache(
                 else begin
                     next_state = MISS;
                 end
+
                 stall_out = HIGH;
+                next_return_data_reg = MA_data_out;
+            end
+
+            VIDEO: begin
+                if(ddr_wr_done) begin
+                    next_state = RETURN;
+                end else begin
+                    next_state = VIDEO;
+                end
+
+                stall_out = HIGH;
+                next_return_data_reg = return_data_reg;
             end
 
             RETURN: begin
-                next_state = IDLE;
+                next_state = (stall) ? RETURN : IDLE;
                 stall_out = LOW;
+
+                next_return_data_reg = return_data_reg;
             end
 
             default: begin
                 stall_out = LOW;
                 next_state = IDLE;
+                next_return_data_reg = return_data_reg;
             end
         endcase
 
@@ -306,6 +346,7 @@ module Data_cache(
         if(!nrst) begin
             state <= STARTUP;
             ddr_data_out <= '0;
+            return_data_reg <= '0;
         end 
         else begin
             state <= next_state;
@@ -315,6 +356,7 @@ module Data_cache(
             else begin
                 ddr_data_out <= ddr_data_out;
             end  
+            return_data_reg <= next_return_data_reg;
         end
     end
 

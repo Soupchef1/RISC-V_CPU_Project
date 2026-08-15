@@ -47,7 +47,7 @@ module main_controller(
 
     // pipelined control signals
     output ctrl_signal_t decode_ctrl,
-    (* max_fanout = 16 *) output ctrl_signal_t ex_ctrl,
+    (* max_fanout = 16, dont_touch = "true" *) output ctrl_signal_t ex_ctrl,
     output ctrl_signal_t mem_ctrl,
     output logic write_back_ctrl //only need write back signal
     );
@@ -71,7 +71,7 @@ module main_controller(
     logic cache_stall;
 
     logic [31:0] pc_next_reg;
-    logic flush_reg, flush_next;
+    (* max_fanout = 20*) logic flush_reg, flush_next;
 
     always_ff @(posedge clk or negedge nrst) begin
         if(!nrst) begin
@@ -81,10 +81,13 @@ module main_controller(
             write_back_ctrl <= LOW;
 
             flush_reg <= LOW;
+            pc_next_reg <= '0;
         end else begin
             //flush needs to clear ex and decode
             //cache_stall stalls all
             //FU_stall stalls ex, decode, fetch; flushes mem
+
+            //priority order: 1. flush, 2. cache_stall, FU_stall
             if (flush) begin
                 ex_ctrl <= '0;
                 decode_ctrl.predicted_jump <= LOW;
@@ -99,11 +102,13 @@ module main_controller(
                 mem_ctrl <= ex_ctrl;
             end
 
+
+
             if (!cache_stall) begin
                 write_back_ctrl <= mem_ctrl.write_back;
             end
 
-            if(!cache_stall & !FU_stall) begin
+            if(!cache_stall & !FU_stall & !flush) begin
                 flush_reg <= flush_next;
                 pc_next_reg <= pc_next;
             end else begin
@@ -113,8 +118,8 @@ module main_controller(
     end
 
     always_comb begin
-        flush_next = (start_done) ? pc_switch ^ decode_ctrl.predicted_jump : HIGH;
-        flush = flush_reg;
+        flush_next = pc_switch ^ decode_ctrl.predicted_jump;
+        flush = (start_done) ? flush_reg : HIGH;
         pc_corrected = pc_next_reg;
 
         stall_out = stall_inst || stall_data_cache;

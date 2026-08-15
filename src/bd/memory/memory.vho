@@ -85,8 +85,8 @@ COMPONENT memory
     S00_AXI_0_awqos : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
     S00_AXI_0_awvalid : IN STD_LOGIC;
     S00_AXI_0_awready : OUT STD_LOGIC;
-    S00_AXI_0_wdata : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-    S00_AXI_0_wstrb : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+    S00_AXI_0_wdata : IN STD_LOGIC_VECTOR(127 DOWNTO 0);
+    S00_AXI_0_wstrb : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
     S00_AXI_0_wlast : IN STD_LOGIC;
     S00_AXI_0_wvalid : IN STD_LOGIC;
     S00_AXI_0_wready : OUT STD_LOGIC;
@@ -103,11 +103,13 @@ COMPONENT memory
     S00_AXI_0_arqos : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
     S00_AXI_0_arvalid : IN STD_LOGIC;
     S00_AXI_0_arready : OUT STD_LOGIC;
-    S00_AXI_0_rdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    S00_AXI_0_rdata : OUT STD_LOGIC_VECTOR(127 DOWNTO 0);
     S00_AXI_0_rresp : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
     S00_AXI_0_rlast : OUT STD_LOGIC;
     S00_AXI_0_rvalid : OUT STD_LOGIC;
     S00_AXI_0_rready : IN STD_LOGIC;
+    S00_AXI_0_arregion : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
+    S00_AXI_0_awregion : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
     S_AXI_LITE_0_araddr : IN STD_LOGIC_VECTOR(8 DOWNTO 0);
     S_AXI_LITE_0_arready : OUT STD_LOGIC;
     S_AXI_LITE_0_arvalid : IN STD_LOGIC;
@@ -132,8 +134,9 @@ COMPONENT memory
     clk_pixel : OUT STD_LOGIC;
     clk_serial : OUT STD_LOGIC;
     clk_locked : OUT STD_LOGIC;
-    reset : IN STD_LOGIC;
-    HIGH : IN STD_LOGIC
+    mig_reset : IN STD_LOGIC;
+    HIGH : IN STD_LOGIC;
+    aresetn : IN STD_LOGIC
   );
 END COMPONENT;
 -- COMP_TAG_END ------  End cut for COMPONENT Declaration  ------
@@ -199,6 +202,8 @@ your_instance_name : memory
     S00_AXI_0_rlast => S00_AXI_0_rlast,
     S00_AXI_0_rvalid => S00_AXI_0_rvalid,
     S00_AXI_0_rready => S00_AXI_0_rready,
+    S00_AXI_0_arregion => S00_AXI_0_arregion,
+    S00_AXI_0_awregion => S00_AXI_0_awregion,
     S_AXI_LITE_0_araddr => S_AXI_LITE_0_araddr,
     S_AXI_LITE_0_arready => S_AXI_LITE_0_arready,
     S_AXI_LITE_0_arvalid => S_AXI_LITE_0_arvalid,
@@ -223,8 +228,9 @@ your_instance_name : memory
     clk_pixel => clk_pixel,
     clk_serial => clk_serial,
     clk_locked => clk_locked,
-    reset => reset,
-    HIGH => HIGH
+    mig_reset => mig_reset,
+    HIGH => HIGH,
+    aresetn => aresetn
   );
 -- INST_TAG_END ------  End cut for INSTANTIATION Template  ------
 

@@ -38,28 +38,25 @@ module program_counter(
     logic take;  //signal for mux after pc register
     assign take = (bht[1] & MUX_en[3]);
 
-    logic [31:0] pc_reg;
-    logic [31:0] pc;
-    logic [31:0] pc_internal; //internal wire connected to PC_in
-
-    assign pc_reg = (flush) ? (PC_next) : (pc_internal + 4);
+    (* max_fanout = 20, dont_touch = "true" *) logic [31:0] pc;
+    (* max_fanout = 20, dont_touch = "true" *) logic [31:0] pc_internal; //internal wire connected to PC_in
+    
+    assign pc_internal = (take) ? branch_addr : pc;
+    assign PC_in = pc_internal;
+    assign pred_j = take;
 
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             pc <= '0; 
-        end  
+        end 
         else if (!start_done) begin
             pc <= '0;
         end
-        else if (stall) begin
-            pc <= pc;
+        else if (flush) begin
+            pc <= PC_next;
         end
-        else begin
-            pc <= pc_reg;
+        else if (!stall) begin
+            pc <= pc_internal + 4;
         end
     end
-
-    assign pc_internal = (take) ? branch_addr : pc;
-    assign PC_in = pc_internal;
-    assign pred_j = take;
 endmodule

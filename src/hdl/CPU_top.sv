@@ -31,8 +31,8 @@ module CPU_top(
         input logic [511:0] ins_data_out, //coming in to cache
 
         output logic [31:0] data_addr,
-        output logic [511:0] data_data_in, //data coming  from cache
-        input logic [511:0] data_data_out, //correct data going into cache
+        output logic [511:0] data_data_in, //data coming out from cache
+        input logic [511:0] data_data_out, //correct data going into cache *in/out are with respect to dram memory
         output logic data_rd_miss,
         output logic data_wr_miss,
         output logic data_dirty,
@@ -40,6 +40,7 @@ module CPU_top(
 
         input logic ins_read_done,
         input logic data_read_done,
+        input logic data_write_done,
 
         // from bootloader
         input logic start_valid, start_write_en,
@@ -63,7 +64,7 @@ module CPU_top(
     logic [31:0] pc_corrected; //represents PC_next going into program counter. Needed to pipeline flush
 
     //Instruction Decode
-    logic [4:0] ID_MUX_en, ID_rd;
+    logic [4:0] ID_rd;
     logic [31:0] ID_PC, ID_rs1_data, ID_rs2_data, ID_imm;
     logic [2:0] func3;
     logic [6:0] func7;
@@ -73,7 +74,6 @@ module CPU_top(
     //Execute
     logic [31:0] EX_PC, EX_ALU_out, EX_rs2_data, EX_addr;
     logic [4:0] EX_rd;
-    logic [3:0] FUmux;
     logic pc_switch;
     logic [31:0] PC_next, target;
     ctrl_signal_t EX_ctrl_signals;
@@ -102,7 +102,7 @@ module CPU_top(
 
         //branch mem signals
         .predicted_jump(IF_predicted_jump),
-        .MUX_en(ID_MUX_en),
+        .MUX_en(ID_ctrl_signals.MUX_en),
         .pc_switch(pc_switch),
         .PC_Ex(EX_PC),
         .target(target),
@@ -199,6 +199,7 @@ module CPU_top(
         .MA_wr_en(MA_ctrl_signals.mem_write),
         .stall_out(data_cache_stall),
         .ddr_rd_done(data_read_done),
+        .ddr_wr_done(data_write_done),
         .ddr_data_in(data_data_out),
         .ddr_wr_miss(data_wr_miss),
         .ddr_rd_miss(data_rd_miss),

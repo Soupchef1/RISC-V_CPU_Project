@@ -24,7 +24,7 @@ module Ins_cache(
     input logic clk, nrst,
 
     input logic [31:0] PC_in, //addr in instruction fetch
-    output logic [31:0] instr,
+    output logic [31:0] instr_out,
 
     input logic [31:0] ID_addr, //addr in instruction decode
 
@@ -40,19 +40,23 @@ module Ins_cache(
     output logic [31:0] ddr_addr,
 
     //controller signals
+    input logic stall,
     output logic stall_out
     );
 
     localparam logic HIGH = 1'b1;
     localparam logic LOW = 1'b0;
 
-    logic ena, enb;
+    logic ena;
     logic [66:0] wea;
-    logic [8:0] addra, addrb;
-    logic [535:0] dina, doutb;
+    logic [8:0] addra;
+    logic [535:0] dina, douta;
 
     logic [511:0] data_in, data_out;
     logic [23:0] tagline_in, tagline_out;
+
+    logic [31:0] stall_instr_reg, next_stall_instr_reg; //register to store correct data for output when stall goes low
+    logic [31:0] instr;
 
     // cache miss signals
     typedef enum logic [1:0]{
@@ -66,31 +70,26 @@ module Ins_cache(
 
     logic rd_miss;
     
-    assign ddr_rd_miss = (state != STARTUP) && (rd_miss | !tagline_out[18]);
+    assign ddr_rd_miss = (state == IDLE) && (rd_miss | !tagline_out[18]);
 
     assign dina = {tagline_in, data_in};
-    assign data_out = doutb[511:0];
-    assign tagline_out = doutb[535:512];
+    assign data_out = douta[511:0];
+    assign tagline_out = douta[535:512];
 
-    blk_mem_gen_0_sv Ben_hella_gay (
+    blk_mem_gen_2_sv Ben_not_gay (
         .clka(clk), // input wire clka
         .ena(ena), // input wire ena
         .wea(wea), // input wire [66:0] wea
         .addra(addra), // input wire [8:0] addra
         .dina(dina), // input wire [535:0] dina
-        .clkb(clk), // input wire clkb
-        .enb(enb), // input wire enb
-        .addrb(addrb), // input wire [8:0] addrb
-        .doutb(doutb) // output wire [535:0] doutb
+        .douta(douta) // output wire [535:0] douta
     );
 
     //logic comb
     always_comb begin
-        ena = LOW;
-        enb = LOW;
+        ena = HIGH;
         wea = '0;
         addra = '0;
-        addrb = '0;
         data_in = '0;
         tagline_in = '0;
         instr = '0;
@@ -98,23 +97,24 @@ module Ins_cache(
         case(state)
             //during start up, specify which word address and data to write to
             STARTUP: begin
-                ena = start_write_en & (start_addr[31:15] == 17'd0); //only write first 64 KB instruction
-                wea[{start_addr[5:2], 2'b00} +: 4] = 4'b1111;
-                wea[66:64] = 3'b111;
-                addra = start_addr[14:6];
-                data_in = {16{start_data}};
-                tagline_in = {5'b0, start_valid, 1'b0, 17'd0}; //set dirty LOW (unused) and valid HIGH
+                if(start_write_en & (start_addr[31:15] == 17'd0)) begin
+                    wea[{start_addr[5:2], 2'b00} +: 4] = 4'b1111;
+                    wea[66:64] = 3'b111;
 
-                //always read first instruction so that when state changes to IDLE, no cache miss
-                enb = HIGH;
-                addrb = '0;
+                    addra = start_addr[14:6];
+                    data_in = {16{start_data}};
+                    tagline_in = {5'b0, start_valid, 1'b0, 17'd0}; //set dirty LOW (unused) and valid HIGH
+                end
+                
+                instr_out = instr;
             end
             
             IDLE: begin
-                enb = HIGH;
-                addrb = PC_in[14:6];
+                addra = PC_in[14:6];
 
                 instr = data_out[ID_addr[5:2] * 32 +: 32];
+
+                instr_out = instr;
             end 
 
             MISS: begin
@@ -124,28 +124,27 @@ module Ins_cache(
                 data_in = ddr_data_in;
                 tagline_in = {5'b0, 1'b1, 1'b0, ID_addr[31:15]}; //set dirty LOW (unused) and valid HIGH
 
-                enb = HIGH;
-                addrb = ID_addr[14:6];
-
                 instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
+
+                instr_out = instr;
             end
 
             RETURN: begin
-                enb = HIGH;
-                addrb = PC_in[14:6];
+                addra = PC_in[14:6];
 
-                instr = ddr_data_in[ID_addr[5:2] * 32 +: 32];
+                instr = data_out[ID_addr[5:2] * 32 +: 32];
+
+                instr_out = stall_instr_reg;
             end
             
             default: begin
                 ena = LOW;
-                enb = LOW;
                 wea = '0;
                 addra = '0;
-                addrb = '0;
                 data_in = '0;
                 tagline_in = '0;
                 instr = '0;
+                instr_out = instr;
             end
         endcase
 
@@ -158,26 +157,38 @@ module Ins_cache(
     always_comb begin
         next_state = state;
         stall_out = LOW;
+        next_stall_instr_reg = stall_instr_reg;
 
         case(state)
             STARTUP: begin
                 next_state = (start_done) ? IDLE : STARTUP;
             end
             IDLE: begin
-                next_state = (ddr_rd_miss) ? MISS : IDLE;
-                stall_out = (ddr_rd_miss) ? HIGH : LOW;
+                if(ddr_rd_miss) begin
+                    next_state = MISS;
+                    stall_out = HIGH;
+                end else if (stall) begin
+                    next_state = RETURN;
+                end
+
+                next_stall_instr_reg = instr;
             end
             MISS: begin
                 next_state = (ddr_rd_done) ? RETURN : MISS;
                 stall_out = HIGH;
+
+                next_stall_instr_reg = instr;
             end
             RETURN: begin
-                next_state = IDLE;
+                next_state = (stall) ? RETURN : IDLE;
                 stall_out = LOW;
+
+                next_stall_instr_reg = stall_instr_reg;
             end
             default: begin
-                next_state = state;
+                next_state = IDLE;
                 stall_out = LOW;
+                next_stall_instr_reg = stall_instr_reg;
             end
         endcase
     end
@@ -186,8 +197,10 @@ module Ins_cache(
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
             state <= STARTUP;
+            stall_instr_reg <= '0;
         end else begin
             state <= next_state;
+            stall_instr_reg <= next_stall_instr_reg;
         end
     end
 

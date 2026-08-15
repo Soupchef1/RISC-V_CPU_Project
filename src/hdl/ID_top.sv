@@ -44,21 +44,27 @@ module ID_top(
         output logic [4:0] opcode
     );
 
-    logic [31:0] instr_use;
+    (* max_fanout = 20*) logic [31:0] instr_use;
     logic [31:0] PC_reg;
 
-    assign instr_use = (flush_en) ? '0 : instr_in;
+    logic flush_prev;
+
+    assign instr_use = (flush_en | flush_prev) ? '0 : instr_in;
     assign PC_out = PC_reg;
 
-
-
     always_ff @(posedge clk, negedge nrst) begin
-        if(!nrst | flush_en) begin
+        if(!nrst) begin
             PC_reg <= '0;
+            flush_prev <= 1'b0;
+        end else if (flush_en) begin
+            PC_reg <= '0;
+            flush_prev <= flush_en;
         end else if(stall_en) begin
             PC_reg <= PC_reg;
+            flush_prev <= flush_prev;
         end else begin
             PC_reg <= PC_in;
+            flush_prev <= flush_en;
         end
     end
 

@@ -2,7 +2,7 @@
 //Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-//Date        : Tue Aug 11 01:26:18 2026
+//Date        : Sat Aug 15 02:38:56 2026
 //Host        : DESKTOP-RCMS6DA running 64-bit major release  (build 9200)
 //Command     : generate_target memory_wrapper.bd
 //Design      : memory_wrapper
@@ -21,6 +21,7 @@ module memory_wrapper
     S00_AXI_0_arprot,
     S00_AXI_0_arqos,
     S00_AXI_0_arready,
+    S00_AXI_0_arregion,
     S00_AXI_0_arsize,
     S00_AXI_0_arvalid,
     S00_AXI_0_awaddr,
@@ -31,6 +32,7 @@ module memory_wrapper
     S00_AXI_0_awprot,
     S00_AXI_0_awqos,
     S00_AXI_0_awready,
+    S00_AXI_0_awregion,
     S00_AXI_0_awsize,
     S00_AXI_0_awvalid,
     S00_AXI_0_bready,
@@ -62,6 +64,7 @@ module memory_wrapper
     S_AXI_LITE_0_wdata,
     S_AXI_LITE_0_wready,
     S_AXI_LITE_0_wvalid,
+    aresetn,
     clk_100M,
     clk_locked,
     clk_pixel,
@@ -82,8 +85,8 @@ module memory_wrapper
     ddr3_sdram_reset_n,
     ddr3_sdram_we_n,
     init_calib_complete_0,
+    mig_reset,
     mmcm_locked_0,
-    reset,
     sys_clk_i,
     vid_io_out_0_active_video,
     vid_io_out_0_data,
@@ -102,6 +105,7 @@ module memory_wrapper
   input [2:0]S00_AXI_0_arprot;
   input [3:0]S00_AXI_0_arqos;
   output S00_AXI_0_arready;
+  input [3:0]S00_AXI_0_arregion;
   input [2:0]S00_AXI_0_arsize;
   input S00_AXI_0_arvalid;
   input [31:0]S00_AXI_0_awaddr;
@@ -112,20 +116,21 @@ module memory_wrapper
   input [2:0]S00_AXI_0_awprot;
   input [3:0]S00_AXI_0_awqos;
   output S00_AXI_0_awready;
+  input [3:0]S00_AXI_0_awregion;
   input [2:0]S00_AXI_0_awsize;
   input S00_AXI_0_awvalid;
   input S00_AXI_0_bready;
   output [1:0]S00_AXI_0_bresp;
   output S00_AXI_0_bvalid;
-  output [31:0]S00_AXI_0_rdata;
+  output [127:0]S00_AXI_0_rdata;
   output S00_AXI_0_rlast;
   input S00_AXI_0_rready;
   output [1:0]S00_AXI_0_rresp;
   output S00_AXI_0_rvalid;
-  input [31:0]S00_AXI_0_wdata;
+  input [127:0]S00_AXI_0_wdata;
   input S00_AXI_0_wlast;
   output S00_AXI_0_wready;
-  input [3:0]S00_AXI_0_wstrb;
+  input [15:0]S00_AXI_0_wstrb;
   input S00_AXI_0_wvalid;
   input [8:0]S_AXI_LITE_0_araddr;
   output S_AXI_LITE_0_arready;
@@ -143,6 +148,7 @@ module memory_wrapper
   input [31:0]S_AXI_LITE_0_wdata;
   output S_AXI_LITE_0_wready;
   input S_AXI_LITE_0_wvalid;
+  input aresetn;
   output clk_100M;
   output clk_locked;
   output clk_pixel;
@@ -163,8 +169,8 @@ module memory_wrapper
   output ddr3_sdram_reset_n;
   output ddr3_sdram_we_n;
   output init_calib_complete_0;
+  input mig_reset;
   output mmcm_locked_0;
-  input reset;
   input sys_clk_i;
   output vid_io_out_0_active_video;
   output [23:0]vid_io_out_0_data;
@@ -184,6 +190,7 @@ module memory_wrapper
   wire [2:0]S00_AXI_0_arprot;
   wire [3:0]S00_AXI_0_arqos;
   wire S00_AXI_0_arready;
+  wire [3:0]S00_AXI_0_arregion;
   wire [2:0]S00_AXI_0_arsize;
   wire S00_AXI_0_arvalid;
   wire [31:0]S00_AXI_0_awaddr;
@@ -194,20 +201,21 @@ module memory_wrapper
   wire [2:0]S00_AXI_0_awprot;
   wire [3:0]S00_AXI_0_awqos;
   wire S00_AXI_0_awready;
+  wire [3:0]S00_AXI_0_awregion;
   wire [2:0]S00_AXI_0_awsize;
   wire S00_AXI_0_awvalid;
   wire S00_AXI_0_bready;
   wire [1:0]S00_AXI_0_bresp;
   wire S00_AXI_0_bvalid;
-  wire [31:0]S00_AXI_0_rdata;
+  wire [127:0]S00_AXI_0_rdata;
   wire S00_AXI_0_rlast;
   wire S00_AXI_0_rready;
   wire [1:0]S00_AXI_0_rresp;
   wire S00_AXI_0_rvalid;
-  wire [31:0]S00_AXI_0_wdata;
+  wire [127:0]S00_AXI_0_wdata;
   wire S00_AXI_0_wlast;
   wire S00_AXI_0_wready;
-  wire [3:0]S00_AXI_0_wstrb;
+  wire [15:0]S00_AXI_0_wstrb;
   wire S00_AXI_0_wvalid;
   wire [8:0]S_AXI_LITE_0_araddr;
   wire S_AXI_LITE_0_arready;
@@ -225,6 +233,7 @@ module memory_wrapper
   wire [31:0]S_AXI_LITE_0_wdata;
   wire S_AXI_LITE_0_wready;
   wire S_AXI_LITE_0_wvalid;
+  wire aresetn;
   wire clk_100M;
   wire clk_locked;
   wire clk_pixel;
@@ -245,8 +254,8 @@ module memory_wrapper
   wire ddr3_sdram_reset_n;
   wire ddr3_sdram_we_n;
   wire init_calib_complete_0;
+  wire mig_reset;
   wire mmcm_locked_0;
-  wire reset;
   wire sys_clk_i;
   wire vid_io_out_0_active_video;
   wire [23:0]vid_io_out_0_data;
@@ -267,6 +276,7 @@ module memory_wrapper
         .S00_AXI_0_arprot(S00_AXI_0_arprot),
         .S00_AXI_0_arqos(S00_AXI_0_arqos),
         .S00_AXI_0_arready(S00_AXI_0_arready),
+        .S00_AXI_0_arregion(S00_AXI_0_arregion),
         .S00_AXI_0_arsize(S00_AXI_0_arsize),
         .S00_AXI_0_arvalid(S00_AXI_0_arvalid),
         .S00_AXI_0_awaddr(S00_AXI_0_awaddr),
@@ -277,6 +287,7 @@ module memory_wrapper
         .S00_AXI_0_awprot(S00_AXI_0_awprot),
         .S00_AXI_0_awqos(S00_AXI_0_awqos),
         .S00_AXI_0_awready(S00_AXI_0_awready),
+        .S00_AXI_0_awregion(S00_AXI_0_awregion),
         .S00_AXI_0_awsize(S00_AXI_0_awsize),
         .S00_AXI_0_awvalid(S00_AXI_0_awvalid),
         .S00_AXI_0_bready(S00_AXI_0_bready),
@@ -308,6 +319,7 @@ module memory_wrapper
         .S_AXI_LITE_0_wdata(S_AXI_LITE_0_wdata),
         .S_AXI_LITE_0_wready(S_AXI_LITE_0_wready),
         .S_AXI_LITE_0_wvalid(S_AXI_LITE_0_wvalid),
+        .aresetn(aresetn),
         .clk_100M(clk_100M),
         .clk_locked(clk_locked),
         .clk_pixel(clk_pixel),
@@ -328,8 +340,8 @@ module memory_wrapper
         .ddr3_sdram_reset_n(ddr3_sdram_reset_n),
         .ddr3_sdram_we_n(ddr3_sdram_we_n),
         .init_calib_complete_0(init_calib_complete_0),
+        .mig_reset(mig_reset),
         .mmcm_locked_0(mmcm_locked_0),
-        .reset(reset),
         .sys_clk_i(sys_clk_i),
         .vid_io_out_0_active_video(vid_io_out_0_active_video),
         .vid_io_out_0_data(vid_io_out_0_data),

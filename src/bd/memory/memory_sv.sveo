@@ -61,7 +61,7 @@
 // INCLUDE_TAG_END ------  End cut for INTERFACE INSTANTIATION Include  ------
 
 // INTF_TAG     ------ Begin cut for INTERFACE INSTANTIATION Template ------
-vivado_aximm_v1_0 S00_AXI_0();
+vivado_aximm_v1_0 #(.DATA_WIDTH(128)) S00_AXI_0();
 vivado_axi4_lite_v1_0 #(.ADDR_WIDTH(16)) S_AXI_LITE_0();
 // INTF_TAG_END ------  End cut for INTERFACE INSTANTIATION Template  ------
 
@@ -99,8 +99,9 @@ memory_sv your_instance_name (
   .clk_pixel(clk_pixel), // output wire clk_pixel
   .clk_serial(clk_serial), // output wire clk_serial
   .clk_locked(clk_locked), // output wire clk_locked
-  .reset(reset), // input wire reset
-  .HIGH(HIGH) // input wire HIGH
+  .mig_reset(mig_reset), // input wire mig_reset
+  .HIGH(HIGH), // input wire HIGH
+  .aresetn(aresetn) // input wire aresetn
 );
 // INST_TAG_END ------  End cut for WRAPPER INSTANTIATION Template  ------
 

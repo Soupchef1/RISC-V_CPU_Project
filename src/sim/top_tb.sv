@@ -7,6 +7,7 @@ module tb_top;
     logic ck_rst;
     logic start_button;
     logic uart_txd_in;
+    logic reset_button;
 
     // Outputs
     logic [3:0] led;
@@ -33,10 +34,13 @@ module tb_top;
     wire [1:0]  ddr3_sdram_dm;
     wire [0:0]  ddr3_sdram_odt;
 
-
+    //boot
+    logic start_done, start_valid, start_write_en, start_finish, start_bvalid;
+    logic [31:0] start_data, start_addr;
+    logic mig_ready, boot_start;
 
     // Unit Under Test (UUT)
-    top uut (
+    top_no_boot uut (
         .CLK100MHZ(CLK100MHZ),
         .ck_rst(ck_rst),
         .start_button(start_button),
@@ -61,7 +65,8 @@ module tb_top;
         .ddr3_sdram_cke(ddr3_sdram_cke),
         .ddr3_sdram_cs_n(ddr3_sdram_cs_n),
         .ddr3_sdram_dm(ddr3_sdram_dm),
-        .ddr3_sdram_odt(ddr3_sdram_odt)
+        .ddr3_sdram_odt(ddr3_sdram_odt),
+        .*
     );
 
     ddr3_model ddr3 (
@@ -96,6 +101,14 @@ module tb_top;
         8'h62, 8'h00, 8'h93, 8'h83, 8'h03, 8'h00, 8'h6F, 8'hF0, 8'hDF, 8'hFF
     };
 
+    logic [31:0] test_prog[] = '{
+        32'h00400293,
+        32'h0002a303,
+        32'h0fc00537,
+        32'h00652223,
+        32'h0000006f
+    };
+
     // Task to send 1 byte over UART (8N1)
     task send_uart_byte(input logic [7:0] tx_byte);
         integer i;
@@ -118,31 +131,40 @@ module tb_top;
 
     // Task to construct and transmit a 9-byte packet matching Python create_packet
     task send_packet(input logic [23:0] addr, input logic [31:0] data);
-        logic [7:0] addr_h, addr_m, addr_l;
-        logic [7:0] data_3, data_2, data_1, data_0;
-        logic [7:0] checksum;
+        // logic [7:0] addr_h, addr_m, addr_l;
+        // logic [7:0] data_3, data_2, data_1, data_0;
+        // logic [7:0] checksum;
         begin
-            addr_h = addr[23:16];
-            addr_m = addr[15:8];
-            addr_l = addr[7:0];
+            // addr_h = addr[23:16];
+            // addr_m = addr[15:8];
+            // addr_l = addr[7:0];
             
-            data_3 = data[31:24];
-            data_2 = data[23:16];
-            data_1 = data[15:8];
-            data_0 = data[7:0];
+            // data_3 = data[31:24];
+            // data_2 = data[23:16];
+            // data_1 = data[15:8];
+            // data_0 = data[7:0];
             
-            checksum = addr_h ^ addr_m ^ addr_l ^ data_3 ^ data_2 ^ data_1 ^ data_0;
+            // checksum = addr_h ^ addr_m ^ addr_l ^ data_3 ^ data_2 ^ data_1 ^ data_0;
 
-            // 9-byte packet sequence
-            send_uart_byte(8'hAB);
-            send_uart_byte(addr_h);
-            send_uart_byte(addr_m);
-            send_uart_byte(addr_l);
-            send_uart_byte(data_3);
-            send_uart_byte(data_2);
-            send_uart_byte(data_1);
-            send_uart_byte(data_0);
-            send_uart_byte(checksum);
+            // // 9-byte packet sequence
+            // send_uart_byte(8'hAB);
+            // send_uart_byte(addr_h);
+            // send_uart_byte(addr_m);
+            // send_uart_byte(addr_l);
+            // send_uart_byte(data_3);
+            // send_uart_byte(data_2);
+            // send_uart_byte(data_1);
+            // send_uart_byte(data_0);
+            // send_uart_byte(checksum);
+            @(posedge CLK100MHZ);
+            start_valid = HIGH;
+            start_write_en = HIGH;
+            start_data = data;
+            start_addr = {6'b0, addr, 2'b0};
+            @(posedge CLK100MHZ);
+            @(posedge CLK100MHZ);
+            start_valid = LOW;
+            start_write_en = LOW;
         end
     endtask
 
@@ -156,64 +178,79 @@ module tb_top;
         // Initial setup
         CLK100MHZ    = 0;
         ck_rst       = 0;
-        start_button = 0;
         uart_txd_in  = 1; // Idle state for UART is HIGH
+        start_done = LOW;
+        boot_start = LOW;
+        start_valid = LOW;
+        start_write_en = LOW;
+        start_finish = LOW;
+        start_data = '0;
+        start_addr = '0;
+        start_button = HIGH;
+        reset_button = HIGH;
         
         // Reset sequence
         #100;
-        ck_rst = 1; // De-assert reset
-        
+        reset_button = LOW; // De-assert reset
+
+        #2000;
+        ck_rst = 1;
+
         // Wait for boot_start (led[0]) to go HIGH
         $display("[%0t ns] Waiting for boot_start (led[0])...", $time);
-        wait(led[0] == 1'b1);
+        wait(mig_ready == 1'b1);
         $display("[%0t ns] boot_start detected HIGH!", $time);
 
+        boot_start = HIGH;
+        
         // Wait a few clock cycles
         repeat (10) @(posedge CLK100MHZ);
 
         current_address = 24'h000000;
 
-        // Process test_bytes array 4 bytes at a time (little-endian conversion)
-        for (i = 0; i < $size(test_bytes); i = i + 4) begin
-            b0 = test_bytes[i];
-            b1 = (i + 1 < $size(test_bytes)) ? test_bytes[i+1] : 8'h00;
-            b2 = (i + 2 < $size(test_bytes)) ? test_bytes[i+2] : 8'h00;
-            b3 = (i + 3 < $size(test_bytes)) ? test_bytes[i+3] : 8'h00;
-
-            // Little-endian assembly: {b3, b2, b1, b0}
-            word_val = {b3, b2, b1, b0};
-
-            send_packet(current_address, word_val);
+        // Process test_prog array 4 bytes at a time (little-endian conversion)
+        $display("[%0t ns] Loading Program", $time);
+        for (i = 0; i < $size(test_prog); i = i + 1) begin
+            send_packet(current_address, test_prog[i]);
             current_address = current_address + 1'b1;
+            @(posedge start_bvalid);
+            @(posedge CLK100MHZ);
         end
 
         // Send 5 "jal ." trailing packets (0x0000006F)
-        $display("[%0t ns] Sending 5 trailing jal . packets...", $time);
+        $display("[%0t ns] Sending 2 trailing jal . packets...", $time);
         repeat (2) begin
             send_packet(current_address, 32'h0000006F);
             current_address = current_address + 1'b1;
         end
 
-        // Send finish byte (0xEF)
-        $display("[%0t ns] Transmitting finish byte (0xEF)...", $time);
-        send_uart_byte(8'hEF);
+        start_finish = HIGH;
 
-        // Wait for start_finish (led[2]) to go HIGH
-        $display("[%0t ns] Waiting for start_finish (led[2])...", $time);
-        wait(led[2] == 1'b1);
-        $display("[%0t ns] start_finish detected HIGH!", $time);
+        // // Send finish byte (0xEF)
+        // $display("[%0t ns] Transmitting finish byte (0xEF)...", $time);
+        // send_uart_byte(8'hEF);
+
+        // // Wait for start_finish (led[2]) to go HIGH
+        // $display("[%0t ns] Waiting for start_finish (led[2])...", $time);
+        // wait(led[2] == 1'b1);
+        // $display("[%0t ns] start_finish detected HIGH!", $time);
 
         // Wait a few clock cycles before pressing start_button
-        repeat (20) @(posedge CLK100MHZ);
+        repeat (40) @(posedge CLK100MHZ);
         
         $display("[%0t ns] Pressing start_button...", $time);
         start_button = 1'b1;
+        @(posedge CLK100MHZ);
+        start_done = HIGH;
+        start_finish = HIGH;
+        boot_start = LOW;
         repeat (10) @(posedge CLK100MHZ);
         start_button = 1'b0;
 
+
         // Allow time for the loaded program to execute
         $display("[%0t ns] Program started, running simulation...", $time);
-        #50000; // Adjust simulation duration as necessary
+        #10000; // Adjust simulation duration as necessary
 
         $display("[%0t ns] Testbench complete.", $time);
         $finish;

@@ -120,6 +120,7 @@ module EX_top (
         .rs2_data(rs2_data_int),
         .rs1(rs1_ALU),
         .rs2(rs2_ALU),
+        .stall(stall_en),
         .*
     );
 

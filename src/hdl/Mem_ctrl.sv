@@ -45,7 +45,8 @@ module Mem_ctrl(
 
     //misc.
     output logic ins_read_done,
-    output logic data_read_done,    
+    output logic data_read_done,
+    output logic data_write_done,    
     
     //axi shi
     output logic [31:0] awaddr,
@@ -128,14 +129,13 @@ module Mem_ctrl(
     logic [31:0] write_addr_reg;
     logic [31:0] read_addr_reg;
 
-    logic [31:0] next_write_addr_reg;
-    logic [31:0] next_read_addr_reg;
+    // logic [31:0] next_write_addr_reg;
+    // logic [31:0] next_read_addr_reg;
 
     logic [1:0] write_cnt, next_write_cnt;
     logic [1:0] read_cnt, next_read_cnt;
     
     //setting aw defaults
-    assign awlen = 8'd3;
     assign awsize = 3'b100;
     assign awburst = 2'b01;
     assign awlock = 1'b0;
@@ -151,11 +151,6 @@ module Mem_ctrl(
     assign arcache = 4'b0011;
     assign arprot = 3'b000;
     assign arqos = 4'b0000;
-
-    //setting w/r defaults
-    assign wstrb = 16'b1111111111111111;
-
-
 
 //seq shi for mem state machine
     always_ff @(posedge clk, negedge nrst) begin
@@ -216,6 +211,7 @@ module Mem_ctrl(
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
+                data_write_done = LOW;
 
                 // data_data_out = '0;
                 // ins_data_out = '0;
@@ -233,11 +229,12 @@ module Mem_ctrl(
                 end
 
                 write_data_reg = data_data_in;
-                write_addr_reg = (video_data) ? {data_addr[31:2], 2'b0} : {data_addr[31:6], 6'b0};
+                write_addr_reg = (video_data) ? {data_addr[31:4], 4'b0} : {data_addr[31:6], 6'b0};
                 read_addr_reg = '0;
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
+                data_write_done = write_done;
 
                 // data_data_out = '0;
                 // ins_data_out = '0;
@@ -255,11 +252,12 @@ module Mem_ctrl(
                 end
 
                 write_data_reg = data_data_in;
-                write_addr_reg = (video_data) ? {data_addr[31:2], 2'b0} : {data_addr[31:6], 6'b0};
-                read_addr_reg = ins_addr;
+                write_addr_reg = (video_data) ? {data_addr[31:4], 4'b0} : {data_addr[31:6], 6'b0};
+                read_addr_reg = {ins_addr[31:6], 6'b0};
                 
                 data_read_done = LOW;
                 ins_read_done = (read_done);
+                data_write_done = write_done;
 
                 // data_data_out = '0;
                 // ins_data_out = read_data_reg;
@@ -276,6 +274,7 @@ module Mem_ctrl(
 
                 data_read_done = LOW;
                 ins_read_done = LOW;
+                data_write_done = write_done;
 
                 // data_data_out = '0;
                 // ins_data_out = '0;
@@ -288,10 +287,11 @@ module Mem_ctrl(
 
                 write_data_reg = data_data_in;
                 write_addr_reg = {data_addr[31:6], 6'b0};
-                read_addr_reg = ins_addr;
+                read_addr_reg = {ins_addr[31:6], 6'b0};
 
                 data_read_done = LOW;
                 ins_read_done = (read_done);
+                data_write_done = write_done;
 
                 // data_data_out = '0;
                 // ins_data_out = read_data_reg;
@@ -309,10 +309,11 @@ module Mem_ctrl(
 
                 write_data_reg = '0;
                 write_addr_reg = '0;
-                read_addr_reg = ins_addr;
+                read_addr_reg = {ins_addr[31:6], 6'b0};
                 
                 data_read_done = LOW;
                 ins_read_done = (read_done);
+                data_write_done = LOW;
 
                 // data_data_out = '0;
                 // ins_data_out = read_data_reg;
@@ -325,10 +326,11 @@ module Mem_ctrl(
 
                 write_data_reg = '0;
                 write_addr_reg = '0;
-                read_addr_reg = data_addr;
+                read_addr_reg = {data_addr[31:6], 6'b0};
 
                 data_read_done = (read_done);
                 ins_read_done = LOW;
+                data_write_done = LOW;
 
                 // data_data_out = read_data_reg;
                 // ins_data_out = '0;
@@ -345,6 +347,7 @@ module Mem_ctrl(
                 
                 data_read_done = LOW;
                 ins_read_done = LOW;
+                data_write_done = LOW;
 
                 // data_data_out = '0;
                 // ins_data_out = '0;
@@ -448,11 +451,13 @@ module Mem_ctrl(
                 next_write_cnt = write_cnt;
 
                 awaddr = '0;
+                awlen = '0;
                 wvalid = LOW;
                 awvalid = LOW;
                 wlast = LOW;
                 bready = LOW;
                 wdata = '0; 
+                wstrb = '0;
             end
 
             W_SEND_ADDR: begin
@@ -466,11 +471,18 @@ module Mem_ctrl(
                 wlast = LOW;
                 bready = LOW;
                 wdata = '0;
+                wstrb = '0;
+
+                if(video_data) begin
+                    awlen = 8'd0;
+                end else begin
+                    awlen = 8'd3;
+                end
             end
 
             WRITE: begin
                 if(wready == HIGH) begin
-                    next_write_state = (write_cnt == 2'd3) ? PAUSE : WRITE;
+                    next_write_state = ((write_cnt == 2'd3) | video_data) ? PAUSE : WRITE;
                     next_write_cnt = write_cnt + 2'd1;
                 end else begin
                     next_write_state = WRITE;
@@ -479,11 +491,23 @@ module Mem_ctrl(
                 write_done = LOW;
 
                 awaddr = '0;
+                awlen = '0;
                 wvalid = HIGH;
                 awvalid = LOW;
-                wlast = (write_cnt == 3) ? HIGH : LOW;
+                wlast = ((write_cnt == 3) | video_data) ? HIGH : LOW;
                 bready = LOW;
                 wdata = write_data_reg[write_cnt * 128 +: 128];
+
+                if(video_data) begin
+                    case(data_addr[3:2])
+                        2'b00: wstrb = 16'h000F;
+                        2'b01: wstrb = 16'h00F0;
+                        2'b10: wstrb = 16'h0F00;
+                        2'b11: wstrb = 16'hF000;
+                    endcase
+                end else begin
+                    wstrb = '1;
+                end
             end
 
             PAUSE: begin
@@ -492,11 +516,13 @@ module Mem_ctrl(
                 next_write_cnt = write_cnt;
 
                 awaddr = '0;
+                awlen = '0;
                 wvalid = LOW;
                 awvalid = LOW;
                 wlast = LOW;
                 bready = HIGH;
                 wdata = '0;
+                wstrb = '0;
             end
 
             default: begin
@@ -505,11 +531,13 @@ module Mem_ctrl(
                 next_write_cnt = write_cnt;
 
                 awaddr = '0;
+                awlen = '0;
                 wvalid = LOW;
                 awvalid = LOW;
                 wlast = LOW;
                 bready = LOW;
                 wdata = '0;
+                wstrb = '0;
             end
         endcase
     end

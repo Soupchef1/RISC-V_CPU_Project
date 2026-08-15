@@ -38,7 +38,7 @@ module bootloader(
     logic [7:0] rx_data;
 
     logic [31:0] pkt_addr, pkt_data;
-    logic pkt_ready, pkt_fail;
+    logic pkt_ready;
     logic boot_finish;
 
     uart_receiver receiver (

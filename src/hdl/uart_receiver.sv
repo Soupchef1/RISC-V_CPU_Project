@@ -29,7 +29,7 @@ module uart_receiver #(
         output logic [7:0] rx_data
     );
 
-    localparam logic [5:0] CLKS_PER_BIT = 6'(100000000 / BAUDRATE - 1); // 100 MHz clock / 2,000,000 baud rate - 1
+    localparam logic [5:0] CLKS_PER_BIT = 6'(90000000 / BAUDRATE - 1); // 90 MHz clock / 2,000,000 baud rate - 1
     localparam logic HIGH = 1'b1;
     localparam logic LOW = 1'b0;
 

@@ -177,12 +177,12 @@ module signal_generator(
         endcase
 
         casez(func3)
-            3'h0: ALU_math = (func7 == 7'h2) ? 4'd2 : 4'd1;
+            3'h0: ALU_math = (func7 == 7'h20) ? 4'd1 : 4'd0;
             3'h4: ALU_math = 4'd2;
             3'h6: ALU_math = 4'd3;
             3'h7: ALU_math = 4'd4;
             3'h1: ALU_math = 4'd5;
-            3'h5: ALU_math = (func7 == 7'h2) ? 4'd7 : 4'd6;
+            3'h5: ALU_math = (func7 == 7'h20) ? 4'd7 : 4'd6;
             3'h2: ALU_math = 4'd8;
             3'h3: ALU_math = 4'd9;
         endcase

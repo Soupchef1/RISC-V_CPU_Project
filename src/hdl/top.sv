@@ -27,7 +27,7 @@ module top(
     input logic ck_rst,
 
     //buttons
-    input logic start_button,
+    input logic start_button, reset_button,
 
     //LEDs
     output logic [3:0] led,
@@ -64,7 +64,7 @@ module top(
     localparam logic LOW = 1'b0;
 
     //ip signals
-    vivado_aximm_v1_0 S00_AXI_0();
+    vivado_aximm_v1_0 #(.DATA_WIDTH(128)) S00_AXI_0();
     vivado_axi4_lite_v1_0 #(.ADDR_WIDTH(16)) S_AXI_LITE_0();
     logic reset; //reset going into mig
     logic sys_clk_i;
@@ -128,10 +128,11 @@ module top(
     logic data_rd_miss;
     logic data_wr_miss;
     logic data_dirty;
-    (* mark_debug = "true" *) logic video_data;
+    logic video_data;
     logic ins_read_done;
     logic data_read_done;
-    logic finish;
+    logic data_write_done;
+    // logic finish;
     
     
     //to vdma controller
@@ -153,11 +154,11 @@ module top(
     logic init_calib_complete_0;
 
     assign sys_clk_i = CLK100MHZ;
-    assign reset = ck_rst;
+    assign reset = ~reset_button;
     assign mig_ready = init_calib_complete_0 & mmcm_locked_0;
 
     assign clk = clk_100M;
-    assign nrst = ck_rst;
+    assign nrst = ck_rst & reset;
 
     assign led[0] = boot_start;
     assign led[1] = pkt_failed;
@@ -197,8 +198,9 @@ module top(
         .clk_pixel(clk_pixel), // output wire clk_pixel
         .clk_serial(clk_serial), // output wire clk_serial
         .clk_locked(clk_locked), // output wire clk_locked
-        .reset(reset), // input wire reset
-        .HIGH(HIGH) // input wire HIGH
+        .mig_reset(reset), // input wire reset
+        .HIGH(HIGH), // input wire HIGH
+        .aresetn(nrst)
     );
 
     bootloader boot(

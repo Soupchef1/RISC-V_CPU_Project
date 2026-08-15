@@ -53,7 +53,7 @@ module vdma_controller(
     logic[31:0] write_data;
 
     // AXI -> main FSM
-    logic write_busy;
+    // logic write_busy;
     logic write_done;
     logic write_error;
 

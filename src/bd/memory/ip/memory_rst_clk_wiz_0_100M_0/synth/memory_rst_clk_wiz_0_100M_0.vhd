@@ -104,7 +104,7 @@ ARCHITECTURE memory_rst_clk_wiz_0_100M_0_arch OF memory_rst_clk_wiz_0_100M_0 IS
   ATTRIBUTE CHECK_LICENSE_TYPE : STRING;
   ATTRIBUTE CHECK_LICENSE_TYPE OF memory_rst_clk_wiz_0_100M_0_arch : ARCHITECTURE IS "memory_rst_clk_wiz_0_100M_0,proc_sys_reset,{}";
   ATTRIBUTE CORE_GENERATION_INFO : STRING;
-  ATTRIBUTE CORE_GENERATION_INFO OF memory_rst_clk_wiz_0_100M_0_arch: ARCHITECTURE IS "memory_rst_clk_wiz_0_100M_0,proc_sys_reset,{x_ipProduct=Vivado 2025.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=proc_sys_reset,x_ipVersion=5.0,x_ipCoreRevision=17,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_FAMILY=spartan7,C_EXT_RST_WIDTH=4,C_AUX_RST_WIDTH=4,C_EXT_RESET_HIGH=1,C_AUX_RESET_HIGH=0,C_NUM_BUS_RST=1,C_NUM_PERP_RST=1,C_NUM_INTERCONNECT_ARESETN=1,C_NUM_PERP_ARESETN=1}";
+  ATTRIBUTE CORE_GENERATION_INFO OF memory_rst_clk_wiz_0_100M_0_arch: ARCHITECTURE IS "memory_rst_clk_wiz_0_100M_0,proc_sys_reset,{x_ipProduct=Vivado 2025.2,x_ipVendor=xilinx.com,x_ipLibrary=ip,x_ipName=proc_sys_reset,x_ipVersion=5.0,x_ipCoreRevision=17,x_ipLanguage=VERILOG,x_ipSimLanguage=MIXED,C_FAMILY=spartan7,C_EXT_RST_WIDTH=4,C_AUX_RST_WIDTH=4,C_EXT_RESET_HIGH=0,C_AUX_RESET_HIGH=0,C_NUM_BUS_RST=1,C_NUM_PERP_RST=1,C_NUM_INTERCONNECT_ARESETN=1,C_NUM_PERP_ARESETN=1}";
   ATTRIBUTE X_INTERFACE_INFO : STRING;
   ATTRIBUTE X_INTERFACE_MODE : STRING;
   ATTRIBUTE X_INTERFACE_PARAMETER : STRING;
@@ -116,7 +116,7 @@ ARCHITECTURE memory_rst_clk_wiz_0_100M_0_arch OF memory_rst_clk_wiz_0_100M_0 IS
   ATTRIBUTE X_INTERFACE_PARAMETER OF bus_struct_reset: SIGNAL IS "XIL_INTERFACENAME bus_struct_reset, POLARITY ACTIVE_HIGH, TYPE INTERCONNECT, INSERT_VIP 0";
   ATTRIBUTE X_INTERFACE_INFO OF ext_reset_in: SIGNAL IS "xilinx.com:signal:reset:1.0 ext_reset RST";
   ATTRIBUTE X_INTERFACE_MODE OF ext_reset_in: SIGNAL IS "slave ext_reset";
-  ATTRIBUTE X_INTERFACE_PARAMETER OF ext_reset_in: SIGNAL IS "XIL_INTERFACENAME ext_reset, BOARD.ASSOCIATED_PARAM RESET_BOARD_INTERFACE, POLARITY ACTIVE_HIGH, INSERT_VIP 0";
+  ATTRIBUTE X_INTERFACE_PARAMETER OF ext_reset_in: SIGNAL IS "XIL_INTERFACENAME ext_reset, BOARD.ASSOCIATED_PARAM RESET_BOARD_INTERFACE, POLARITY ACTIVE_LOW, INSERT_VIP 0";
   ATTRIBUTE X_INTERFACE_INFO OF interconnect_aresetn: SIGNAL IS "xilinx.com:signal:reset:1.0 interconnect_low_rst RST";
   ATTRIBUTE X_INTERFACE_MODE OF interconnect_aresetn: SIGNAL IS "master interconnect_low_rst";
   ATTRIBUTE X_INTERFACE_PARAMETER OF interconnect_aresetn: SIGNAL IS "XIL_INTERFACENAME interconnect_low_rst, POLARITY ACTIVE_LOW, TYPE INTERCONNECT, INSERT_VIP 0";
@@ -134,14 +134,14 @@ ARCHITECTURE memory_rst_clk_wiz_0_100M_0_arch OF memory_rst_clk_wiz_0_100M_0 IS
   ATTRIBUTE X_INTERFACE_PARAMETER OF peripheral_reset: SIGNAL IS "XIL_INTERFACENAME peripheral_high_rst, POLARITY ACTIVE_HIGH, TYPE PERIPHERAL, INSERT_VIP 0";
   ATTRIBUTE X_INTERFACE_INFO OF slowest_sync_clk: SIGNAL IS "xilinx.com:signal:clock:1.0 clock CLK";
   ATTRIBUTE X_INTERFACE_MODE OF slowest_sync_clk: SIGNAL IS "slave clock";
-  ATTRIBUTE X_INTERFACE_PARAMETER OF slowest_sync_clk: SIGNAL IS "XIL_INTERFACENAME clock, ASSOCIATED_RESET mb_reset:bus_struct_reset:interconnect_aresetn:peripheral_aresetn:peripheral_reset, FREQ_HZ 100006266, FREQ_TOLERANCE_HZ 0, PHASE 0.0, CLK_DOMAIN /clk_wiz_0_clk_out1, INSERT_VIP 0";
+  ATTRIBUTE X_INTERFACE_PARAMETER OF slowest_sync_clk: SIGNAL IS "XIL_INTERFACENAME clock, ASSOCIATED_RESET mb_reset:bus_struct_reset:interconnect_aresetn:peripheral_aresetn:peripheral_reset, FREQ_HZ 90012681, FREQ_TOLERANCE_HZ 0, PHASE 0.0, CLK_DOMAIN /clk_wiz_0_clk_out1, INSERT_VIP 0";
 BEGIN
   U0 : proc_sys_reset
     GENERIC MAP (
       C_FAMILY => "spartan7",
       C_EXT_RST_WIDTH => 4,
       C_AUX_RST_WIDTH => 4,
-      C_EXT_RESET_HIGH => '1',
+      C_EXT_RESET_HIGH => '0',
       C_AUX_RESET_HIGH => '0',
       C_NUM_BUS_RST => 1,
       C_NUM_PERP_RST => 1,

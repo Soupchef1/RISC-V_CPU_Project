@@ -517,7 +517,7 @@ module memory_mig_7series_0_0_mig #
    parameter C_MC_nCK_PER_CLK              = 4,
                                              // Indicates whether to instatiate upsizer
                                              // Range: 0, 1
-   parameter C_S_AXI_SUPPORTS_NARROW_BURST = 0,
+   parameter C_S_AXI_SUPPORTS_NARROW_BURST = 1,
                                              // Indicates whether to instatiate upsizer
                                              // Range: 0, 1
    parameter C_RD_WR_ARB_ALGORITHM          = "RD_PRI_REG",

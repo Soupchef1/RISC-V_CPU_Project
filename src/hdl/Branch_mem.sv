@@ -46,7 +46,6 @@ module Branch_mem(
      } state_t;
 
     state_t state;
-    state_t next_state;
 
     logic ena, enb;
     logic [6:0] wea;
@@ -64,14 +63,14 @@ module Branch_mem(
 
     logic [19:0] pc_tag;
     logic [19:0] branch_tag;
-    logic [55:0] branch_data;
-    logic [55:0] branch_data_ex;
+    logic [1:0] branch_data;
+    logic [1:0] branch_data_ex;
     logic branch_en;
     logic branch_en_ex;
 
 
     assign branch_en = MUX_en[3];
-    assign branch_data = doutb;
+    assign branch_data = bht;
     assign branch_tag = doutb[54:35];
     
     logic tag_match;
@@ -149,11 +148,11 @@ module Branch_mem(
                     case (pc_switch)
                         HIGH: begin
                             ena = HIGH;
-                            target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex[33:32] == 2'b11) ? 2'b11 : branch_data_ex[33:32] + 2'b01, target};
+                            target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex == 2'b11) ? 2'b11 : branch_data_ex + 2'b01, target};
                         end
                         LOW: begin
                             ena = HIGH;
-                            target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex[33:32] == 2'b00) ? 2'b00 : branch_data_ex[33:32] - 2'b01, target};
+                            target_data = {1'b0, pc_d[31:12], 1'b1, (branch_data_ex == 2'b00) ? 2'b00 : branch_data_ex - 2'b01, target};
                         end
                     endcase
                 end
