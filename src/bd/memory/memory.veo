@@ -84,16 +84,16 @@ memory your_instance_name (
   .S00_AXI_0_awcache(S00_AXI_0_awcache), // input wire [3:0] S00_AXI_0_awcache
   .S00_AXI_0_awprot(S00_AXI_0_awprot), // input wire [2:0] S00_AXI_0_awprot
   .S00_AXI_0_awqos(S00_AXI_0_awqos), // input wire [3:0] S00_AXI_0_awqos
-  .S00_AXI_0_awvalid(S00_AXI_0_awvalid), // input wire S00_AXI_0_awvalid
-  .S00_AXI_0_awready(S00_AXI_0_awready), // output wire S00_AXI_0_awready
+  .S00_AXI_0_awvalid(S00_AXI_0_awvalid), // input wire [0:0] S00_AXI_0_awvalid
+  .S00_AXI_0_awready(S00_AXI_0_awready), // output wire [0:0] S00_AXI_0_awready
   .S00_AXI_0_wdata(S00_AXI_0_wdata), // input wire [127:0] S00_AXI_0_wdata
   .S00_AXI_0_wstrb(S00_AXI_0_wstrb), // input wire [15:0] S00_AXI_0_wstrb
-  .S00_AXI_0_wlast(S00_AXI_0_wlast), // input wire S00_AXI_0_wlast
-  .S00_AXI_0_wvalid(S00_AXI_0_wvalid), // input wire S00_AXI_0_wvalid
-  .S00_AXI_0_wready(S00_AXI_0_wready), // output wire S00_AXI_0_wready
+  .S00_AXI_0_wlast(S00_AXI_0_wlast), // input wire [0:0] S00_AXI_0_wlast
+  .S00_AXI_0_wvalid(S00_AXI_0_wvalid), // input wire [0:0] S00_AXI_0_wvalid
+  .S00_AXI_0_wready(S00_AXI_0_wready), // output wire [0:0] S00_AXI_0_wready
   .S00_AXI_0_bresp(S00_AXI_0_bresp), // output wire [1:0] S00_AXI_0_bresp
-  .S00_AXI_0_bvalid(S00_AXI_0_bvalid), // output wire S00_AXI_0_bvalid
-  .S00_AXI_0_bready(S00_AXI_0_bready), // input wire S00_AXI_0_bready
+  .S00_AXI_0_bvalid(S00_AXI_0_bvalid), // output wire [0:0] S00_AXI_0_bvalid
+  .S00_AXI_0_bready(S00_AXI_0_bready), // input wire [0:0] S00_AXI_0_bready
   .S00_AXI_0_araddr(S00_AXI_0_araddr), // input wire [31:0] S00_AXI_0_araddr
   .S00_AXI_0_arlen(S00_AXI_0_arlen), // input wire [7:0] S00_AXI_0_arlen
   .S00_AXI_0_arsize(S00_AXI_0_arsize), // input wire [2:0] S00_AXI_0_arsize
@@ -102,13 +102,13 @@ memory your_instance_name (
   .S00_AXI_0_arcache(S00_AXI_0_arcache), // input wire [3:0] S00_AXI_0_arcache
   .S00_AXI_0_arprot(S00_AXI_0_arprot), // input wire [2:0] S00_AXI_0_arprot
   .S00_AXI_0_arqos(S00_AXI_0_arqos), // input wire [3:0] S00_AXI_0_arqos
-  .S00_AXI_0_arvalid(S00_AXI_0_arvalid), // input wire S00_AXI_0_arvalid
-  .S00_AXI_0_arready(S00_AXI_0_arready), // output wire S00_AXI_0_arready
+  .S00_AXI_0_arvalid(S00_AXI_0_arvalid), // input wire [0:0] S00_AXI_0_arvalid
+  .S00_AXI_0_arready(S00_AXI_0_arready), // output wire [0:0] S00_AXI_0_arready
   .S00_AXI_0_rdata(S00_AXI_0_rdata), // output wire [127:0] S00_AXI_0_rdata
   .S00_AXI_0_rresp(S00_AXI_0_rresp), // output wire [1:0] S00_AXI_0_rresp
-  .S00_AXI_0_rlast(S00_AXI_0_rlast), // output wire S00_AXI_0_rlast
-  .S00_AXI_0_rvalid(S00_AXI_0_rvalid), // output wire S00_AXI_0_rvalid
-  .S00_AXI_0_rready(S00_AXI_0_rready), // input wire S00_AXI_0_rready
+  .S00_AXI_0_rlast(S00_AXI_0_rlast), // output wire [0:0] S00_AXI_0_rlast
+  .S00_AXI_0_rvalid(S00_AXI_0_rvalid), // output wire [0:0] S00_AXI_0_rvalid
+  .S00_AXI_0_rready(S00_AXI_0_rready), // input wire [0:0] S00_AXI_0_rready
   .S00_AXI_0_arregion(S00_AXI_0_arregion), // input wire [3:0] S00_AXI_0_arregion
   .S00_AXI_0_awregion(S00_AXI_0_awregion), // input wire [3:0] S00_AXI_0_awregion
   .S_AXI_LITE_0_araddr(S_AXI_LITE_0_araddr), // input wire [8:0] S_AXI_LITE_0_araddr

@@ -124,7 +124,7 @@ module top_no_boot(
     logic [31:0] ins_addr;
     logic ins_rd_miss;
     logic [511:0] ins_data_out; //coming in to cache
-    logic [31:0] data_addr;
+    logic [31:0] data_addr, data_addr_dirty;
     logic [511:0] data_data_in; //data coming  from cache
     logic [511:0] data_data_out; //correct data going into cache
     logic data_rd_miss;

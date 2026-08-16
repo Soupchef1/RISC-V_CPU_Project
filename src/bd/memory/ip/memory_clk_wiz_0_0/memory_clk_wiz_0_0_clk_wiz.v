@@ -53,9 +53,9 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// clk_out1__90.01268______0.000______50.0______187.982____135.505
-// clk_out2__74.26046______0.000______50.0______195.455____135.505
-// clk_out3__371.30231______0.000______50.0______143.898____135.505
+// clk_out1__371.30231______0.000______50.0______157.646____225.332
+// clk_out2__74.26046______0.000______50.0______200.157____225.332
+// clk_out3__79.56478______0.000______50.0______198.109____225.332
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -67,10 +67,12 @@
 module memory_clk_wiz_0_0_clk_wiz 
 
  (// Clock in ports
+  input         clkfb_in,
   // Clock out ports
   output        clk_out1,
   output        clk_out2,
   output        clk_out3,
+  output        clkfb_out,
   // Status and control signals
   input         reset,
   output        locked,
@@ -81,9 +83,7 @@ module memory_clk_wiz_0_0_clk_wiz
 wire clk_in1_memory_clk_wiz_0_0;
 wire clk_in1_memory_clk_wiz_0_0_buf;
 wire clk_in2_memory_clk_wiz_0_0;
-  IBUF clkin1_ibufg
-   (.O (clk_in1_memory_clk_wiz_0_0),
-    .I (clk_in1));
+  assign clk_in1_memory_clk_wiz_0_0 = clk_in1;
 
 
 
@@ -108,7 +108,6 @@ wire clk_in2_memory_clk_wiz_0_0;
   wire        psdone_unused;
   wire        locked_int;
   wire        clkfbout_memory_clk_wiz_0_0;
-  wire        clkfbout_buf_memory_clk_wiz_0_0;
   wire        clkfboutb_unused;
     wire clkout0b_unused;
    wire clkout1b_unused;
@@ -127,19 +126,19 @@ wire clk_in2_memory_clk_wiz_0_0;
     .CLKOUT4_CASCADE      ("FALSE"),
     .COMPENSATION         ("ZHOLD"),
     .STARTUP_WAIT         ("FALSE"),
-    .DIVCLK_DIVIDE        (4),
-    .CLKFBOUT_MULT_F      (14.875),
+    .DIVCLK_DIVIDE        (8),
+    .CLKFBOUT_MULT_F      (44.625),
     .CLKFBOUT_PHASE       (0.000),
     .CLKFBOUT_USE_FINE_PS ("FALSE"),
-    .CLKOUT0_DIVIDE_F     (8.250),
+    .CLKOUT0_DIVIDE_F     (3.000),
     .CLKOUT0_PHASE        (0.000),
     .CLKOUT0_DUTY_CYCLE   (0.500),
     .CLKOUT0_USE_FINE_PS  ("FALSE"),
-    .CLKOUT1_DIVIDE       (10),
+    .CLKOUT1_DIVIDE       (15),
     .CLKOUT1_PHASE        (0.000),
     .CLKOUT1_DUTY_CYCLE   (0.500),
     .CLKOUT1_USE_FINE_PS  ("FALSE"),
-    .CLKOUT2_DIVIDE       (2),
+    .CLKOUT2_DIVIDE       (14),
     .CLKOUT2_PHASE        (0.000),
     .CLKOUT2_DUTY_CYCLE   (0.500),
     .CLKOUT2_USE_FINE_PS  ("FALSE"),
@@ -161,7 +160,7 @@ wire clk_in2_memory_clk_wiz_0_0;
     .CLKOUT5             (clkout5_unused),
     .CLKOUT6             (clkout6_unused),
      // Input clock control
-    .CLKFBIN             (clkfbout_buf_memory_clk_wiz_0_0),
+    .CLKFBIN             (clkfb_in),
     .CLKIN1              (clk_in1_memory_clk_wiz_0_0),
     .CLKIN2              (1'b0),
      // Tied to always select the primary input clock
@@ -192,10 +191,8 @@ wire clk_in2_memory_clk_wiz_0_0;
 //--------------------------------------
  // Output buffering
   //-----------------------------------
+  assign clkfb_out = clkfbout_memory_clk_wiz_0_0;
 
-  BUFG clkf_buf
-   (.O (clkfbout_buf_memory_clk_wiz_0_0),
-    .I (clkfbout_memory_clk_wiz_0_0));
 
 
 

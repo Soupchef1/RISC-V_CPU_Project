@@ -177,7 +177,7 @@ module signal_generator(
         endcase
 
         casez(func3)
-            3'h0: ALU_math = (func7 == 7'h20) ? 4'd1 : 4'd0;
+            3'h0: ALU_math = (func7 == 7'h20 & opcode == 5'b01100) ? 4'd1 : 4'd0;
             3'h4: ALU_math = 4'd2;
             3'h6: ALU_math = 4'd3;
             3'h7: ALU_math = 4'd4;

@@ -88,7 +88,7 @@ memory_axi_interconnect_0_imp_xbar_0_sc::memory_axi_interconnect_0_imp_xbar_0_sc
     model_param_props.addBitString("C_S_AXI_READ_ACCEPTANCE", "0000000000000000000000000000000100000000000000000000000000000001", 64);
     model_param_props.addBitString("C_M_AXI_WRITE_ISSUING", "00000000000000000000000000000001", 32);
     model_param_props.addBitString("C_M_AXI_READ_ISSUING", "00000000000000000000000000000001", 32);
-    model_param_props.addBitString("C_S_AXI_ARB_PRIORITY", "0000000000000000000000000000000100000000000000000000000000000000", 64);
+    model_param_props.addBitString("C_S_AXI_ARB_PRIORITY", "0000000000000000000000000000000000000000000000000000000000000000", 64);
     model_param_props.addBitString("C_M_AXI_SECURE", "00000000000000000000000000000000", 32);
     model_param_props.addString("COMPONENT_NAME", "memory_axi_interconnect_0_imp_xbar_0");
 

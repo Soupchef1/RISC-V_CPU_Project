@@ -1,66 +1,67 @@
 {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"1.13468",
-   "Default View_TopLeft":"495,349",
+   "Default View_ScaleFactor":"0.641599",
+   "Default View_TopLeft":"257,95",
    "ExpandedHierarchyInLayout":"",
-   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:21.0 threadsafe
+   "guistr":"# # String gsaved with Nlview 7.8.0 2024-04-26 e1825d835c VDI=44 GEI=38 GUI=JA:21.0
 #  -string -flagsOSRD
-preplace port ddr3_sdram -pg 1 -lvl 5 -x 1760 -y 950 -defaultsOSRD
-preplace port vid_io_out_0 -pg 1 -lvl 5 -x 1760 -y 270 -defaultsOSRD
-preplace port S00_AXI_0 -pg 1 -lvl 0 -x -10 -y 540 -defaultsOSRD
-preplace port S_AXI_LITE_0 -pg 1 -lvl 0 -x -10 -y 60 -defaultsOSRD
-preplace port port-id_sys_clk_i -pg 1 -lvl 0 -x -10 -y 1020 -defaultsOSRD
-preplace port port-id_init_calib_complete_0 -pg 1 -lvl 5 -x 1760 -y 1050 -defaultsOSRD
-preplace port port-id_mmcm_locked_0 -pg 1 -lvl 5 -x 1760 -y 1020 -defaultsOSRD
-preplace port port-id_GND -pg 1 -lvl 0 -x -10 -y 320 -defaultsOSRD
-preplace port port-id_clk_100M -pg 1 -lvl 5 -x 1760 -y 800 -defaultsOSRD
-preplace port port-id_clk_pixel -pg 1 -lvl 5 -x 1760 -y 210 -defaultsOSRD
-preplace port port-id_clk_serial -pg 1 -lvl 5 -x 1760 -y 890 -defaultsOSRD
-preplace port port-id_clk_locked -pg 1 -lvl 5 -x 1760 -y 470 -defaultsOSRD
-preplace port port-id_mig_reset -pg 1 -lvl 0 -x -10 -y 880 -defaultsOSRD
-preplace port port-id_HIGH -pg 1 -lvl 0 -x -10 -y 20 -defaultsOSRD
-preplace port port-id_aresetn -pg 1 -lvl 0 -x -10 -y 420 -defaultsOSRD
-preplace inst mig_7series_0 -pg 1 -lvl 4 -x 1560 -y 1000 -defaultsOSRD
-preplace inst axi_vdma_0 -pg 1 -lvl 2 -x 620 -y 100 -defaultsOSRD
-preplace inst clk_wiz_0 -pg 1 -lvl 3 -x 1110 -y 1150 -defaultsOSRD
-preplace inst v_axi4s_vid_out_0 -pg 1 -lvl 4 -x 1560 -y 340 -defaultsOSRD
-preplace inst v_tc_0 -pg 1 -lvl 3 -x 1110 -y 300 -defaultsOSRD
-preplace inst rst_clk_wiz_0_100M -pg 1 -lvl 1 -x 200 -y 440 -defaultsOSRD
-preplace inst rst_mig_7series_0 -pg 1 -lvl 2 -x 620 -y 740 -defaultsOSRD
-preplace inst rst_clk_pixel -pg 1 -lvl 2 -x 620 -y 300 -defaultsOSRD
-preplace inst axis_subset_converter_0 -pg 1 -lvl 3 -x 1110 -y 110 -defaultsOSRD
-preplace inst ilvector_logic_0 -pg 1 -lvl 2 -x 620 -y 880 -defaultsOSRD
-preplace inst axi_interconnect_0 -pg 1 -lvl 3 -x 1110 -y 760 -defaultsOSRD
-preplace netloc clk_wiz_0_clk_out1 1 0 5 20 330 420 410 870 1060 1340 800 NJ
-preplace netloc clk_wiz_0_clk_out2 1 1 4 440 200 900 200 1310 210 NJ
-preplace netloc clk_wiz_0_clk_out3 1 3 2 1360J 870 1740J
-preplace netloc clk_wiz_0_locked 1 0 5 30 340 410 400 900 410 1330 490 1740J
-preplace netloc fid_0_1 1 0 4 NJ 320 370J 420 NJ 420 1290
-preplace netloc ilvector_logic_0_Res 1 2 1 830J 880n
-preplace netloc mig_7series_0_init_calib_complete 1 4 1 NJ 1050
-preplace netloc mig_7series_0_mmcm_locked 1 1 4 440 980 820J 1240 1380J 880 1730
-preplace netloc mig_7series_0_ui_addn_clk_0 1 2 3 930 1260 1390 890 1710
-preplace netloc mig_7series_0_ui_clk 1 1 4 440 640 860 1040 1320J 780 1720
-preplace netloc mig_7series_0_ui_clk_sync_rst 1 0 2 10 310 430
-preplace netloc reset_1 1 0 4 NJ 880 390 990 810J 1250 1400J
-preplace netloc rst_clk_pixel_peripheral_aresetn 1 2 2 910 400 1300J
-preplace netloc rst_clk_wiz_0_100M_interconnect_aresetn 1 1 2 N 460 880
+preplace port ddr3_sdram -pg 1 -lvl 6 -x 1780 -y 1060 -defaultsOSRD
+preplace port vid_io_out_0 -pg 1 -lvl 6 -x 1780 -y 270 -defaultsOSRD
+preplace port S00_AXI_0 -pg 1 -lvl 0 -x 0 -y 630 -defaultsOSRD
+preplace port S_AXI_LITE_0 -pg 1 -lvl 0 -x 0 -y 60 -defaultsOSRD
+preplace port port-id_sys_clk_i -pg 1 -lvl 0 -x 0 -y 1130 -defaultsOSRD
+preplace port port-id_init_calib_complete_0 -pg 1 -lvl 6 -x 1780 -y 1160 -defaultsOSRD
+preplace port port-id_mmcm_locked_0 -pg 1 -lvl 6 -x 1780 -y 1090 -defaultsOSRD
+preplace port port-id_GND -pg 1 -lvl 0 -x 0 -y 410 -defaultsOSRD
+preplace port port-id_clk_100M -pg 1 -lvl 6 -x 1780 -y 700 -defaultsOSRD
+preplace port port-id_clk_pixel -pg 1 -lvl 6 -x 1780 -y 730 -defaultsOSRD
+preplace port port-id_clk_serial -pg 1 -lvl 6 -x 1780 -y 760 -defaultsOSRD
+preplace port port-id_clk_locked -pg 1 -lvl 6 -x 1780 -y 790 -defaultsOSRD
+preplace port port-id_mig_reset -pg 1 -lvl 0 -x 0 -y 1000 -defaultsOSRD
+preplace port port-id_HIGH -pg 1 -lvl 0 -x 0 -y 20 -defaultsOSRD
+preplace port port-id_aresetn -pg 1 -lvl 0 -x 0 -y 440 -defaultsOSRD
+preplace inst mig_7series_0 -pg 1 -lvl 4 -x 1370 -y 1110 -defaultsOSRD
+preplace inst axi_vdma_0 -pg 1 -lvl 2 -x 610 -y 100 -defaultsOSRD
+preplace inst clk_wiz_0 -pg 1 -lvl 4 -x 1370 -y 760 -defaultsOSRD
+preplace inst v_axi4s_vid_out_0 -pg 1 -lvl 4 -x 1370 -y 340 -defaultsOSRD
+preplace inst v_tc_0 -pg 1 -lvl 3 -x 1020 -y 300 -defaultsOSRD
+preplace inst rst_clk_wiz_0_100M -pg 1 -lvl 1 -x 210 -y 510 -defaultsOSRD
+preplace inst rst_mig_7series_0 -pg 1 -lvl 2 -x 610 -y 530 -defaultsOSRD
+preplace inst rst_clk_pixel -pg 1 -lvl 2 -x 610 -y 300 -defaultsOSRD
+preplace inst axis_subset_converter_0 -pg 1 -lvl 3 -x 1020 -y 110 -defaultsOSRD
+preplace inst ilvector_logic_0 -pg 1 -lvl 3 -x 1020 -y 930 -defaultsOSRD
+preplace inst axi_interconnect_0 -pg 1 -lvl 3 -x 1020 -y 720 -defaultsOSRD
+preplace netloc clk_wiz_0_clk_out1 1 0 6 40 380 410 410 830 870 1180J 660 1530 700 NJ
+preplace netloc clk_wiz_0_clk_out2 1 1 5 430 200 850 190 1200 480 1540 730 NJ
+preplace netloc clk_wiz_0_clk_out3 1 4 2 N 720 1690J
+preplace netloc clk_wiz_0_clkfb_out 1 3 2 1210 860 1530
+preplace netloc clk_wiz_0_locked 1 0 6 30 400 430 400 850 410 1210 490 1550 790 NJ
+preplace netloc fid_0_1 1 0 4 NJ 410 390J 420 NJ 420 1170
+preplace netloc ilvector_logic_0_Res 1 3 1 1190J 740n
+preplace netloc mig_7series_0_init_calib_complete 1 4 2 NJ 1160 NJ
+preplace netloc mig_7series_0_mmcm_locked 1 1 5 440 990 NJ 990 NJ 990 1550 1090 NJ
+preplace netloc mig_7series_0_ui_addn_clk_0 1 3 2 1200 1220 1530
+preplace netloc mig_7series_0_ui_clk 1 1 4 430 640 810 1000 NJ 1000 1530
+preplace netloc mig_7series_0_ui_clk_sync_rst 1 0 2 20 390 420
+preplace netloc reset_1 1 0 4 NJ 1000 NJ 1000 800 1090 NJ
+preplace netloc rst_clk_pixel_peripheral_aresetn 1 2 2 860 400 1180J
+preplace netloc rst_clk_wiz_0_100M_interconnect_aresetn 1 1 2 390 430 820
 preplace netloc rst_clk_wiz_0_100M_peripheral_aresetn 1 1 1 380 140n
-preplace netloc rst_mig_7series_0_peripheral_aresetn 1 2 2 850 1050 1370
-preplace netloc sys_clk_i_1 1 0 4 NJ 1020 NJ 1020 800J 1280 1410J
-preplace netloc v_axi4s_vid_out_0_sof_state_out 1 2 3 930 470 NJ 470 1720
-preplace netloc v_axi4s_vid_out_0_vtg_ce 1 2 3 920 480 NJ 480 1730
-preplace netloc S00_AXI_0_1 1 0 3 NJ 540 NJ 540 NJ
+preplace netloc rst_mig_7series_0_peripheral_aresetn 1 2 2 790 1150 NJ
+preplace netloc sys_clk_i_1 1 0 4 NJ 1130 NJ 1130 NJ 1130 NJ
+preplace netloc v_axi4s_vid_out_0_sof_state_out 1 2 3 870 470 NJ 470 1530
+preplace netloc v_axi4s_vid_out_0_vtg_ce 1 2 3 870 200 NJ 200 1530
+preplace netloc S00_AXI_0_1 1 0 3 NJ 630 NJ 630 NJ
 preplace netloc S_AXI_LITE_0_1 1 0 2 NJ 60 NJ
-preplace netloc axi_interconnect_0_M00_AXI 1 3 1 1350 760n
+preplace netloc axi_interconnect_0_M00_AXI 1 3 1 1170 720n
 preplace netloc axi_vdma_0_M_AXIS_MM2S 1 2 1 N 90
-preplace netloc axi_vdma_0_M_AXI_MM2S 1 2 1 890 70n
-preplace netloc axis_subset_converter_0_M_AXIS 1 3 1 1330 110n
-preplace netloc mig_7series_0_DDR3 1 4 1 NJ 950
-preplace netloc v_axi4s_vid_out_0_vid_io_out 1 4 1 NJ 270
+preplace netloc axi_vdma_0_M_AXI_MM2S 1 2 1 840 70n
+preplace netloc axis_subset_converter_0_M_AXIS 1 3 1 1210 110n
+preplace netloc mig_7series_0_DDR3 1 4 2 NJ 1060 NJ
+preplace netloc v_axi4s_vid_out_0_vid_io_out 1 4 2 NJ 270 NJ
 preplace netloc v_tc_0_vtiming_out 1 3 1 N 290
-levelinfo -pg 1 -10 200 620 1110 1560 1760
-pagesize -pg 1 -db -bbox -sgen -150 0 1950 2150
+levelinfo -pg 1 0 210 610 1020 1370 1670 1780
+pagesize -pg 1 -db -bbox -sgen -140 0 1980 1230
 "
 }
 0

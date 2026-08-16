@@ -36,6 +36,7 @@ module Mem_ctrl(
 
     //data
     input logic [31:0] data_addr,
+    input logic [31:0] data_addr_dirty,
     input logic [511:0] data_data_in, //data coming in from cache
     output logic [511:0] data_data_out, //correct data going into cache
     input logic data_rd_miss,
@@ -229,7 +230,7 @@ module Mem_ctrl(
                 end
 
                 write_data_reg = data_data_in;
-                write_addr_reg = (video_data) ? {data_addr[31:4], 4'b0} : {data_addr[31:6], 6'b0};
+                write_addr_reg = (video_data) ? {data_addr[31:4], 4'b0} : {data_addr_dirty[31:6], 6'b0};
                 read_addr_reg = '0;
 
                 data_read_done = LOW;
@@ -252,7 +253,7 @@ module Mem_ctrl(
                 end
 
                 write_data_reg = data_data_in;
-                write_addr_reg = (video_data) ? {data_addr[31:4], 4'b0} : {data_addr[31:6], 6'b0};
+                write_addr_reg = (video_data) ? {data_addr[31:4], 4'b0} : {data_addr_dirty[31:6], 6'b0};
                 read_addr_reg = {ins_addr[31:6], 6'b0};
                 
                 data_read_done = LOW;
@@ -269,7 +270,7 @@ module Mem_ctrl(
                 read_start = (write_done) ? HIGH : LOW;
 
                 write_data_reg = data_data_in;
-                write_addr_reg = {data_addr[31:6], 6'b0};
+                write_addr_reg = {data_addr_dirty[31:6], 6'b0};
                 read_addr_reg = '0;
 
                 data_read_done = LOW;
@@ -286,7 +287,7 @@ module Mem_ctrl(
                 read_start = (write_done & read_done) ? HIGH : LOW;
 
                 write_data_reg = data_data_in;
-                write_addr_reg = {data_addr[31:6], 6'b0};
+                write_addr_reg = {data_addr_dirty[31:6], 6'b0};
                 read_addr_reg = {ins_addr[31:6], 6'b0};
 
                 data_read_done = LOW;

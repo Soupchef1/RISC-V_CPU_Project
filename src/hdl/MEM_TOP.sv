@@ -42,6 +42,7 @@ module MEM_TOP(
     output logic ddr_wr_miss,
     output logic [511:0] ddr_data_out,
     output logic [31:0] ddr_addr,
+    output logic [31:0] ddr_addr_dirty,
     output logic ddr_dirty,
     output logic is_video_data,
 
@@ -117,6 +118,7 @@ module MEM_TOP(
         .ddr_wr_miss(ddr_wr_miss),
         .ddr_data_out(ddr_data_out),
         .ddr_addr(ddr_addr),
+        .ddr_addr_dirty(ddr_addr_dirty),
         .ddr_dirty(ddr_dirty),
         .ddr_is_video_data(is_video_data),
         .stall(stall),

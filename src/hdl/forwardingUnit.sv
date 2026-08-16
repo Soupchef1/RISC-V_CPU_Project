@@ -80,7 +80,7 @@ module forwardingUnit(
         input logic clk, nrst,
         input logic [4:0] rs1_addr, rs2_addr,
         input logic [31:0] rs1_data, rs2_data,
-        input logic [4:0] MA_rd, WB_rd,
+        (* max_fanout = 20 *) input logic [4:0] MA_rd, WB_rd,
         input logic [31:0] WB_data,
         input logic MA_write_back, WB_write_back, 
         input logic stall,
@@ -89,9 +89,9 @@ module forwardingUnit(
         output logic FU_stall
     );
 
-    (* max_fanout = 20*) logic [31:0] WB2_data; //WB2 represents pipeline reg after WB stage. Needed in case both WB and MA have values that need to be forwarded
-    (* max_fanout = 20, dont_touch = "true" *) logic [4:0] WB2_rd;
-    (* max_fanout = 20*) logic WB2_write_back;
+    (* max_fanout = 20 *) logic [31:0] WB2_data; //WB2 represents pipeline reg after WB stage. Needed in case both WB and MA have values that need to be forwarded
+    (* max_fanout = 20 *) logic [4:0] WB2_rd;
+    (* max_fanout = 20 *) logic WB2_write_back;
 
     assign FU_stall = (MA_rd != 5'b0) & ((rs2_addr == MA_rd) || (rs1_addr == MA_rd)) & MA_write_back;
 

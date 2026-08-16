@@ -2,7 +2,7 @@
 //Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-//Date        : Sat Aug 15 02:38:56 2026
+//Date        : Sun Aug 16 02:29:05 2026
 //Host        : DESKTOP-RCMS6DA running 64-bit major release  (build 9200)
 //Command     : generate_target memory_wrapper.bd
 //Design      : memory_wrapper
@@ -104,10 +104,10 @@ module memory_wrapper
   input [0:0]S00_AXI_0_arlock;
   input [2:0]S00_AXI_0_arprot;
   input [3:0]S00_AXI_0_arqos;
-  output S00_AXI_0_arready;
+  output [0:0]S00_AXI_0_arready;
   input [3:0]S00_AXI_0_arregion;
   input [2:0]S00_AXI_0_arsize;
-  input S00_AXI_0_arvalid;
+  input [0:0]S00_AXI_0_arvalid;
   input [31:0]S00_AXI_0_awaddr;
   input [1:0]S00_AXI_0_awburst;
   input [3:0]S00_AXI_0_awcache;
@@ -115,23 +115,23 @@ module memory_wrapper
   input [0:0]S00_AXI_0_awlock;
   input [2:0]S00_AXI_0_awprot;
   input [3:0]S00_AXI_0_awqos;
-  output S00_AXI_0_awready;
+  output [0:0]S00_AXI_0_awready;
   input [3:0]S00_AXI_0_awregion;
   input [2:0]S00_AXI_0_awsize;
-  input S00_AXI_0_awvalid;
-  input S00_AXI_0_bready;
+  input [0:0]S00_AXI_0_awvalid;
+  input [0:0]S00_AXI_0_bready;
   output [1:0]S00_AXI_0_bresp;
-  output S00_AXI_0_bvalid;
+  output [0:0]S00_AXI_0_bvalid;
   output [127:0]S00_AXI_0_rdata;
-  output S00_AXI_0_rlast;
-  input S00_AXI_0_rready;
+  output [0:0]S00_AXI_0_rlast;
+  input [0:0]S00_AXI_0_rready;
   output [1:0]S00_AXI_0_rresp;
-  output S00_AXI_0_rvalid;
+  output [0:0]S00_AXI_0_rvalid;
   input [127:0]S00_AXI_0_wdata;
-  input S00_AXI_0_wlast;
-  output S00_AXI_0_wready;
+  input [0:0]S00_AXI_0_wlast;
+  output [0:0]S00_AXI_0_wready;
   input [15:0]S00_AXI_0_wstrb;
-  input S00_AXI_0_wvalid;
+  input [0:0]S00_AXI_0_wvalid;
   input [8:0]S_AXI_LITE_0_araddr;
   output S_AXI_LITE_0_arready;
   input S_AXI_LITE_0_arvalid;
@@ -189,10 +189,10 @@ module memory_wrapper
   wire [0:0]S00_AXI_0_arlock;
   wire [2:0]S00_AXI_0_arprot;
   wire [3:0]S00_AXI_0_arqos;
-  wire S00_AXI_0_arready;
+  wire [0:0]S00_AXI_0_arready;
   wire [3:0]S00_AXI_0_arregion;
   wire [2:0]S00_AXI_0_arsize;
-  wire S00_AXI_0_arvalid;
+  wire [0:0]S00_AXI_0_arvalid;
   wire [31:0]S00_AXI_0_awaddr;
   wire [1:0]S00_AXI_0_awburst;
   wire [3:0]S00_AXI_0_awcache;
@@ -200,23 +200,23 @@ module memory_wrapper
   wire [0:0]S00_AXI_0_awlock;
   wire [2:0]S00_AXI_0_awprot;
   wire [3:0]S00_AXI_0_awqos;
-  wire S00_AXI_0_awready;
+  wire [0:0]S00_AXI_0_awready;
   wire [3:0]S00_AXI_0_awregion;
   wire [2:0]S00_AXI_0_awsize;
-  wire S00_AXI_0_awvalid;
-  wire S00_AXI_0_bready;
+  wire [0:0]S00_AXI_0_awvalid;
+  wire [0:0]S00_AXI_0_bready;
   wire [1:0]S00_AXI_0_bresp;
-  wire S00_AXI_0_bvalid;
+  wire [0:0]S00_AXI_0_bvalid;
   wire [127:0]S00_AXI_0_rdata;
-  wire S00_AXI_0_rlast;
-  wire S00_AXI_0_rready;
+  wire [0:0]S00_AXI_0_rlast;
+  wire [0:0]S00_AXI_0_rready;
   wire [1:0]S00_AXI_0_rresp;
-  wire S00_AXI_0_rvalid;
+  wire [0:0]S00_AXI_0_rvalid;
   wire [127:0]S00_AXI_0_wdata;
-  wire S00_AXI_0_wlast;
-  wire S00_AXI_0_wready;
+  wire [0:0]S00_AXI_0_wlast;
+  wire [0:0]S00_AXI_0_wready;
   wire [15:0]S00_AXI_0_wstrb;
-  wire S00_AXI_0_wvalid;
+  wire [0:0]S00_AXI_0_wvalid;
   wire [8:0]S_AXI_LITE_0_araddr;
   wire S_AXI_LITE_0_arready;
   wire S_AXI_LITE_0_arvalid;

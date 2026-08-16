@@ -42,6 +42,7 @@ module Data_cache(
     output logic ddr_wr_miss,
     output logic [511:0] ddr_data_out,
     output logic [31:0] ddr_addr,
+    output logic [31:0] ddr_addr_dirty,
     output logic ddr_dirty,
     output logic ddr_is_video_data,
 
@@ -347,11 +348,13 @@ module Data_cache(
             state <= STARTUP;
             ddr_data_out <= '0;
             return_data_reg <= '0;
+            ddr_addr_dirty <= '0;
         end 
         else begin
             state <= next_state;
             if(state == IDLE) begin
                 ddr_data_out <= (is_video_data) ? {16{MA_data_in}} : data_out; //register the value to be sent to mem_ctrl 
+                ddr_addr_dirty <= {tag_out, MA_addr[14:0]};
             end 
             else begin
                 ddr_data_out <= ddr_data_out;

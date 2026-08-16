@@ -47,7 +47,7 @@ module main_controller(
 
     // pipelined control signals
     output ctrl_signal_t decode_ctrl,
-    (* max_fanout = 16, dont_touch = "true" *) output ctrl_signal_t ex_ctrl,
+    (* max_fanout = 16 *) output ctrl_signal_t ex_ctrl,
     output ctrl_signal_t mem_ctrl,
     output logic write_back_ctrl //only need write back signal
     );

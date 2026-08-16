@@ -31,6 +31,7 @@ module CPU_top(
         input logic [511:0] ins_data_out, //coming in to cache
 
         output logic [31:0] data_addr,
+        output logic [31:0] data_addr_dirty,
         output logic [511:0] data_data_in, //data coming out from cache
         input logic [511:0] data_data_out, //correct data going into cache *in/out are with respect to dram memory
         output logic data_rd_miss,
@@ -171,7 +172,6 @@ module CPU_top(
         .rs2_addr(rs2_addr),
         .MA_rd(MA_rd),
         .WB_rd(WB_rd),
-        .MA_data(MA_data_out),
         .WB_data(WB_data_out),
         .MA_write_back(MA_ctrl_signals.write_back),
         .WB_write_back(WB_en),
@@ -205,6 +205,7 @@ module CPU_top(
         .ddr_rd_miss(data_rd_miss),
         .ddr_data_out(data_data_in),
         .ddr_addr(data_addr),
+        .ddr_addr_dirty(data_addr_dirty),
         .ddr_dirty(data_dirty),
         .is_video_data(video_data),
         .flush(flush),

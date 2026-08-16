@@ -53,9 +53,9 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// clk_out1__90.01268______0.000______50.0______187.982____135.505
-// clk_out2__74.26046______0.000______50.0______195.455____135.505
-// clk_out3__371.30231______0.000______50.0______143.898____135.505
+// clk_out1__371.30231______0.000______50.0______157.646____225.332
+// clk_out2__74.26046______0.000______50.0______200.157____225.332
+// clk_out3__79.56478______0.000______50.0______198.109____225.332
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
@@ -64,14 +64,16 @@
 
 `timescale 1ps/1ps
 
-(* CORE_GENERATION_INFO = "memory_clk_wiz_0_0,clk_wiz_v6_0_17_0_0,{component_name=memory_clk_wiz_0_0,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,enable_axi=0,feedback_source=FDBK_AUTO,PRIMITIVE=MMCM,num_out_clk=3,clkin1_period=5.008,clkin2_period=10.0,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,feedback_type=SINGLE,CLOCK_MGR_TYPE=NA,manual_override=false}" *)
+(* CORE_GENERATION_INFO = "memory_clk_wiz_0_0,clk_wiz_v6_0_17_0_0,{component_name=memory_clk_wiz_0_0,use_phase_alignment=true,use_min_o_jitter=false,use_max_i_jitter=false,use_dyn_phase_shift=false,use_inclk_switchover=false,use_dyn_reconfig=false,enable_axi=0,feedback_source=FDBK_ONCHIP,PRIMITIVE=MMCM,num_out_clk=3,clkin1_period=5.008,clkin2_period=10.0,use_power_down=false,use_reset=true,use_locked=true,use_inclk_stopped=false,feedback_type=SINGLE,CLOCK_MGR_TYPE=NA,manual_override=false}" *)
 
 module memory_clk_wiz_0_0 
  (
+  input         clkfb_in,
   // Clock out ports
   output        clk_out1,
   output        clk_out2,
   output        clk_out3,
+  output        clkfb_out,
   // Status and control signals
   input         reset,
   output        locked,
@@ -81,10 +83,12 @@ module memory_clk_wiz_0_0
 
   memory_clk_wiz_0_0_clk_wiz inst
   (
+  .clkfb_in(clkfb_in),
   // Clock out ports  
   .clk_out1(clk_out1),
   .clk_out2(clk_out2),
   .clk_out3(clk_out3),
+  .clkfb_out(clkfb_out),
   // Status and control signals               
   .reset(reset), 
   .locked(locked),

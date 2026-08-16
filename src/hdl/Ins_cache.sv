@@ -55,7 +55,8 @@ module Ins_cache(
     logic [511:0] data_in, data_out;
     logic [23:0] tagline_in, tagline_out;
 
-    logic [31:0] stall_instr_reg, next_stall_instr_reg; //register to store correct data for output when stall goes low
+    (* max_fanout = 30 *) logic [31:0] stall_instr_reg; //register to store correct data for output when stall goes low
+    logic [31:0] next_stall_instr_reg; 
     logic [31:0] instr;
 
     // cache miss signals

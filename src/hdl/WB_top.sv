@@ -29,7 +29,7 @@ module WB_top(
     input logic stall,
 
     output logic [31:0] ALU_outmem,
-    (* max_fanout = 20, dont_touch = "true" *) output logic [4:0] rd_mem
+    (* max_fanout = 20 *) output logic [4:0] rd_mem
 
     );
 

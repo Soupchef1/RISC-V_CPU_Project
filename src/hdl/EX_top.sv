@@ -37,7 +37,7 @@ module EX_top (
 
     //ports for data forwarding
     input logic [4:0] rs1_addr, rs2_addr, MA_rd, WB_rd,
-    input logic [31:0] MA_data, WB_data,
+    input logic [31:0] WB_data,
     input logic MA_write_back, WB_write_back,
     output logic FU_stall,
 
@@ -67,7 +67,7 @@ module EX_top (
     assign rs2_data_o = rs2_ALU;
     assign rd_out = rd_int;
     assign PC_D = pc_int;
-    assign memory_addr = rs1_ALU + imm_int;
+    assign memory_addr = {6'b0, rs1_ALU[25:0] + imm_int[25:0]};
 
     //pipeline based signals
     always_ff @(posedge clk, negedge nrst) begin

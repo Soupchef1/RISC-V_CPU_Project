@@ -31,10 +31,12 @@ module CPU_top_tb(
     logic clk, nrst, ins_read_done, data_read_done, data_write_done, start_valid, start_write_en, start_done;
     logic ins_rd_miss, data_rd_miss, data_wr_miss, data_dirty, video_data, buffer_change;
 
-    logic [31:0] ins_addr, data_addr, start_addr, start_data;
+    logic [31:0] ins_addr, data_addr, data_addr_dirty, start_addr, start_data;
     logic [511:0] ins_data_out, data_data_in, data_data_out;
 
     CPU_top DUT(.*);
+
+    logic [511:0] memory[logic[31:0]];
 
     always begin
         clk = ~clk;
@@ -234,29 +236,89 @@ module CPU_top_tb(
         32'h00008067
     };
 
+    logic [7:0] test_bytes [] = '{
+        32'h97, 32'h11, 32'h00, 32'h04, 32'h93, 32'h81, 32'h01, 32'h80, 32'h17, 32'h01, 32'h40, 32'h04, 32'h13, 32'h01, 32'h81, 32'hFF,
+32'h13, 32'h05, 32'h80, 32'h1C, 32'h97, 32'h05, 32'h00, 32'h04, 32'h93, 32'h85, 32'hC5, 32'hFE, 32'h17, 32'h06, 32'h00, 32'h04,
+32'h13, 32'h06, 32'h46, 32'hFE, 32'h63, 32'hDC, 32'hC5, 32'h00, 32'h83, 32'h22, 32'h05, 32'h00, 32'h23, 32'hA0, 32'h55, 32'h00,
+32'h13, 32'h05, 32'h45, 32'h00, 32'h93, 32'h85, 32'h45, 32'h00, 32'h6F, 32'hF0, 32'hDF, 32'hFE, 32'h97, 32'h02, 32'h00, 32'h04,
+32'h93, 32'h82, 32'h42, 32'hFC, 32'h17, 32'h03, 32'h00, 32'h04, 32'h13, 32'h03, 32'hC3, 32'hFB, 32'h63, 32'hD8, 32'h62, 32'h00,
+32'h23, 32'hA0, 32'h02, 32'h00, 32'h93, 32'h82, 32'h42, 32'h00, 32'h6F, 32'hF0, 32'h5F, 32'hFF, 32'hEF, 32'h00, 32'hC0, 32'h10,
+32'h6F, 32'h00, 32'h00, 32'h00, 32'h93, 32'h07, 32'hF0, 32'h4F, 32'h63, 32'hE6, 32'hA7, 32'h02, 32'h93, 32'h07, 32'hF0, 32'h2C,
+32'h63, 32'hE2, 32'hB7, 32'h02, 32'h93, 32'h97, 32'h25, 32'h00, 32'hB3, 32'h87, 32'hB7, 32'h00, 32'h93, 32'h97, 32'h87, 32'h00,
+32'hB3, 32'h87, 32'hA7, 32'h00, 32'h93, 32'h97, 32'h27, 32'h00, 32'h37, 32'h07, 32'h80, 32'h0F, 32'hB3, 32'h07, 32'hF7, 32'h00,
+32'h23, 32'hA0, 32'hC7, 32'h00, 32'h67, 32'h80, 32'h00, 32'h00, 32'h37, 32'h17, 32'h80, 32'h0F, 32'h37, 32'hF8, 32'hFF, 32'hFF,
+32'hB7, 32'h15, 32'h00, 32'h00, 32'h37, 32'hA6, 32'h81, 32'h0F, 32'h93, 32'h06, 32'h05, 32'h00, 32'h13, 32'h07, 32'h07, 32'h40,
+32'h13, 32'h08, 32'h08, 32'hC0, 32'h93, 32'h85, 32'h05, 32'h40, 32'h13, 32'h06, 32'h06, 32'h40, 32'hB3, 32'h07, 32'h07, 32'h01,
+32'h23, 32'hA0, 32'hD7, 32'h00, 32'h93, 32'h87, 32'h47, 32'h00, 32'hE3, 32'h9C, 32'hE7, 32'hFE, 32'h33, 32'h87, 32'hB7, 32'h00,
+32'hE3, 32'h16, 32'hC7, 32'hFE, 32'h67, 32'h80, 32'h00, 32'h00, 32'h33, 32'h8F, 32'hD5, 32'h00, 32'h63, 32'h52, 32'hD0, 32'h08,
+32'h93, 32'h07, 32'hF0, 32'h2C, 32'h63, 32'hCE, 32'hB7, 32'h06, 32'h13, 32'h9E, 32'h25, 32'h00, 32'h33, 32'h0E, 32'hBE, 32'h00,
+32'h93, 32'h1E, 32'h25, 32'h00, 32'hB7, 32'h07, 32'h80, 32'h0F, 32'h33, 32'h08, 32'hC5, 32'h00, 32'h13, 32'h1E, 32'h8E, 32'h00,
+32'h93, 32'h08, 32'hF0, 32'h4F, 32'hB3, 32'h8E, 32'hFE, 32'h00, 32'h13, 32'h03, 32'h00, 32'h50, 32'h93, 32'h0F, 32'h00, 32'h2D,
+32'h63, 32'h50, 32'hC0, 32'h04, 32'h93, 32'h16, 32'h2E, 32'h00, 32'hB3, 32'h86, 32'hDE, 32'h00, 32'h93, 32'h07, 32'h05, 32'h00,
+32'h63, 32'hC8, 32'hA8, 32'h02, 32'h63, 32'hFA, 32'hF8, 32'h00, 32'h93, 32'h87, 32'h17, 32'h00, 32'h63, 32'hD2, 32'h07, 32'h03,
+32'h93, 32'h86, 32'h46, 32'h00, 32'hE3, 32'hEA, 32'hF8, 32'hFE, 32'h93, 32'h87, 32'h17, 32'h00, 32'h63, 32'hC4, 32'h05, 32'h00,
+32'h23, 32'hA0, 32'hE6, 32'h00, 32'h63, 32'hD6, 32'h07, 32'h01, 32'h93, 32'h86, 32'h46, 32'h00, 32'hE3, 32'h96, 32'h67, 32'hFE,
+32'h93, 32'h85, 32'h15, 32'h00, 32'h63, 32'hD8, 32'hE5, 32'h01, 32'h13, 32'h0E, 32'h0E, 32'h50, 32'hE3, 32'h9A, 32'hF5, 32'hFB,
+32'h67, 32'h80, 32'h00, 32'h00, 32'h67, 32'h80, 32'h00, 32'h00, 32'h13, 32'h01, 32'h01, 32'hFF, 32'h13, 32'h05, 32'h00, 32'h00,
+32'h23, 32'h26, 32'h11, 32'h00, 32'hEF, 32'hF0, 32'h5F, 32'hF2, 32'h37, 32'h07, 32'hFF, 32'h00, 32'h93, 32'h06, 32'h00, 32'h05,
+32'h13, 32'h06, 32'h40, 32'h1F, 32'h93, 32'h05, 32'hC0, 32'h12, 32'h13, 32'h05, 32'h00, 32'h14, 32'hEF, 32'hF0, 32'hDF, 32'hF4,
+32'h13, 32'h07, 32'hF0, 32'h0F, 32'h93, 32'h06, 32'h00, 32'h05, 32'h13, 32'h06, 32'h40, 32'h1F, 32'h93, 32'h05, 32'h80, 32'h0C,
+32'h13, 32'h05, 32'h00, 32'h28, 32'hEF, 32'hF0, 32'h5F, 32'hF3, 32'h37, 32'h07, 32'h01, 32'h00, 32'h13, 32'h07, 32'h07, 32'hF0,
+32'h93, 32'h06, 32'h00, 32'h05, 32'h13, 32'h06, 32'h40, 32'h1F, 32'h93, 32'h05, 32'h40, 32'h06, 32'h13, 32'h05, 32'h00, 32'h3C,
+32'hEF, 32'hF0, 32'h9F, 32'hF1, 32'h6F, 32'h00, 32'h00, 32'h00
+};
+
     task load_program(
 
     ); 
-        for(int i = 0; i < $size(test_program); i = i + 1) begin
-            load_data(.data(test_program[i]), .addr(32'(i * 4)));
+        // for(int i = 0; i < $size(test_program); i = i + 1) begin
+        //     load_data(.data(test_program[i]), .addr(32'(i * 4)));
+        // end
+        logic [32:0] word_val;
+        logic [7:0] b0, b1, b2, b3;
+        int i;
+        for (i = 0; i < $size(test_bytes); i = i + 4) begin
+            b0 = test_bytes[i];
+            b1 = (i + 1 < $size(test_bytes)) ? test_bytes[i+1] : 8'h00;
+            b2 = (i + 2 < $size(test_bytes)) ? test_bytes[i+2] : 8'h00;
+            b3 = (i + 3 < $size(test_bytes)) ? test_bytes[i+3] : 8'h00;
+
+            // Little-endian assembly: {b3, b2, b1, b0}
+            word_val = {b3, b2, b1, b0};
+
+            load_data(.data(word_val), .addr(32'(i)));
+        end
+
+        repeat(16) begin
+            load_data(.data(32'h0000006F), .addr(32'(i)));
+            i = i+4;
         end
     endtask
 
     task cache_respond(
 
     );
+        @(negedge clk);
         if(video_data) begin
-            $display("writing pixel data %h to addr %h", data_data_in[31:0], data_addr);
+            $display("[%0t ns] writing pixel data %h to addr %h",$time ,data_data_in[31:0], data_addr);
             repeat(2) @(posedge clk);
             data_write_done = HIGH;
             @(posedge clk);
             data_write_done = LOW;
         end
 
-        if(data_wr_miss) begin
-            
-            repeat(2) @(posedge clk);
-            data_data_out = 32'h5555_5555;
+        if(data_wr_miss | data_rd_miss) begin
+            if(data_dirty) begin
+                memory[data_addr_dirty] = data_data_in;
+                $display("[%0t ] Writing to address %0h.", $time, data_addr_dirty);
+            end
+            @(posedge clk);
+            if (!memory.exists(data_addr)) begin
+                $display("[%0t ] Attempted to read unwritten empty address %0h.", $time, data_addr);
+                data_data_out = '0;
+            end else begin
+                data_data_out = memory[data_addr];
+            end
             data_write_done = HIGH;
             @(posedge clk);
             data_write_done = LOW;
@@ -271,21 +333,19 @@ module CPU_top_tb(
         if(ins_rd_miss) begin
             $display("instruction rd miss at %t", $time);
             repeat(2) @(posedge clk);
-            ins_data_out = 32'h9999_9999;
+            ins_data_out = 32'h0000_0000;
             ins_read_done = HIGH;
-            repeat(10) @(posedge clk);
-            $finish;
-        end
-
-        if(data_rd_miss) begin
-            repeat(2) @(posedge clk);
-            data_data_out = 32'h5555_5555;
-            repeat(2) @(posedge clk);
-            data_read_done = HIGH;
             @(posedge clk);
-            data_read_done = LOW;
         end
 
+        // if(data_rd_miss) begin
+        //     repeat(2) @(posedge clk);
+        //     data_data_out = 32'h5555_5555;
+        //     repeat(2) @(posedge clk);
+        //     data_read_done = HIGH;
+        //     @(posedge clk);
+        //     data_read_done = LOW;
+        // end
     endtask
 
     initial begin
@@ -312,9 +372,9 @@ module CPU_top_tb(
 
         start_done = HIGH;
 
-        repeat(50000) begin
+        repeat(100000000) begin
             @(posedge clk);
-            cache_respond;
+            cache_respond();
         end
 
         repeat(10) @(posedge clk);
