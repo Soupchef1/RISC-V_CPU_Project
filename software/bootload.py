@@ -32,7 +32,7 @@ def main():
     # Configuration
     port = 'COM5'
     baudrate = 2000000  # Matches Verilog receiver configuration[cite: 2]
-    bin_file_path = 'main_test.bin' # Replace with your actual .bin file name
+    bin_file_path = 'main.bin' # Replace with your actual .bin file name
     
     # Starting base address in memory (e.g., 0x000000)
     base_address = 0x000000  
@@ -71,7 +71,8 @@ def main():
             data_val = int.from_bytes(chunk, byteorder='little')
 
             print(f"instr {current_address * 4}: {data_val:08X}")
-            
+            # print(f"32'h{data_val:08X},")
+
             # Create packet
             packet = create_packet(current_address, data_val)
             
@@ -94,6 +95,13 @@ def main():
         current_address += 1
 
     print(f"Total packets sent: {packets_sent}")
+
+    # Send 5 no ops
+    for i in range(5):
+        packet = create_packet(current_address, 0x00000000)
+        ser.write(packet)
+        packets_sent += 1
+        current_address += 1
 
     # --- End the Bit Stream ---
     # Send the finish byte expected by the Verilog state machine[cite: 1]

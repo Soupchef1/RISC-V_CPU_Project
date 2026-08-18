@@ -6,7 +6,8 @@ OBJDUMP = $(RV32)objdump
 AS = $(RV32)as
 
 OBJS = crt0.o main.o syscalls.o
-EXEC = main_test
+EXEC = circle
+
 ARCH_FLAGS = -march=rv32i -mabi=ilp32
 CFLAGS = $(ARCH_FLAGS) -O2 -g -Wall -Wextra -ffreestanding -nostdlib -mstrict-align -I.
 LDFLAGS = $(ARCH_FLAGS) -T linker.ld -nostdlib -Wl,--gc-sections -lgcc
@@ -35,7 +36,10 @@ size: $(EXEC).elf
 boot:
 	./bootload.py
 
+disassemble: $(EXEC).elf
+	$(OBJDUMP) -d $< > $(EXEC).txt
+
 clean:
-	-del /f /q *.o $(EXEC).elf $(EXEC).bin *.hex 2>nul
+	-del /f /q *.o $(EXEC).elf $(EXEC).bin $(EXEC).txt *.hex *.vh  2>nul
 
 	
