@@ -32,7 +32,7 @@ def main():
     # Configuration
     port = 'COM5'
     baudrate = 2000000  # Matches Verilog receiver configuration[cite: 2]
-    bin_file_path = 'main.bin' # Replace with your actual .bin file name
+    bin_file_path = 'circle.bin' # Replace with your actual .bin file name
     
     # Starting base address in memory (e.g., 0x000000)
     base_address = 0x000000  
