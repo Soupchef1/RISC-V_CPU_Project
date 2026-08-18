@@ -61,6 +61,7 @@ module IF_top(
         .pc_d(PC_Ex),
         .startup_done(start_done),
         .MUX_en(ID_MUX_en),
+        .start_addr({10'b0, start_addr[15:6], 2'b0}),
         .*
     );
 

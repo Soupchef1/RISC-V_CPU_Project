@@ -119,9 +119,9 @@ module forwardingUnit(
 
     always_ff @(posedge clk, negedge nrst) begin
         if(!nrst) begin
-            WB2_data = '0;
-            WB2_rd = '0;
-            WB2_write_back = '0;
+            WB2_data <= '0;
+            WB2_rd <= '0;
+            WB2_write_back <= '0;
         end else begin
             if(!stall) begin
                 WB2_data <= WB_data;

@@ -23,11 +23,14 @@
 module Branch_mem(
 
     input logic clk, nrst, flush, stall,
-    input logic startup_done,
+    
     
     input logic [31:0] pc_in, //pc from IF stage
     input logic [31:0] pc_d, //pc of branch instruction in execute stage
     input logic [31:0] target, //from ex_stage
+
+    input logic [31:0] start_addr,
+    input logic startup_done,
 
     input logic [4:0] MUX_en, //straight from decode stage
     input logic pc_switch, //from execute stage
@@ -56,7 +59,7 @@ module Branch_mem(
     assign enb = HIGH;
     assign wea = '1;
     assign addra = pc_d[11:2];
-    assign addrb = pc_in[11:2];
+    // assign addrb = pc_in[11:2]; //drive combinationally
     assign branch_addr = doutb[31:0];
     assign bht = (doutb[34] & tag_match) ? doutb[33:32] : 2'b00;  //just checks valid bit also so we nevr take if valid bit is zero
     assign dina = target_data;
@@ -68,6 +71,7 @@ module Branch_mem(
     logic branch_en;
     logic branch_en_ex;
 
+    logic [9:0] stall_addrb;
 
     assign branch_en = MUX_en[3];
     assign branch_data = bht;
@@ -90,38 +94,49 @@ module Branch_mem(
     
     // pipeline 
     always_ff @(posedge clk, negedge nrst) begin
-        case(state) 
+        if(!nrst) begin
+            pc_tag <= '0;
+            branch_data_ex <= '0;
+            tag_match_ex <= '0;
+            branch_en_ex <= '0;
+            stall_addrb <= '0;
+        end else begin
+            case(state) 
 
-            STARTUP: begin
-                pc_tag <= '0;
-                branch_data_ex <= '0;
-                tag_match_ex <= '0;
-                branch_en_ex <= '0;
-            end
-
-            IDLE: begin
-                if(!nrst | flush) begin
+                STARTUP: begin
                     pc_tag <= '0;
                     branch_data_ex <= '0;
                     tag_match_ex <= '0;
                     branch_en_ex <= '0;
+                    stall_addrb <= '0;
                 end
-                else if (stall) begin
-                    pc_tag <= pc_tag;
-                    branch_data_ex <= branch_data_ex;
-                    tag_match_ex <= tag_match_ex;
-                    branch_en_ex <= branch_en_ex;
+
+                IDLE: begin
+                    if(!nrst | flush) begin
+                        pc_tag <= '0;
+                        branch_data_ex <= '0;
+                        tag_match_ex <= '0;
+                        branch_en_ex <= '0;
+                    end
+                    else if (stall) begin
+                        pc_tag <= pc_tag;
+                        branch_data_ex <= branch_data_ex;
+                        tag_match_ex <= tag_match_ex;
+                        branch_en_ex <= branch_en_ex;
+                    end
+                    else begin 
+                        pc_tag <= pc_in[31:12];
+                        //piplined cache line for a certain intruction so we can write back
+                        branch_data_ex <= branch_data;
+                        // pipelined checks
+                        tag_match_ex <= tag_match;
+                        branch_en_ex <= branch_en;
+                    end
+
+                    if(!stall) stall_addrb <= addrb;
                 end
-                else begin 
-                    pc_tag <= pc_in[31:12];
-                    //piplined cache line for a certain intruction so we can write back
-                    branch_data_ex <= branch_data;
-                    // pipelined checks
-                    tag_match_ex <= tag_match;
-                    branch_en_ex <= branch_en;
-                end
-            end
-        endcase
+            endcase
+        end
     end
 
 //write logic
@@ -130,9 +145,17 @@ module Branch_mem(
             STARTUP: begin
                 ena = HIGH;
                 target_data = {22'b0, 2'b01, 32'b0}; // On startup write all bht to 01 (assume dont take with low confidence). valid bit 34 is low
+                addrb = start_addr[11:2];
             end
 
             IDLE: begin
+                if(stall) begin
+                    addrb = stall_addrb;
+                end else begin
+                    addrb = (bht[1]) ? branch_addr[11:2] : pc_in[11:2];
+                end
+                
+                
                 if(!tag_match_ex & branch_en_ex & pc_switch) begin //new branch instruction w/ jump
                     //write with bht as 10 because of take
                     ena = HIGH;

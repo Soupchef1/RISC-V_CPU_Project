@@ -77,9 +77,9 @@ module startup_ctrl(
                 start_done = LOW;
                 start_finish = LOW;
                 start_valid = LOW;
-                start_write_en = LOW;
+                start_write_en = HIGH;
 
-                addr = {17'b0, addr_cnt[8:0], 6'b0};
+                addr = {16'b0, addr_cnt, 6'b0};
                 data = '0;
             end
 

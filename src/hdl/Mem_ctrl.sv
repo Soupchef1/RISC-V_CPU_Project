@@ -21,8 +21,6 @@
 
 //have to deal with: BRAM data, BRAM addr, current cache tag, new data in, write en, read en
 
-//TODO: fix video data writing. Should only write 1 word.
-
 module Mem_ctrl(
     
     //the ogs

@@ -163,7 +163,7 @@ module top(
     assign led[0] = boot_start;
     assign led[1] = pkt_failed;
     assign led[2] = start_finish;
-    assign led[3] = ins_rd_miss | data_rd_miss | data_wr_miss;
+    assign led[3] = ins_rd_miss | data_rd_miss | data_wr_miss | video_data;
 
     memory_sv your_instance_name (
         .S00_AXI_0(S00_AXI_0.slave), // vivado_aximm_v1_0.slave S00_AXI_0

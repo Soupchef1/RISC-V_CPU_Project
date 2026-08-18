@@ -71,7 +71,7 @@ module Ins_cache(
 
     logic rd_miss;
     
-    assign ddr_rd_miss = (state == IDLE) && (rd_miss | !tagline_out[18]);
+    assign ddr_rd_miss = (state == IDLE | state == MISS) && (rd_miss | !tagline_out[18]);
 
     assign dina = {tagline_in, data_in};
     assign data_out = douta[511:0];

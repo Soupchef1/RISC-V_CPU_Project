@@ -99,7 +99,7 @@ module Data_cache(
     assign valid = tagline_out[18]; //valid bit
 
     //cache miss logic
-    assign cache_miss = (state == IDLE) && ((tag_out != MA_addr[31:15]) | !valid);
+    assign cache_miss = (state == IDLE | state == MISS) && ((tag_out != MA_addr[31:15]) | !valid);
     assign rd_miss = cache_miss & MA_read_en;
     assign wr_miss = cache_miss & MA_write_en;
 
@@ -210,9 +210,9 @@ module Data_cache(
         ddr_data_in_fixed = ddr_data_in;
         ddr_tagline = {5'b0, 1'b1, MA_write_en, MA_addr[31:15]};
         ddr_wea = '1;
-        ddr_addr = MA_addr; //TODO: need to align with 512, aka concatenate MA_addr {MA_addr[31:6], 6'b0}. Actually, make this change in mem_ctrl so video data can be written properly
+        ddr_addr = MA_addr;
 
-        if(EX_write_en & (EX_addr[27:23] != 5'b11111) & !flush) begin //TODO: make sure it doesn't write on video data or flush
+        if(EX_write_en & (EX_addr[27:23] != 5'b11111) & !flush) begin
             case(EX_mem_bytes)
                 2'b00: begin 
                     regular_wea = '0;
@@ -255,11 +255,11 @@ module Data_cache(
                 end
                 
                 2'b10: begin
-                    ddr_data_in_fixed[{MA_addr[5:1], 1'b0} * 16 +: 16] = MA_data_in[15:0];
+                    ddr_data_in_fixed[MA_addr[5:1] * 16 +: 16] = MA_data_in[15:0];
                 end
 
                 2'b11: begin
-                    ddr_data_in_fixed[{MA_addr[5:2], 2'b00} * 32 +: 32] = MA_data_in;
+                    ddr_data_in_fixed[MA_addr[5:2] * 32 +: 32] = MA_data_in;
                 end
 
                 default: begin
@@ -301,7 +301,7 @@ module Data_cache(
                     stall_out = LOW;
                 end
 
-                next_return_data_reg = MA_data_out;
+                next_return_data_reg = data_out[MA_addr[5:2] * 32 +: 32];
             end
 
             MISS: begin
@@ -313,7 +313,7 @@ module Data_cache(
                 end
 
                 stall_out = HIGH;
-                next_return_data_reg = MA_data_out;
+                next_return_data_reg = ddr_data_in_fixed[MA_addr[5:2] * 32 +: 32];
             end
 
             VIDEO: begin

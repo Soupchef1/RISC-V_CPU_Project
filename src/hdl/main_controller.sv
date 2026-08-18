@@ -33,6 +33,7 @@ module main_controller(
     input logic[6:0] func7,
 
     input logic predicted_jump_fetch,
+    input logic [31:0] decode_pc,
     input logic pc_switch,
     input logic stall_inst,
     input logic stall_data_cache,
@@ -108,17 +109,24 @@ module main_controller(
                 write_back_ctrl <= mem_ctrl.write_back;
             end
 
-            if(!cache_stall & !FU_stall & !flush) begin
-                flush_reg <= flush_next;
-                pc_next_reg <= pc_next;
-            end else begin
+            // if(!FU_stall & !cache_stall & !flush) begin
+            //     flush_reg <= flush_next;
+            //     pc_next_reg <= pc_next;
+            // end else begin
+            //     flush_reg <= LOW;
+            // end
+
+            if(flush) begin
                 flush_reg <= LOW;
+            end else if (flush_next & !flush_reg & !FU_stall & !cache_stall) begin
+                flush_reg <= HIGH;
+                pc_next_reg <= pc_next;
             end
         end //registers automatically retain value, no need to specify
     end
 
     always_comb begin
-        flush_next = pc_switch ^ decode_ctrl.predicted_jump;
+        flush_next = pc_switch ^ decode_ctrl.predicted_jump | (pc_switch & (decode_pc != pc_next));
         flush = (start_done) ? flush_reg : HIGH;
         pc_corrected = pc_next_reg;
 

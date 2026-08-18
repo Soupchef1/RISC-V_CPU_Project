@@ -235,6 +235,7 @@ module CPU_top(
         .func3(func3),
         .func7(func7),
         .predicted_jump_fetch(IF_predicted_jump),
+        .decode_pc(ID_PC),
         .pc_switch(pc_switch),
         .stall_inst(ins_cache_stall),
         .stall_data_cache(data_cache_stall),

@@ -67,7 +67,7 @@ module EX_top (
     assign rs2_data_o = rs2_ALU;
     assign rd_out = rd_int;
     assign PC_D = pc_int;
-    assign memory_addr = {6'b0, rs1_ALU[25:0] + imm_int[25:0]};
+    assign memory_addr = rs1_ALU + imm_int;
 
     //pipeline based signals
     always_ff @(posedge clk, negedge nrst) begin
