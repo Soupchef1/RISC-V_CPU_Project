@@ -10,10 +10,11 @@ This project began as a foundational implementation of the base RISC-V RV32I ins
 * **UART Program Bootloading:** Enables dynamic execution by allowing compiled C/Assembly binaries to be loaded directly into memory via serial connection, bypassing the need to re-synthesize the bitstream.
 * **HDMI Video Output:** Drives a 720p 60Hz video stream.
 
-**CPU Core
+CPU Core
 <img width="1942" height="890" alt="image" src="https://github.com/user-attachments/assets/ca9a510a-7e92-4d1f-a6cc-be1f6593b166" />
 
-**Full Design
+Full Design
+<img width="1492" height="707" alt="image" src="https://github.com/user-attachments/assets/417dae99-aad1-4162-b3e5-e96104ea08c1" />
 
 
 ---
