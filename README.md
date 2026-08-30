@@ -25,6 +25,9 @@ Full Design <br>
 * **RTL Language:** SystemVerilog
 * **Key Peripheral:** DDR3 memory, UART serial, HDMI.
 
+## Performance Metrics
+* **Clock Speed:** 90MHz
+
 ## Verification
 Directed Testbenching across major modules to ensure functionality.
 UVM verification enviroment to be created in future.
