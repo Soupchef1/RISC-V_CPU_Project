@@ -11,6 +11,8 @@ Future development will include addition of M and F extensions, keyboard IO.
 * **UART Program Bootloading:** Enables dynamic execution by allowing compiled C/Assembly binaries to be loaded directly into memory via serial connection, bypassing the need to re-synthesize the bitstream.
 * **HDMI Video Output:** Drives a 720p 60Hz video stream.
 
+* Caching: Each cache is 32KB direct mapped, 512 lines with each line containing 64 bytes of data (16 words).
+
 CPU Core
 <img width="1942" height="890" alt="image" src="https://github.com/user-attachments/assets/ca9a510a-7e92-4d1f-a6cc-be1f6593b166" />
 
