@@ -15,7 +15,7 @@ CPU Core
 <img width="1942" height="890" alt="image" src="https://github.com/user-attachments/assets/ca9a510a-7e92-4d1f-a6cc-be1f6593b166" />
 
 Full Design
-<img width="1017" height="472" alt="image" src="https://github.com/user-attachments/assets/8bac0efc-38dd-4a12-a9bc-31a80fb21f34" />
+<img width="1017" height="300" width="650" alt="image" src="https://github.com/user-attachments/assets/8bac0efc-38dd-4a12-a9bc-31a80fb21f34" />
 
 
 ---
