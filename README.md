@@ -2,7 +2,7 @@
 
 ## Introduction
 This project began as a foundational implementation of the base RISC-V RV32I instruction set architecture. Once the core 5 stage pipeline and intruction execution developement was complete, the focus shifted heavily toward optimization. To make the CPU functional software program bootloading and video output features where added. The CPU can execute any C program that can be compiled into RV32I assembly using the RISC-V gnu toolchain.
-Future development will include addition of M and F extensions, keyboard IO.
+Future development will include addition of M and F extensions and keyboard IO.
 
 ## Key Features
 * **Independent 5-Stage Pipelining:** Features Hazard detection and data forwarding. 
