@@ -32,6 +32,8 @@ UVM verification enviroment to be created in future.
 ### Prerequisites
 * AMD Vivado (for synthesis and bitstream generation)
 * RISC-V GNU Compiler Toolchain (for compiling C/Assembly into bare-metal binaries)
+* for windows: https://github.com/xpack-dev-tools/riscv-none-elf-gcc-xpack/releases
+
 
 ### Running a Program
 1. Generate the bitstream and program the Arty S7-25 board via Vivado.
