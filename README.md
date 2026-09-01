@@ -42,16 +42,18 @@ UVM verification enviroment to be created in future.
 
 
 ### Running a Program
-1. Generate the bitstream and program the Arty S7-25 board via Vivado.
-2. Connect the HDMI output to a standard 720p 60Hz capable monitor.
-3. Connect the board via micro-USB to your host machine.
+1. Connect Arty s7-25 FPGA to your local machine over a data-capable micro-USB cable.
+2. Generate the bitstream and program the Arty S7-25 board via Vivado.
+3. Connect the HDMI output to a standard 720p 60Hz capable monitor.
 4. Run the Makefile command to create the binary program file.
 
-`cd software  
-make all`
+```
+cd software
+make all
+```
 
-6. Open the bootload.py program in the software folder. Modify port and bin_file_path in the script.
-7. Run the bootloader, then press button 0 to start the program.
+5. Open the bootload.py program in the software folder. Modify port and bin_file_path in the script.
+6. Run the bootloader, then press button 0 to start the program.
 
 `make bootload`
 
