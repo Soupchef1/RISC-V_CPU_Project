@@ -6,7 +6,7 @@ OBJDUMP = $(RV32)objdump
 AS = $(RV32)as
 
 OBJS = crt0.o main.o syscalls.o
-EXEC = circle
+EXEC = main
 
 ARCH_FLAGS = -march=rv32i -mabi=ilp32
 CFLAGS = $(ARCH_FLAGS) -O2 -g -Wall -Wextra -ffreestanding -nostdlib -mstrict-align -I.
