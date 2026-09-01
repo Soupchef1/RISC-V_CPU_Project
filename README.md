@@ -55,6 +55,8 @@ make all
 5. Open the bootload.py program in the software folder. Modify port and bin_file_path in the script.
 6. Run the bootloader, then press button 0 to start the program.
 
-`make bootload`
+```
+make bootload
+```
 
 Notes: This project can be implemented on any FPGA that has OSERDES serializers and the same or more logic resources than the Spartan 7 FPGA, but minor changes have to be made for compatibility.
