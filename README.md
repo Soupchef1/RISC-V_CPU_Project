@@ -47,7 +47,7 @@ UVM verification enviroment to be created in future.
 3. Connect the board via micro-USB to your host machine.
 4. Run the Makefile command to create the binary program file.
 
-`cd software
+`cd software  
 make all`
 
 6. Open the bootload.py program in the software folder. Modify port and bin_file_path in the script.
